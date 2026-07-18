@@ -1,0 +1,20 @@
+---
+description: Use BuildTrace for meaningful project memory, context restore, evidence-backed backfill, corrections, and outcome review.
+alwaysApply: true
+---
+
+# BuildTrace
+
+Before meaningful work, read `docs/buildtrace/BUILDTRACE.md` project purpose, the latest 3–5 records, relevant records, and due `结果状态: 待观察` records.
+
+After meaningful features, fixes, UX/content changes, growth/data work, architecture, releases, Agent workflow changes, or important decisions, update `docs/buildtrace/BUILDTRACE.md` following `docs/buildtrace/SKILL.md`.
+
+Rules:
+
+- `BUILDTRACE.md` is the only source of truth.
+- Every factual record needs `依据`.
+- Preserve user wording in `沟通原文`; keep Agent interpretation in `需求总结`.
+- Do not invent inaccessible conversations, motives, dates, screenshots, commits, deploys, or results.
+- Do not create or update `nodes.json` or browser state as project memory.
+- The Viewer is read-only. Corrections happen through the Agent.
+- Do not interrupt active work with a long form. Draft at the end and ask only for high-value corrections.
