@@ -1,6 +1,6 @@
 {
   "name": "buildtrace",
-  "version": "1.15.0-alpha.1",
+  "version": "1.17.0-alpha.1",
   "description": "Markdown-first project causal memory for humans and AI agents",
   "type": "module",
   "private": true,

@@ -3,4 +3,4 @@ description: Keep BuildTrace project memory current after meaningful work and be
 alwaysApply: true
 ---
 
-Read `docs/buildtrace/SKILL.md` and treat `docs/buildtrace/BUILDTRACE.md` as the only project-memory source. Restore relevant context before meaningful work. Record meaningful completed work with evidence afterward. Keep original user wording separate from the Agent summary. Never create `nodes.json` or browser-owned project memory.
+Read `docs/buildtrace/SKILL.md` and treat `docs/buildtrace/BUILDTRACE.md` as the only project-memory source. Do not wait for fixed commands: infer intent, concerns, tradeoffs, evidence, and outcomes from the user's ordinary natural language. Restore relevant context before meaningful work. Record meaningful completed work with evidence in the same turn. Ask only when missing information would change the factual judgment. Keep original user wording separate from the Agent summary. Never create `nodes.json` or browser-owned project memory.

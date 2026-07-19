@@ -1,0 +1,4 @@
+interface:
+  display_name: "BuildTrace"
+  short_description: "Automatically maintain evidence-backed project memory"
+  default_prompt: "Use $buildtrace to infer intent and evidence from ordinary conversation, restore relevant context, and record meaningful completed work automatically."

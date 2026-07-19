@@ -5,7 +5,8 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/pages.yml"
-      - "docs/**"
+      - "bin/buildtrace.mjs"
+      - "docs/buildtrace/**"
   workflow_dispatch:
 
 permissions:
@@ -30,10 +31,13 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
+      - name: Generate redacted public snapshot
+        run: node bin/buildtrace.mjs publish --profile public --target . --output _site
+
       - name: Upload static site
         uses: actions/upload-pages-artifact@v4
         with:
-          path: ./docs
+          path: ./_site
 
       - name: Deploy
         id: deployment

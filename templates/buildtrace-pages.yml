@@ -1,0 +1,44 @@
+name: Deploy BuildTrace Viewer
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/buildtrace-pages.yml"
+      - "bin/buildtrace.mjs"
+      - "docs/buildtrace/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: buildtrace-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Generate redacted public snapshot
+        run: node bin/buildtrace.mjs publish --profile public --target . --output _site
+
+      - name: Upload BuildTrace site
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ./_site
+
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
