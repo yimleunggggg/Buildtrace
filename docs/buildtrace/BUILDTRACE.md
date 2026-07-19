@@ -56,7 +56,7 @@ AI 做项目的问题。代码跑起来越来越容易，但人的判断、当�
 来源可信度: confirmed
 来源覆盖: current-turn, feishu-export, codex-task-api, local-rollout-audit, git, project-files, automated-tests, browser-verification
 关联任务: codex-thread/019f74f2-c1a0-7462-a15f-508cb80c124b
-依据: 用户本轮完整原话；飞书草稿导出；BuildTrace 与 Yakushima 两个项目主源；Yakushima 恢复审计与 Codex 任务读取；跨项目 playbook 产物；390px 与桌面真实浏览器验收；最终自动测试与 Git 推送待本轮完成后补记
+依据: 用户本轮完整原话；飞书草稿导出；BuildTrace 与 Yakushima 两个项目主源；Yakushima 恢复审计与 Codex 任务读取；跨项目 playbook 产物；390px 与桌面真实浏览器验收；28 项自动测试；双项目 doctor 与公开脱敏检查；BuildTrace commit `d778132`、Yakushima commit `023a51e` 及各自远端发布分支
 场景: ops-release
 可见范围: private
 结果状态: 待观察
@@ -93,9 +93,9 @@ Agent 计划:
 - [E1 <- P1 | completed] 通过飞书 CLI 导出并完整阅读用户草稿；确认 BuildTrace 主仓有 1 个尚未推送的 Pages 提交和整轮 v1.17 改造，Yakushima 有 35 条旧记录但模板停在 v1.15 前后且根目录没有 `AGENTS.md`。
 - [E2 <- P2 | completed] README 改为从 Offtrack、Yakushima Bus、Packlog 和数据复盘困境进入；新增第一人称中文对外文章、面向非开发用户的使用手册与英文 README；安装、更新、恢复、分享、隐私和不可恢复边界分别说明。
 - [E3 <- P3 | completed] BuildTrace 自身主源保留 16 条真实产品记录并新增本发布记录；私密本地看板真实显示人的初心、项目资料、16 条既有记录、复盘轨和 3 条有证据原则，当前发布记录写入后总数为 17。
-- [E4 <- P4 | completed] Yakushima 安全同步 v1.17，补齐根目录 `AGENTS.md`；恢复审计匹配 21 份 Codex rollout、168 条用户原话、1 个 compact 窗口、3 条多 Agent 派生边与 138 个 Git 提交；新增 2026-07-18 真实 UX 修复和当前同步记录，并将 Bing 动作升级为观察契约，总数从 35 条变为 37 条。
+- [E4 <- P4 | completed] Yakushima 安全同步 v1.17，补齐根目录 `AGENTS.md`；恢复审计在 148 份日志中匹配 21 份 rollout 来源，覆盖 18 个唯一任务、168 条去重用户原话、1 个 compact 窗口、3 条多 Agent 派生边与 138 个 Git 提交；新增 2026-07-18 真实 UX 修复和当前同步记录，并将 Bing 动作升级为观察契约，总数从 35 条变为 37 条。
 - [E5 <- P5 | completed] 浏览器分别打开两个独立本地地址：BuildTrace 显示自身记录，Yakushima 显示 37 条项目记录与 GitHub、Production、OPS、SEO、GA4、Bing、项目档案等入口；两边均可切换项目脉络 / 复盘轨 / 决策手册。390px 下 `scrollWidth === innerWidth`；Yakushima 显示人写的「日本徒步时候找不到路」初心、Bing 两阶段观察与重复原则。
-- [E6 <- P6 | pending] 等待最终测试、脱敏产物检查、Git 提交与推送后补记。
+- [E6 <- P6 | completed] 28 项自动测试全部通过；两个项目 doctor 分别确认 17 / 37 条记录；公开派生均为 0 条私密记录并通过内部路径扫描；并行 Code Review 的日期兼容、错误链接、目标项目校验、场景枚举、记录来源格式和同步符号链接风险均已修复。BuildTrace 以 commit `d778132` 推送到 `agent/buildtrace-v1-17-release`，Yakushima 以 commit `023a51e` 推送到 `agent/buildtrace-v1-17-integration`。
 
 人的假设:
 - [H1] 让 BuildTrace 自己和一个已运营的真实产品同时使用同一套结构，比继续增加模板演示更容易暴露项目级激活、历史漏写、资料格式和跨项目聚合的问题。
@@ -123,7 +123,7 @@ Agent 计划:
 - 本机没有可用的官方 GitHub CLI；Git 提交与 SSH 推送不依赖它，若无法创建 PR 不影响本轮分支发布。
 
 结果:
-- 文案、两个真实项目主源、两个本地看板和跨项目手册已经形成闭环；最终测试与远端推送完成前，本记录继续标为待观察。
+- 文案、两个真实项目主源、两个本地看板、跨项目手册、自动验证和远端分支已经形成闭环；本记录继续「待观察」只因为产品假设仍需到 2026-08-19 用真实写回率与结果回看验证，不是发布未完成。
 
 ### 2026-07-19 — 建立从人的假设到后来结果的复盘与分享闭环
 
