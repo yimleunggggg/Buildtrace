@@ -20,7 +20,7 @@ BuildTrace 给用 AI 做项目的人保存一条项目脉络：当时为什么�
 
 这些话不会自然出现在 Git commit 里，遇到上下文压缩后也未必还在。可它们才说明项目为什么走到这里，也逐渐构成一个人的审美、运营逻辑和做事方式。
 
-BuildTrace 就从这个问题开始。更完整的自述见[《我为什么做 BuildTrace》](docs/INTRODUCTION.zh-CN.md)。
+BuildTrace 就从这个问题开始。更完整的自述见[《我为什么做 BuildTrace》](docs/INTRODUCTION.zh-CN.md)。如果要把整个产品一次性交给新的 Agent 或协作者，直接发送[《BuildTrace：产品与实现全景说明》](docs/PRODUCT-AND-IMPLEMENTATION.zh-CN.md)，不需要对方先阅读代码。
 
 ## 它留下什么
 
@@ -50,7 +50,7 @@ Agent 当时的理解与计划
 
 这不是一份只给演示数据用的模板。
 
-- **BuildTrace 自己**：目前有 17 条项目记录，产品为什么转向 Markdown、看板为什么重做、历史恢复与分享边界怎么决定，都由 BuildTrace 自己记录。
+- **BuildTrace 自己**：项目为什么转向 Markdown、看板为什么重做、历史恢复与分享边界怎么决定，都由 BuildTrace 自己持续记录。
 - **YakuBus / Yakushima Bus**：目前有 37 条项目记录，从官方 PDF 数据管线、公交搜索、地图与多语言，到 SEO、GA4、Bing 和后来要回看的运营动作。
 
 在本仓库运行 `npm run serve` 可以查看 BuildTrace 自身看板。另一个项目同步模板后，在它的目录运行 `node docs/buildtrace/viewer/serve.mjs`，看到的是那个项目自己的资料和记录，不会混进 BuildTrace 的内容。

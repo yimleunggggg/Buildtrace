@@ -44,11 +44,67 @@ AI 做项目的问题。代码跑起来越来越容易，但人的判断、当�
 - [docs] 项目说明: ../../README.md — 安装、同步与使用入口
 - [docs] English README: ../../README.en.md — English overview and installation
 - [docs] 对外介绍: ../INTRODUCTION.zh-CN.md — 从人的经历与复盘问题讲为什么做
+- [docs] 产品与实现全景说明: ../PRODUCT-AND-IMPLEMENTATION.zh-CN.md — 单独交给 Claude 或新协作者即可理解产品、架构、实现与边界
 - [docs] 使用手册: ../USAGE.zh-CN.md — 在真实项目中安装、恢复、记录与分享
 - [release] 版本记录: ../../CHANGELOG.md — 版本变化
 - [deploy] 部署说明: ./DEPLOY.md — 私密、本地与静态托管选项
 
 ## 项目记录
+
+### 2026-07-23 — 建立无需读代码的完整产品交接说明
+
+记录 ID: bt-20260723-standalone-product-brief
+来源可信度: confirmed
+来源覆盖: current-turn, project-files, implementation, tests
+关联任务: codex-thread/019f74f2-c1a0-7462-a15f-508cb80c124b
+依据: 用户本轮原话；README、对外介绍、使用手册、设计说明、schema v3、恢复架构、部署说明；当前 CLI、解析器、历史审计、派生脚本和 Viewer 实现；29 项自动测试
+场景: ux-content
+关键节点: 否
+可见范围: public
+结果状态: 有效
+后续回看: 无
+
+沟通原文:
+- [Q1 | user | current-turn | verbatim]
+  > 给我一个这个东西完整的介绍和实现方式之类的解释、、我需要Claude在不看项目文件和代码的情况下，马上知道这个东西是怎样的
+
+需求总结:
+- [R1 <- Q1] 提供一份内容完整、自成一体的 BuildTrace 介绍，使 Claude 不阅读仓库文件和代码也能立即理解产品。
+- [R2 <- Q1] 说明产品为什么存在、面向谁、保存什么、如何工作、底层怎样实现，以及当前已经做到哪里。
+- [R3 <- Q1] 把真实实现、Agent 配合部分、历史恢复限制和未来能力分开，避免用概念文案冒充现成功能。
+
+Agent 当时理解:
+- [U1 <- R1,R2] 单纯重写 README 不够；需要一份可以脱离仓库上下文单独发送的交接文档，同时覆盖产品叙事、数据模型、恢复、Viewer、CLI、隐私和 Claude 的操作契约。
+- [U2 <- R2,R3] “完整”不能写成夸大能力。Claude 尤其需要知道历史恢复并非读取所有平台的后台服务，外部会话需要授权接口或导出，无法访问的内容必须明确承认。
+
+Agent 计划:
+- [P1 <- R1,R2] 从项目主源、README、对外介绍、使用手册和设计说明中核对产品目的与用户场景。
+- [P2 <- R2,R3] 直接核对 CLI、解析器、历史审计、派生脚本和 Viewer，确认当前实现及技术边界。
+- [P3 <- R1,R2,R3] 写成一份独立中文说明，并用自然、具体的表达处理长文，避免产品套话和 AI 式重复。
+- [P4 <- R1,R3] 把说明接入 README 与 Viewer 项目资料，更新测试并完成项目校验。
+
+执行轨迹:
+- [E1 <- P1 | completed] 核对 BuildTrace 的第一人称起点、目标用户、因果记录模型、真实项目试跑、成熟模式借鉴和非目标。
+- [E2 <- P2 | completed] 核对 `init`、`recover`、`sync`、`doctor`、`export`、`playbook`、`publish`、`deploy-kit`、Skill 软链接、Markdown 解析校验、本机历史扫描、静态 Viewer 和脱敏派生的实际代码路径。
+- [E3 <- P3 | completed] 新增 `docs/PRODUCT-AND-IMPLEMENTATION.zh-CN.md`，从一分钟定义写到 Claude 操作契约；明确当前没有云端账户、后台数据库、自动数据连接器或跨平台全量历史读取。
+- [E4 <- P4 | completed] README 增加单文件交接入口，项目资料增加可直接打开的说明链接，CHANGELOG 与解析测试同步更新；29 项自动测试、doctor 和差异格式检查通过。
+
+为什么做:
+- 新 Agent 如果必须先翻代码、设计稿和多份文档才能理解 BuildTrace，项目记忆本身就没有完成低摩擦交接。对不写代码的用户来说，也需要一份能直接交给协作者的完整说明。
+- 现有 README、对外介绍、使用手册和架构规范各有职责，但没有一份文件同时回答产品动机、记录结构、真实实现、运行方式、隐私边界和当前缺口。
+
+做了什么:
+- 建立一份可脱离仓库代码单独阅读的中文产品与实现说明。
+- 说明按照“为什么出现—保存什么—如何记录—底层架构—历史恢复—命令—隐私—当前状态—Claude 契约”推进，既保留作者视角，也给出准确的实现细节。
+- 将这份说明加入 README 和项目资料入口，方便人或新 Agent 一次读取。
+
+技术备注:
+- 新文档：`docs/PRODUCT-AND-IMPLEMENTATION.zh-CN.md`。
+- 配套修改：`README.md`、`docs/buildtrace/BUILDTRACE.md`、`CHANGELOG.md`、`tests/parser.test.mjs`。
+- 初次测试中两项本地服务用例因沙箱禁止监听回环端口失败；在获准使用本地回环地址后重跑，29 项全部通过。解析测试由固定索引改为按资料标题查找，减少新增资料导致的脆弱位移。
+
+结果:
+- 现在可以把这一份说明直接交给 Claude 或其他协作者；对方无需先读项目代码，就能理解 BuildTrace 的产品目标、数据结构、运行流程、现有能力、限制和继续工作时应遵守的规则。
 
 ### 2026-07-23 — 以 MIT License 开放 BuildTrace 仓库
 

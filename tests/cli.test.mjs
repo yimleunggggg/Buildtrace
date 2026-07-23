@@ -31,11 +31,14 @@ test("local viewer opens project resources without exposing private working file
   const { child, url } = await startViewerServer();
   try {
     const readme = await fetch(`${url}/README.md`);
+    const productBrief = await fetch(`${url}/docs/PRODUCT-AND-IMPLEMENTATION.zh-CN.md`);
     const privateGit = await fetch(`${url}/.git/config`);
     const privateEnv = await fetch(`${url}/.env`);
 
     assert.equal(readme.status, 200);
     assert.match(await readme.text(), /BuildTrace/);
+    assert.equal(productBrief.status, 200);
+    assert.match(await productBrief.text(), /Claude 读完后应该怎样理解自己的角色/);
     assert.equal(privateGit.status, 403);
     assert.equal(privateEnv.status, 403);
   } finally {

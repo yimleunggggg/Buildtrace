@@ -12,12 +12,18 @@ test("parses project intent and records from BUILDTRACE.md", () => {
   assert.equal(trace.principles.length, 7);
   assert.equal(trace.principles[5].label, "产品方法");
   assert.equal(trace.principles[6].label, "借鉴边界");
-  assert.equal(trace.resources.length, 8);
+  assert.equal(trace.resources.length, 9);
   assert.equal(trace.resources[0].title, "Viewer");
   assert.equal(trace.resources[0].url, "./viewer/index.html");
   assert.equal(trace.resources[1].category, "agent");
-  assert.equal(trace.resources[5].title, "使用手册");
-  assert.equal(trace.resources[5].url, "../USAGE.zh-CN.md");
+  assert.equal(
+    trace.resources.find((resource) => resource.title === "产品与实现全景说明")?.url,
+    "../PRODUCT-AND-IMPLEMENTATION.zh-CN.md",
+  );
+  assert.equal(
+    trace.resources.find((resource) => resource.title === "使用手册")?.url,
+    "../USAGE.zh-CN.md",
+  );
   assert.ok(trace.entries.length >= 4);
   const workbenchEntry = trace.entries.find((entry) => entry.title === "从展示页回到项目工作台");
   const positioningEntry = trace.entries.find((entry) => entry.title === "明确 BuildTrace 的产品定位与当前缺口");
