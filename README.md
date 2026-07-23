@@ -183,3 +183,11 @@ npm run serve
 ```
 
 当前仍是 alpha：仓库 CLI 尚未发布到 npm；完整的跨工具历史读取也受各工具导出与权限范围限制。
+
+## 开源许可
+
+BuildTrace 采用 [MIT License](LICENSE) 开源。
+
+Copyright © 2026 Yim leung。
+
+该许可证只适用于 BuildTrace 仓库本身。使用 `init` 或 `sync` 将 BuildTrace 接入其他项目时，不会自动改变那些项目原有的许可证。

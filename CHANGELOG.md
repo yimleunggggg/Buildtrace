@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Add the standard MIT License for the BuildTrace repository, with copyright held by Yim leung; project initialization and synchronization do not alter downstream project licenses.
+
 ## 1.17.0-alpha.1 — 2026-07-19
 
 - 新增结构化复盘轨：人的假设、实际动作、观察计划、数据变化与后来结果判断都保留在同一项目记录中。

@@ -155,3 +155,11 @@ See [`docs/buildtrace/DEPLOY.md`](docs/buildtrace/DEPLOY.md) for hosting details
 BuildTrace borrows validated problem and interaction patterns from [Cline Memory Bank](https://cline.bot/blog/memory-bank-how-to-make-cline-an-ai-agent-that-never-forgets), [Linear Projects / Updates](https://linear.app/docs/initiative-and-project-updates), [PostHog annotations](https://posthog.com/docs/user-guides/annotations), [Apache DevLake](https://devlake.apache.org/), [ONES](https://docs.ones.com/zh-Hans/get-started/quick-start-guide-to-ones-project), [TAPD](https://www.tapd.cn/home/solution/tapdlite), and the visual restraint of [amber.ac](https://amber.ac/). It does not copy their branding, code, or assets. See the full [inspiration and attribution ledger](docs/buildtrace/references/inspiration-and-attribution.md).
 
 BuildTrace is still alpha. The CLI has not been published to npm, and cross-tool recovery remains limited by what each platform exposes or exports.
+
+## License
+
+BuildTrace is open source under the [MIT License](LICENSE).
+
+Copyright © 2026 Yim leung.
+
+This license applies to the BuildTrace repository itself. Running `init` or `sync` in another project does not change that project's existing license.

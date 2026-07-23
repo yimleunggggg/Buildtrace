@@ -4,6 +4,7 @@
   "description": "Markdown-first project causal memory for humans and AI agents",
   "type": "module",
   "private": true,
+  "license": "MIT",
   "bin": {
     "buildtrace": "./bin/buildtrace.mjs"
   },

@@ -50,6 +50,55 @@ AI 做项目的问题。代码跑起来越来越容易，但人的判断、当�
 
 ## 项目记录
 
+### 2026-07-23 — 以 MIT License 开放 BuildTrace 仓库
+
+记录 ID: bt-20260723-mit-license
+来源可信度: confirmed
+来源覆盖: current-turn, git, project-files, external-platform
+关联任务: codex-thread/019f74f2-c1a0-7462-a15f-508cb80c124b
+依据: 用户本轮原话；Git 历史中的作者姓名；Open Source Initiative 的 MIT 标准文本；仓库根目录 LICENSE、package.json、中英文 README 与 CHANGELOG；自动测试和 GitHub 推送结果
+场景: ops-release
+关键节点: 否
+可见范围: public
+结果状态: 有效
+后续回看: 无
+
+沟通原文:
+- [Q1 | user | current-turn | verbatim]
+  > 给我的github加个mit版权吧
+
+需求总结:
+- [R1 <- Q1] 为 BuildTrace GitHub 仓库增加标准 MIT 开源许可证和版权声明。
+
+Agent 当时理解:
+- [U1 <- R1] GitHub 需要通过仓库根目录的标准 `LICENSE` 识别许可证；版权人应使用仓库现有、可核对的作者姓名，不能自行猜测其他名称。
+- [U2 <- R1] BuildTrace 的 MIT 授权不应由安装或同步流程扩散成用户其他项目的默认许可证。
+
+Agent 计划:
+- [P1 <- R1] 核对仓库是否已有许可证、作者姓名和现有开源声明。
+- [P2 <- R1] 对照 Open Source Initiative 的标准 MIT 文本新增根目录许可证，并同步 package metadata、中英文 README 和 CHANGELOG。
+- [P3 <- R1] 运行项目测试与许可证检查，提交并推送当前 GitHub 分支。
+
+执行轨迹:
+- [E1 <- P1 | completed] 确认仓库此前没有 `LICENSE` 或 `COPYING`；Git 历史中的唯一作者姓名为 `Yim leung`。
+- [E2 <- P2 | completed] 新增根目录 `LICENSE`，写入 `Copyright (c) 2026 Yim leung` 和未经额外限制修改的标准 MIT 条款；`package.json` 增加 `license: MIT`，中英文 README 增加许可证入口和下游项目边界，CHANGELOG 增加未发布变更。
+- [E3 <- P3 | completed] 确认许可证不会进入 BuildTrace 的 managed / required 文件清单，因此 `init` 与 `sync` 不会改写目标项目许可证；完成自动测试、提交、推送与 GitHub 识别检查。
+
+为什么做:
+- 让使用者在 GitHub 上清楚知道 BuildTrace 可以怎样使用、修改、分发和再授权，同时保留标准的版权与免责声明。
+- 明确“BuildTrace 自己采用 MIT”不等于“安装 BuildTrace 的所有项目都采用 MIT”。
+
+做了什么:
+- 为 BuildTrace 仓库加入标准 MIT License、版权声明和中英文说明。
+- 保留项目级许可证自主性，不把根目录 LICENSE 加入跨项目同步模板。
+
+技术备注:
+- 标准文本来源：Open Source Initiative `https://opensource.org/license/mit`，SPDX 标识 `MIT`。
+- 涉及文件：`LICENSE`、`package.json`、`README.md`、`README.en.md`、`CHANGELOG.md`、`docs/buildtrace/BUILDTRACE.md`。
+
+结果:
+- BuildTrace 已在仓库、包元数据和中英文说明中明确采用 MIT License；GitHub 远端识别结果见本次推送验证。
+
 ### 2026-07-19 — 降低看板阅读负担并收紧关键节点
 
 记录 ID: bt-20260719-readability-and-key-moments
