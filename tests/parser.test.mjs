@@ -78,7 +78,7 @@ test("parses explicit project resource categories and notes", () => {
 });
 
 test("preserves the human-written project purpose separately from agent summaries", () => {
-  const trace = parseBuildtrace(`# Human purpose\n\n## 为什么做（人写的）\n\n我就是我的产品的用户。\n\n人的好奇、判断和审美不应该消失在上下文压缩里。\n\n## 项目初心\n\n- 为什么做这个项目: keep context\n\n## 项目记录\n`);
+  const trace = parseBuildtrace(`# Human purpose\n\n## 作者的话（可选）\n\n我就是我的产品的用户。\n\n人的好奇、判断和审美不应该消失在上下文压缩里。\n\n## 项目初心\n\n- 为什么做这个项目: keep context\n\n## 项目记录\n`);
 
   assert.equal(trace.humanPurpose, "我就是我的产品的用户。\n人的好奇、判断和审美不应该消失在上下文压缩里。");
   assert.equal(trace.principles[0].value, "keep context");
@@ -175,6 +175,7 @@ test("parses v3 review tracks, visibility, publication metadata, and stable deci
 关联任务: 未记录
 依据: product analytics
 场景: analytics-data
+关键节点: 是
 可见范围: public
 结果状态: 有效
 后续回看: 无
@@ -198,6 +199,7 @@ test("parses v3 review tracks, visibility, publication metadata, and stable deci
   const [entry] = trace.entries;
   assert.equal(trace.publication.profile, "team");
   assert.equal(entry.visibility, "public");
+  assert.equal(entry.milestone, true);
   assert.deepEqual(entry.hypotheses[0], { id: "H1", tag: "", text: "更完整的复盘轨会减少归因缺口。" });
   assert.equal(entry.watchPlans[0].metric, "归因完成率");
   assert.equal(entry.watchPlans[0].rule, "三次都能完成归因");
@@ -210,5 +212,6 @@ test("parses v3 review tracks, visibility, publication metadata, and stable deci
 test("treats legacy records as private", () => {
   const trace = parseBuildtrace(`# Legacy privacy\n\n## 项目记录\n\n### 2026-07-19 — Old record\n\n依据: notes\n`);
   assert.equal(trace.entries[0].visibility, "private");
+  assert.equal(trace.entries[0].milestone, false);
   assert.equal(trace.publication.profile, "private");
 });

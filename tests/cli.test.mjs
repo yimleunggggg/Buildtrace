@@ -9,12 +9,39 @@ import { fileURLToPath } from "node:url";
 const cli = fileURLToPath(new URL("../bin/buildtrace.mjs", import.meta.url));
 const repoRoot = fileURLToPath(new URL("..", import.meta.url));
 
+async function startViewerServer() {
+  const child = spawn(process.execPath, [cli, "serve", "--port", "0"], {
+    cwd: repoRoot,
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  const output = await waitForOutput(child, /BuildTrace Viewer: (http:\/\/localhost:\d+)/);
+  const url = output.match(/BuildTrace Viewer: (http:\/\/localhost:\d+)/)[1];
+  return { child, url };
+}
+
 test("doctor validates the repository", () => {
   const result = spawnSync(process.execPath, [cli, "doctor"], { encoding: "utf8" });
 
   assert.equal(result.status, 0, result.stderr);
   assert.match(result.stdout, /BuildTrace doctor passed/);
   assert.match(result.stdout, /\d+ project records/);
+});
+
+test("local viewer opens project resources without exposing private working files", async () => {
+  const { child, url } = await startViewerServer();
+  try {
+    const readme = await fetch(`${url}/README.md`);
+    const privateGit = await fetch(`${url}/.git/config`);
+    const privateEnv = await fetch(`${url}/.env`);
+
+    assert.equal(readme.status, 200);
+    assert.match(await readme.text(), /BuildTrace/);
+    assert.equal(privateGit.status, 403);
+    assert.equal(privateEnv.status, 403);
+  } finally {
+    child.kill("SIGTERM");
+    await new Promise((resolveExit) => child.once("exit", resolveExit));
+  }
 });
 
 test("init creates the portable package without overwriting existing files", async () => {

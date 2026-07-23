@@ -6,7 +6,7 @@ const translations = {
     primaryNavigation: "主要导航",
     mobileNavigation: "移动端导航",
     switchLanguage: "切换语言",
-    projectSignals: "项目状态概览",
+    projectSignals: "项目概览",
     recordIndex: "项目记录索引",
     statusFilter: "结果状态筛选",
     selectedRecordDetail: "所选记录详情",
@@ -17,7 +17,7 @@ const translations = {
     traceLens: "项目脉络",
     reviewLens: "复盘轨",
     playbookLens: "决策手册",
-    traceLensNote: "按时间查看完整项目记录",
+    traceLensNote: "按时间查看关键版本与功能",
     reviewLensNote: "假设 → 动作 → 数据 → 判断",
     playbookLensNote: "沉淀可跨项目复用的判断",
     reviewTrackTitle: "动作后来有没有效果",
@@ -26,6 +26,7 @@ const translations = {
     reviewAction: "做了什么",
     reviewEvidence: "数据变化 / 观察",
     reviewJudgment: "后来是否成立",
+    reviewOpen: "查看完整复盘",
     noStructuredValue: "这一步尚未记录",
     reviewTrackEmpty: "还没有结构化复盘轨",
     reviewTrackEmptyNote: "下次记录一个需要验证的判断，并写清观察指标、数据源和时间窗口。",
@@ -56,16 +57,19 @@ const translations = {
     boardNote: "每条记录都把动机、行动、证据和结果放在一起。看板只读展示 Markdown 主源，不制造第二份事实。",
     openSource: "查看 BUILDTRACE.md",
     totalRecords: "全部记录",
-    pendingReview: "待回看",
-    effective: "已验证有效",
-    nextReview: "下次回看",
+    pendingReview: "等待结果",
+    effective: "后来成立",
+    nextReview: "下次补结果",
+    milestones: "关键节点",
+    dueOutcomes: "需要补结果",
+    latestRecord: "最近记录",
     noReview: "暂无",
     search: "搜索标题、动机或证据",
     all: "全部",
-    pending: "待观察",
-    valid: "有效",
-    uncertain: "不确定",
-    ineffective: "无效",
+    pending: "等待结果",
+    valid: "后来成立",
+    uncertain: "暂无结论",
+    ineffective: "后来未成立",
     noResults: "没有匹配记录",
     noResultsHint: "换一个关键词，或清除当前筛选。",
     noPublishedRecords: "当前没有可在此范围展示的记录",
@@ -74,7 +78,7 @@ const translations = {
     sourceTrust: "来源可信度",
     evidence: "依据",
     scene: "场景",
-    resultStatus: "结果状态",
+    resultStatus: "后来结果",
     reviewDate: "后续回看",
     quote: "沟通原文",
     summary: "需求总结",
@@ -82,8 +86,9 @@ const translations = {
     changes: "做了什么",
     technical: "技术备注",
     result: "结果",
-    copyCorrection: "复制修正指令",
-    copyReview: "复制回看指令",
+    copyCorrection: "纠正这条记录",
+    copyReview: "补记后来结果",
+    actionHelp: "会复制一句明确的话给 Agent，不会直接改动看板。",
     copied: "指令已复制，可以粘贴给 Agent。",
     tutorialEyebrow: "5 MINUTE WORKFLOW",
     tutorialTitle: "四步留下\n可信的项目脉络。",
@@ -112,7 +117,9 @@ const translations = {
     readonlyReminder: "不会写入浏览器缓存，也不会从网页修改项目事实。",
     workflows: "自动记录链路",
     sourceCoverage: "依据覆盖",
-    timelineOverview: "项目脉络",
+    timelineOverview: "关键节点",
+    timelineNote: "只展示重要版本、功能、架构变化与项目里程碑",
+    noMilestones: "还没有标记关键节点。普通改动仍可在下方项目记录中找到。",
     records: "项目记录",
     allScenes: "全部场景",
     restoreContext: "自动恢复上下文",
@@ -143,9 +150,9 @@ const translations = {
     relatedRecordsNote: "与当前节点属于同一事项类型",
     automationDetails: "自动记录如何工作",
     heroTitle: "别让你的思考埋在 AI 对话里",
-    heroNote: "把每次为什么做、怎么判断、改了什么、结果怎样，按时间整理成可回看的项目脉络。让人的想法、取舍和行动因果，不会随着上下文压缩一起丢掉。",
-    humanPurpose: "为什么做（人写的）",
-    humanPurposeExpand: "展开完整原话",
+    heroNote: "人的判断、取舍和行动会散落在对话里。BuildTrace 把它们连同后来结果，留成一条可以追溯的项目脉络。",
+    humanPurpose: "作者的话",
+    humanPurposeExpand: "继续读",
     sourceMode: "Markdown 唯一主源 · Viewer 只读",
     downloadSource: "下载 Markdown",
     newRecordDraft: "新节点草稿",
@@ -153,6 +160,9 @@ const translations = {
     deploymentNote: "BuildTrace 是静态只读看板。可以随项目部署到 Vercel、Cloudflare Pages、GitHub Pages 或国内静态托管；线上仍只读取项目里的 BUILDTRACE.md。",
     deploymentStatus: "静态站优先",
     deploymentGuide: "查看部署步骤",
+    projectTools: "项目工具",
+    openResources: "项目资料",
+    shareDeploy: "分享 / 部署",
     deploymentDrawerTitle: "部署自己的只读看板",
     deploymentDrawerNote: "默认先在本地使用；需要共享时，再选择带访问控制或公开托管。",
     privacyFirst: "公开前先检查隐私",
@@ -177,7 +187,7 @@ const translations = {
     primaryNavigation: "Primary navigation",
     mobileNavigation: "Mobile navigation",
     switchLanguage: "Switch language",
-    projectSignals: "Project signals",
+    projectSignals: "Project overview",
     recordIndex: "Project record index",
     statusFilter: "Outcome status filter",
     selectedRecordDetail: "Selected record detail",
@@ -188,7 +198,7 @@ const translations = {
     traceLens: "Project trail",
     reviewLens: "Review track",
     playbookLens: "Decision playbook",
-    traceLensNote: "Browse the full project history over time",
+    traceLensNote: "Browse major versions and features over time",
     reviewLensNote: "Hypothesis → action → data → judgment",
     playbookLensNote: "Keep decisions that transfer across projects",
     reviewTrackTitle: "Did the action work later?",
@@ -197,6 +207,7 @@ const translations = {
     reviewAction: "What changed",
     reviewEvidence: "Data change / observation",
     reviewJudgment: "Did it hold?",
+    reviewOpen: "Open full review",
     noStructuredValue: "Not recorded yet",
     reviewTrackEmpty: "No structured review tracks yet",
     reviewTrackEmptyNote: "Next time, record a testable judgment with its metric, source, and observation window.",
@@ -227,16 +238,19 @@ const translations = {
     boardNote: "Each record keeps intent, action, evidence, and outcome together. The board reads the Markdown source without creating a second version of truth.",
     openSource: "Open BUILDTRACE.md",
     totalRecords: "All records",
-    pendingReview: "Pending review",
-    effective: "Validated",
-    nextReview: "Next review",
+    pendingReview: "Waiting for outcome",
+    effective: "Held up later",
+    nextReview: "Next outcome check",
+    milestones: "Key moments",
+    dueOutcomes: "Outcome due",
+    latestRecord: "Latest record",
     noReview: "None",
     search: "Search title, intent, or evidence",
     all: "All",
-    pending: "Pending",
-    valid: "Effective",
-    uncertain: "Uncertain",
-    ineffective: "Ineffective",
+    pending: "Waiting for outcome",
+    valid: "Held up later",
+    uncertain: "No conclusion",
+    ineffective: "Did not hold",
     noResults: "No matching records",
     noResultsHint: "Try another phrase or clear the current filter.",
     noPublishedRecords: "No records are available in this sharing scope",
@@ -245,7 +259,7 @@ const translations = {
     sourceTrust: "Source trust",
     evidence: "Evidence",
     scene: "Scene",
-    resultStatus: "Outcome",
+    resultStatus: "Later outcome",
     reviewDate: "Review date",
     quote: "Original words",
     summary: "Need",
@@ -253,8 +267,9 @@ const translations = {
     changes: "What changed",
     technical: "Technical notes",
     result: "Result",
-    copyCorrection: "Copy correction command",
-    copyReview: "Copy review command",
+    copyCorrection: "Correct this record",
+    copyReview: "Add the later outcome",
+    actionHelp: "Copies one clear message for your Agent. It never edits the board directly.",
     copied: "Command copied. Paste it to your Agent.",
     tutorialEyebrow: "5 MINUTE WORKFLOW",
     tutorialTitle: "Leave a trustworthy\nproject trail in four steps.",
@@ -283,7 +298,9 @@ const translations = {
     readonlyReminder: "Nothing is written to browser storage or back into project facts from this page.",
     workflows: "Automatic capture",
     sourceCoverage: "Evidence coverage",
-    timelineOverview: "Project trail",
+    timelineOverview: "Key moments",
+    timelineNote: "Major releases, features, architecture changes, and confirmed milestones only",
+    noMilestones: "No key moments are marked yet. Regular changes remain available in the full record list.",
     records: "Project records",
     allScenes: "All scenes",
     restoreContext: "Restore automatically",
@@ -314,9 +331,9 @@ const translations = {
     relatedRecordsNote: "Records with the same work type",
     automationDetails: "How automatic capture works",
     heroTitle: "Don't let your thinking get buried in AI chats",
-    heroNote: "Turn why you acted, how you judged, what changed, and what happened into a project trail you can revisit. Keep human ideas, tradeoffs, and cause-and-effect from disappearing when context gets compressed.",
-    humanPurpose: "Why this exists — written by a human",
-    humanPurposeExpand: "Read the full original",
+    heroNote: "Judgment, tradeoffs, and action get scattered across chats. BuildTrace keeps them with later outcomes in a project trail you can trace.",
+    humanPurpose: "A note from the maker",
+    humanPurposeExpand: "Keep reading",
     sourceMode: "Markdown source of truth · Read-only Viewer",
     downloadSource: "Download Markdown",
     newRecordDraft: "New record draft",
@@ -324,6 +341,9 @@ const translations = {
     deploymentNote: "BuildTrace is a static, read-only board. Deploy it with the project to Vercel, Cloudflare Pages, GitHub Pages, or a regional static host; the online board still reads only the project's BUILDTRACE.md.",
     deploymentStatus: "Static-first",
     deploymentGuide: "View deployment steps",
+    projectTools: "Project tools",
+    openResources: "Project resources",
+    shareDeploy: "Share / deploy",
     deploymentDrawerTitle: "Deploy your own read-only board",
     deploymentDrawerNote: "Use it locally by default. Choose access-controlled or public hosting only when you need to share it.",
     privacyFirst: "Check privacy before publishing",
@@ -556,6 +576,14 @@ function formatSignalDate(value) {
   );
 }
 
+function isDueEntry(entry, now = new Date()) {
+  if (entry.status !== "待观察" || !/^\d{4}-\d{2}-\d{2}$/.test(entry.reviewDate)) return false;
+  const due = new Date(`${entry.reviewDate}T00:00:00`);
+  const today = new Date(now);
+  today.setHours(0, 0, 0, 0);
+  return due <= today;
+}
+
 function statusLabel(status) {
   const map = {
     待观察: t("pending"),
@@ -644,11 +672,14 @@ function applyDetailIsolation() {
 
 function renderBoard() {
   const stats = getBuildtraceStats(state.trace.entries);
+  const timelineEntries = state.trace.entries.filter((entry) => entry.milestone);
   const scenes = [...new Set(state.trace.entries.map((entry) => entry.scene).filter(Boolean))];
   const query = state.query.trim().toLowerCase();
   const visibleEntries = state.trace.entries.filter((entry) => {
     const matchesStatus =
       state.status === "all" ||
+      (state.status === "milestone" && entry.milestone) ||
+      (state.status === "due" && isDueEntry(entry)) ||
       (state.status === "pending" && entry.status === "待观察") ||
       (state.status === "effective" && entry.status === "有效") ||
       (state.status === "uncertain" && entry.status === "不确定") ||
@@ -672,8 +703,6 @@ function renderBoard() {
     state.selectedEntryId = visibleEntries[0]?.id ?? null;
   }
   const selected = state.trace.entries.find((entry) => entry.id === state.selectedEntryId);
-  const uncertainCount = state.trace.entries.filter((entry) => entry.status === "不确定").length;
-  const ineffectiveCount = state.trace.entries.filter((entry) => entry.status === "无效").length;
   const evidenceTokens = getEvidenceTokens(state.trace.entries);
   const isPrivateSource = (state.trace.publication?.profile || "private") === "private";
 
@@ -692,17 +721,11 @@ function renderBoard() {
           <p class="side-heading">${t("records")}</p>
           <div class="side-nav">
             ${renderSideFilter("all", t("totalRecords"), stats.total)}
-            ${renderSideFilter("pending", t("pendingReview"), stats.pending)}
-            ${renderSideFilter("effective", t("effective"), stats.effective)}
-            ${renderSideFilter("uncertain", t("uncertain"), uncertainCount)}
-            ${renderSideFilter("ineffective", t("ineffective"), ineffectiveCount)}
+            ${renderSideFilter("milestone", t("milestones"), timelineEntries.length)}
+            ${renderSideFilter("due", t("dueOutcomes"), stats.due)}
           </div>
         </section>
-        ${isPrivateSource ? `<section class="side-section resource-section">
-          <p class="side-heading">${t("projectResources")}</p>
-          ${renderResources(state.trace.resources)}
-        </section>
-        <section class="side-section side-automation">
+        ${isPrivateSource ? `<section class="side-section side-automation">
           <details>
             <summary><span>${t("automationDetails")}</span><b aria-hidden="true">+</b></summary>
             <div class="workflow-list">
@@ -730,44 +753,25 @@ function renderBoard() {
             <div>
               <a class="source-link" href="../BUILDTRACE.md" target="_blank" rel="noreferrer">${t("openSource")}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" /></svg></a>
               <a class="hero-action" href="../BUILDTRACE.md" download="BUILDTRACE.md">${t("downloadSource")}</a>
-              ${isPrivateSource ? `<button class="hero-action is-primary" type="button" data-copy-command="${state.locale === "zh" ? "新节点草稿：根据本轮对话、实际文件改动和验证证据，起草一条 BuildTrace 记录；不确定的内容标记 unknown，不要编造。" : "New record draft: use this session, actual file changes, and verification evidence to draft a BuildTrace record. Mark uncertain details as unknown and do not invent facts."}">${t("newRecordDraft")}</button>` : ""}
+              ${isPrivateSource ? `<button class="hero-action is-primary" type="button" data-copy-command="${state.locale === "zh" ? "新节点草稿：先判断本轮是否达到独立记录门槛。只有未来复盘仍重要的功能、修复、设计、架构、发布、运营动作或决策才新增记录；小修边并入最近相关记录。根据本轮原话、实际文件改动和验证证据起草，不确定内容标记 unknown，不要编造。" : "New record draft: first check whether this work deserves a separate record. Create one only for a feature, fix, design change, architecture change, release, operating action, or decision that will matter in a future review; merge small follow-up polish into the nearest related record. Use original words, actual file changes, and verification evidence. Mark uncertainty as unknown and do not invent facts."}">${t("newRecordDraft")}</button>` : ""}
             </div>
           </div>
         </header>
         ${renderHumanPurpose(state.trace.humanPurpose)}
         <section class="workbench-signals" aria-label="${t("projectSignals")}">
           ${renderSignal("01", t("totalRecords"), stats.total)}
-          ${renderSignal("02", t("pendingReview"), stats.pending, stats.due > 0)}
-          ${renderSignal("03", t("effective"), stats.effective)}
-          ${renderSignal("04", t("nextReview"), stats.nextReview ? formatSignalDate(stats.nextReview) : t("noReview"))}
+          ${renderSignal("02", t("milestones"), timelineEntries.length)}
+          ${renderSignal("03", t("dueOutcomes"), stats.due, stats.due > 0)}
+          ${renderSignal("04", t("latestRecord"), state.trace.entries[0] ? formatSignalDate(state.trace.entries[0].date.slice(0, 10)) : t("noReview"))}
         </section>
         ${renderLensNavigation()}
         ${renderReviewTracks(state.trace.entries, state.lens !== "review")}
         ${renderDecisionPlaybook(state.trace.decisionPrinciples, state.lens !== "playbook")}
-        ${renderResourceVault(state.trace.resources, state.lens !== "trace" || !isPrivateSource)}
-        <section class="deployment-panel" aria-labelledby="deployment-title" ${state.lens !== "trace" || !isPrivateSource ? "hidden" : ""}>
-          <div class="deployment-head">
-            <div>
-              <h2 id="deployment-title">${t("deploymentTitle")}</h2>
-              <p>${t("deploymentNote")}</p>
-            </div>
-            <div class="deployment-head-actions">
-              <span class="deployment-status">${t("deploymentStatus")}</span>
-              <button class="panel-action" type="button" data-action="open-deploy-guide">${t("deploymentGuide")}</button>
-            </div>
-          </div>
-          <div class="deployment-grid">
-            <button class="deployment-card" type="button" data-action="open-deploy-guide"><strong>Vercel</strong><span>${t("deploymentVercelNote")}</span><small>${t("deploymentVercelTag")}</small></button>
-            <button class="deployment-card" type="button" data-action="open-deploy-guide"><strong>Cloudflare Pages</strong><span>${t("deploymentCloudflareNote")}</span><small>${t("deploymentCloudflareTag")}</small></button>
-            <button class="deployment-card" type="button" data-action="open-deploy-guide"><strong>GitHub Pages</strong><span>${t("deploymentGithubNote")}</span><small>${t("deploymentGithubTag")}</small></button>
-            <button class="deployment-card" type="button" data-action="open-deploy-guide"><strong>${t("deploymentDomestic")}</strong><span>${t("deploymentDomesticNote")}</span><small>${t("deploymentDomesticTag")}</small></button>
-          </div>
-        </section>
         <section class="timeline-panel" aria-label="${t("timelineOverview")}" ${state.lens !== "trace" ? "hidden" : ""}>
-          <div class="panel-heading"><div><strong>${t("timelineOverview")}</strong><small>${state.locale === "zh" ? "按时间找回项目判断" : "Recover decisions over time"}</small></div><span>${state.trace.entries.length}</span></div>
-          <div class="timeline-track">
-            ${[...state.trace.entries].reverse().map((entry) => `<button type="button" data-entry-id="${escapeHTML(entry.id)}" data-entry-context="timeline" aria-current="${entry.id === state.selectedEntryId}"><span>${escapeHTML(entry.date)}</span><strong>${escapeHTML(entry.title)}</strong><small>${escapeHTML(sceneLabel(entry.scene))} · ${escapeHTML(statusLabel(entry.status))}</small></button>`).join("")}
-          </div>
+          <div class="panel-heading"><div><strong>${t("timelineOverview")}</strong><small>${t("timelineNote")}</small></div><span>${timelineEntries.length}</span></div>
+          ${timelineEntries.length ? `<div class="timeline-track">
+            ${[...timelineEntries].reverse().map((entry) => `<button type="button" data-entry-id="${escapeHTML(entry.id)}" data-entry-context="timeline" aria-current="${entry.id === state.selectedEntryId}"><span>${escapeHTML(entry.date)}</span><strong>${escapeHTML(entry.title)}</strong><small>${escapeHTML(sceneLabel(entry.scene))}</small></button>`).join("")}
+          </div>` : `<p class="timeline-empty">${t("noMilestones")}</p>`}
         </section>
         <section class="records-panel" ${state.lens !== "trace" ? "hidden" : ""}>
           <div class="panel-heading records-heading"><div><strong>${t("records")}</strong><small>${resultCountLabel(visibleEntries.length)}</small></div></div>
@@ -778,7 +782,7 @@ function renderBoard() {
               ${scenes.map((scene) => `<button type="button" data-scene-filter="${escapeHTML(scene)}" aria-pressed="${state.scene === scene}">${escapeHTML(sceneLabel(scene))}</button>`).join("")}
             </div>
           </div>
-          <div class="mobile-status-filters" aria-label="${t("statusFilter")}">${renderFilter("all", t("all"))}${renderFilter("pending", t("pending"))}${renderFilter("effective", t("valid"))}${renderFilter("uncertain", t("uncertain"))}${renderFilter("ineffective", t("ineffective"))}</div>
+          <div class="mobile-status-filters" aria-label="${t("statusFilter")}">${renderFilter("all", t("all"))}${renderFilter("milestone", t("milestones"))}${renderFilter("due", t("dueOutcomes"))}</div>
           <p class="sr-only" role="status">${resultCountLabel(visibleEntries.length)}</p>
           ${renderRecordList(visibleEntries)}
         </section>
@@ -810,6 +814,7 @@ function profileNote(profile = "private") {
 
 function renderLensNavigation() {
   const profile = state.trace.publication?.profile || "private";
+  const isPrivateSource = profile === "private";
   const lenses = [
     ["trace", "01", t("traceLens"), t("traceLensNote")],
     ["review", "02", t("reviewLens"), t("reviewLensNote")],
@@ -817,7 +822,13 @@ function renderLensNavigation() {
   ];
   return `<section class="lens-console" aria-label="${t("workbench")}">
     <nav class="lens-nav">${lenses.map(([value, index, label, note]) => `<button type="button" data-lens="${value}" aria-pressed="${state.lens === value}"><span>${index}</span><strong>${escapeHTML(label)}</strong><small>${escapeHTML(note)}</small></button>`).join("")}</nav>
-    <div class="profile-strip" data-profile="${escapeHTML(profile)}"><span>${t("visibility")}</span><strong>${escapeHTML(profileLabel(profile))}</strong><p>${escapeHTML(profileNote(profile))}</p></div>
+    <div class="lens-meta">
+      <div class="profile-strip" data-profile="${escapeHTML(profile)}"><span>${t("visibility")}</span><strong>${escapeHTML(profileLabel(profile))}</strong><p>${escapeHTML(profileNote(profile))}</p></div>
+      ${isPrivateSource ? `<div class="project-utilities" aria-label="${t("projectTools")}">
+        <button type="button" data-action="open-resource-library"><span>${t("openResources")}</span><strong>${state.trace.resources.length}</strong></button>
+        <button type="button" data-action="open-deploy-guide"><span>${t("shareDeploy")}</span><strong>↗</strong></button>
+      </div>` : ""}
+    </div>
   </section>`;
 }
 
@@ -831,7 +842,15 @@ function structuredItemText(item) {
 
 function renderReviewStage(index, label, values) {
   const items = values.map(structuredItemText).filter(Boolean);
-  return `<div class="review-stage ${items.length ? "" : "is-empty"}"><span>${index}</span><div><strong>${escapeHTML(label)}</strong>${items.length ? `<ul>${items.map((item) => `<li>${escapeHTML(item)}</li>`).join("")}</ul>` : `<p>${t("noStructuredValue")}</p>`}</div></div>`;
+  const countLabel = state.locale === "zh" ? `${items.length} 条` : `${items.length} item${items.length === 1 ? "" : "s"}`;
+  const preview = items[0] || t("noStructuredValue");
+  return `<div class="review-stage ${items.length ? "" : "is-empty"}">
+    <span class="review-stage-index">${index}</span>
+    <div>
+      <div class="review-stage-heading"><strong>${escapeHTML(label)}</strong>${items.length ? `<small>${escapeHTML(countLabel)}</small>` : ""}</div>
+      <p class="review-stage-preview">${escapeHTML(preview)}</p>
+    </div>
+  </div>`;
 }
 
 function renderReviewTracks(entries, hidden = false) {
@@ -841,7 +860,11 @@ function renderReviewTracks(entries, hidden = false) {
     const evidence = [...(entry.dataChanges || []), ...(entry.watchPlans || [])];
     const judgments = entry.outcomes?.length ? entry.outcomes : (entry.sections.result ? [entry.sections.result] : []);
     return `<article class="review-track-card">
-      <button class="review-track-head" type="button" data-entry-id="${escapeHTML(entry.id)}"><span>${escapeHTML(entry.date)}</span><strong>${escapeHTML(entry.title)}</strong><small>${escapeHTML(statusLabel(entry.status))} ↗</small></button>
+      <button class="review-track-head" type="button" data-entry-id="${escapeHTML(entry.id)}">
+        <span class="review-track-date">${escapeHTML(entry.date)}</span>
+        <span class="review-track-title"><strong>${escapeHTML(entry.title)}</strong><small>${escapeHTML(statusLabel(entry.status))}</small></span>
+        <span class="review-track-open">${t("reviewOpen")} <b aria-hidden="true">↗</b></span>
+      </button>
       <div class="review-track-grid">
         ${renderReviewStage("01", t("reviewHypothesis"), entry.hypotheses || [])}
         ${renderReviewStage("02", t("reviewAction"), actions)}
@@ -870,22 +893,12 @@ function renderDecisionPlaybook(principles = [], hidden = false) {
   return `<section class="lens-workspace playbook-workspace" ${hidden ? "hidden" : ""}><header class="playbook-head"><div><p class="eyebrow">STABLE PRINCIPLES / REAL EVIDENCE</p><h2>${t("decisionPlaybookTitle")}</h2><p>${t("decisionPlaybookNote")}</p></div><button type="button" data-copy-command="${escapeHTML(command)}">${t("crossProjectCommand")}</button></header>${content}</section>`;
 }
 
-function renderResources(resources = []) {
-  if (!resources.length) return `<p class="side-empty">${t("noResources")}</p>`;
-  return `<div class="resource-list">${resources.map((resource) => {
-    const href = getResourceHref(resource);
-    const content = `<span data-resource-kind="${escapeHTML(resource.category)}">${escapeHTML(resource.label.slice(0, 1))}</span><div><strong>${escapeHTML(resource.title)}</strong><small>${escapeHTML(resource.note || resource.url)}</small></div><b>${href ? "↗" : "—"}</b>`;
-    return href
-      ? `<a href="${escapeHTML(href)}" target="_blank" rel="noreferrer">${content}</a>`
-      : `<span class="resource-item is-disabled">${content}</span>`;
-  }).join("")}</div>`;
-}
-
 function renderHumanPurpose(purpose) {
   if (!purpose) return "";
   const paragraphs = purpose.split(/\n+/).filter(Boolean);
   const lead = paragraphs[0];
-  return `<details class="human-purpose"><summary><span>${t("humanPurpose")}</span><strong>${escapeHTML(lead)}</strong><b>${t("humanPurposeExpand")} +</b></summary><div>${paragraphs.map((paragraph) => `<p>${escapeHTML(paragraph)}</p>`).join("")}</div></details>`;
+  const remainder = paragraphs.slice(1);
+  return `<details class="human-purpose"><summary><span>${t("humanPurpose")}</span><strong>${escapeHTML(lead)}</strong>${remainder.length ? `<b>${t("humanPurposeExpand")} +</b>` : ""}</summary>${remainder.length ? `<div>${remainder.map((paragraph) => `<p>${escapeHTML(paragraph)}</p>`).join("")}</div>` : ""}</details>`;
 }
 
 function getResourceHref(resource) {
@@ -900,29 +913,26 @@ function getResourceHref(resource) {
   }
 }
 
-function renderResourceVault(resources = [], hidden = false) {
+function renderUtilityPanel() {
+  if (!state.utilityPanel) return "";
+  const body = state.utilityPanel === "resource" ? renderResourceManager() : renderDeployGuide();
+  return `<div class="utility-backdrop"><section class="utility-drawer" role="dialog" aria-modal="true" aria-label="${escapeHTML(state.utilityPanel === "resource" ? t("resourceVault") : t("deploymentDrawerTitle"))}" data-utility-drawer><button class="utility-close" type="button" data-action="close-utility" aria-label="${t("close")}">×</button>${body}</section></div>`;
+}
+
+function renderResourceManager() {
+  const resources = state.trace.resources;
   const cards = resources.length
     ? resources.map((resource) => {
       const href = getResourceHref(resource);
-      const content = `<span class="resource-card-mark" data-resource-kind="${escapeHTML(resource.category)}">${escapeHTML(resource.label.slice(0, 1))}</span><span class="resource-card-copy"><span><strong>${escapeHTML(resource.title)}</strong><small>${escapeHTML(resourceCategoryLabel(resource.category))}</small></span>${resource.note ? `<p>${escapeHTML(resource.note)}</p>` : ""}<em>${escapeHTML(resource.url)}</em></span><b aria-hidden="true">${href ? "↗" : "—"}</b>`;
-      return href
-        ? `<a class="project-resource-card" href="${escapeHTML(href)}" target="_blank" rel="noreferrer">${content}</a>`
-        : `<span class="project-resource-card is-disabled">${content}</span>`;
+      return `<a class="utility-resource" href="${escapeHTML(href || "#")}" ${href ? 'target="_blank" rel="noreferrer"' : 'aria-disabled="true"'}><span data-resource-kind="${escapeHTML(resource.category)}">${escapeHTML(resource.label.slice(0, 1))}</span><div><strong>${escapeHTML(resource.title)}</strong><small>${escapeHTML(resourceCategoryLabel(resource.category))}</small><p>${escapeHTML(resource.note || resource.url)}</p></div><b>${href ? "↗" : "—"}</b></a>`;
     }).join("")
-    : `<div class="resource-vault-empty"><strong>${t("noResources")}</strong><span>${t("readonlyReminder")}</span></div>`;
-
-  return `<section class="resource-vault-panel" aria-labelledby="resource-vault-title" ${hidden ? "hidden" : ""}><div class="resource-vault-head"><div><h2 id="resource-vault-title">${t("resourceVault")}</h2><p>${t("resourceVaultNote")}</p></div><button class="panel-action" type="button" data-action="open-resource-builder">${t("addResource")}</button></div><div class="project-resource-grid">${cards}</div></section>`;
+    : `<p class="resource-vault-empty">${t("noResources")}</p>`;
+  return `<div class="utility-heading"><p class="eyebrow">PROJECT CONTEXT</p><h2>${t("resourceVault")}</h2><p>${t("resourceVaultNote")}</p></div><div class="utility-resource-list">${cards}</div><details class="resource-add"><summary>${t("addResource")} <span>+</span></summary>${renderResourceBuilder(false)}</details>`;
 }
 
-function renderUtilityPanel() {
-  if (!state.utilityPanel) return "";
-  const body = state.utilityPanel === "resource" ? renderResourceBuilder() : renderDeployGuide();
-  return `<div class="utility-backdrop" data-action="close-utility"><section class="utility-drawer" role="dialog" aria-modal="true" aria-label="${escapeHTML(state.utilityPanel === "resource" ? t("resourceBuilderTitle") : t("deploymentDrawerTitle"))}" data-utility-drawer><button class="utility-close" type="button" data-action="close-utility" aria-label="${t("close")}">×</button>${body}</section></div>`;
-}
-
-function renderResourceBuilder() {
+function renderResourceBuilder(showHeading = true) {
   const categories = ["code", "docs", "reference", "data", "deploy", "finance", "admin", "design", "community", "other"];
-  return `<div class="utility-heading"><p class="eyebrow">READ-ONLY HANDOFF</p><h2>${t("resourceBuilderTitle")}</h2><p>${t("resourceBuilderNote")}</p></div><form class="resource-builder" id="resource-builder"><label><span>${t("resourceTitle")}</span><input name="title" required autocomplete="off" placeholder="${state.locale === "zh" ? "例如：PostHog 产品数据" : "e.g. PostHog product analytics"}" /></label><label><span>${t("resourceURL")}</span><input name="url" required autocomplete="off" placeholder="https://… / ./docs/…" /></label><label><span>${t("resourceCategory")}</span><select name="category">${categories.map((category) => `<option value="${category}">${escapeHTML(resourceCategoryLabel(category))}</option>`).join("")}</select></label><label><span>${t("resourceNote")}</span><textarea name="note" rows="3" placeholder="${state.locale === "zh" ? "例如：复盘自然搜索与关键行为时查看" : "e.g. Use when reviewing organic search and key behavior"}"></textarea></label><p class="readonly-note">${t("readonlyReminder")}</p><button class="utility-primary" type="submit">${t("copyResourceCommand")}</button></form>`;
+  return `${showHeading ? `<div class="utility-heading"><p class="eyebrow">READ-ONLY HANDOFF</p><h2>${t("resourceBuilderTitle")}</h2><p>${t("resourceBuilderNote")}</p></div>` : `<p class="resource-builder-note">${t("resourceBuilderNote")}</p>`}<form class="resource-builder" id="resource-builder"><label><span>${t("resourceTitle")}</span><input name="title" required autocomplete="off" placeholder="${state.locale === "zh" ? "例如：PostHog 产品数据" : "e.g. PostHog product analytics"}" /></label><label><span>${t("resourceURL")}</span><input name="url" required autocomplete="off" placeholder="https://… / ./docs/…" /></label><label><span>${t("resourceCategory")}</span><select name="category">${categories.map((category) => `<option value="${category}">${escapeHTML(resourceCategoryLabel(category))}</option>`).join("")}</select></label><label><span>${t("resourceNote")}</span><textarea name="note" rows="3" placeholder="${state.locale === "zh" ? "例如：复盘自然搜索与关键行为时查看" : "e.g. Use when reviewing organic search and key behavior"}"></textarea></label><p class="readonly-note">${t("readonlyReminder")}</p><button class="utility-primary" type="submit">${t("copyResourceCommand")}</button></form>`;
 }
 
 function renderDeployGuide() {
@@ -960,6 +970,10 @@ function renderFilter(value, label) {
   return `<button class="filter-chip" type="button" data-status-filter="${value}" aria-pressed="${state.status === value}">${escapeHTML(label)}</button>`;
 }
 
+function hasRecordedOutcome(entry) {
+  return ["有效", "无效"].includes(entry.status);
+}
+
 function renderRecordList(entries) {
   if (!entries.length) {
     const published = state.trace.publication?.profile && state.trace.publication.profile !== "private";
@@ -979,11 +993,11 @@ function renderRecordList(entries) {
                   ${entry.sections.summary ? `<span class="record-summary">${escapeHTML(entry.sections.summary)}</span>` : ""}
                   <span class="record-tags" aria-label="${t("recordTags")}">
                     ${renderRecordTag(sceneLabel(entry.scene), "scene")}
-                    ${renderRecordTag(statusLabel(entry.status), `status-${entry.status}`)}
+                    ${hasRecordedOutcome(entry) ? renderRecordTag(statusLabel(entry.status), `status-${entry.status}`) : ""}
                     ${renderRecordTag(visibilityLabel(entry.visibility), `visibility-${entry.visibility}`)}
                   </span>
                 </span>
-                <span class="status-dot" data-status="${escapeHTML(entry.status)}" aria-hidden="true"></span>
+                ${hasRecordedOutcome(entry) ? `<span class="status-dot" data-status="${escapeHTML(entry.status)}" aria-hidden="true"></span>` : ""}
               </button>
             </li>
           `,
@@ -1002,7 +1016,7 @@ function renderDetail(entry) {
       <p class="detail-overline">${t("recordTags")}</p>
       <div class="detail-kicker" aria-label="${t("recordTags")}">
         ${renderRecordTag(sceneLabel(entry.scene), "scene", t("recordKind"))}
-        ${renderRecordTag(statusLabel(entry.status), `status-${entry.status}`, t("resultStatus"))}
+        ${hasRecordedOutcome(entry) ? renderRecordTag(statusLabel(entry.status), `status-${entry.status}`, t("resultStatus")) : ""}
         ${renderRecordTag(trustLabel(entry.sourceTrust), `trust-${entry.sourceTrust}`, t("sourceTrust"))}
         ${renderRecordTag(visibilityLabel(entry.visibility), `visibility-${entry.visibility}`, t("visibility"))}
       </div>
@@ -1030,8 +1044,9 @@ function renderDetail(entry) {
       ${entry.sections.technical ? `<section class="technical-card"><h3>${t("technicalNotes")}</h3><p>${escapeHTML(entry.sections.technical)}</p></section>` : ""}
       ${relatedEntries.length ? `<section class="related-section"><div class="related-heading"><div><h3>${t("relatedRecords")}</h3><p>${t("relatedRecordsNote")} · ${escapeHTML(sceneLabel(entry.scene))}</p></div><span>${relatedEntries.length}</span></div><div class="related-list">${relatedEntries.map((related) => `<button type="button" data-entry-id="${escapeHTML(related.id)}" data-entry-context="related"><span>${escapeHTML(related.date.slice(5).replace("-", "."))}</span><strong>${escapeHTML(related.title)}</strong><small>${escapeHTML(statusLabel(related.status))}</small></button>`).join("")}</div></section>` : ""}
       <div class="detail-actions">
-        <button class="action-button is-primary" type="button" data-copy-command="${state.locale === "zh" ? `修正「${escapeHTML(entry.title)}」` : `Correct &quot;${escapeHTML(entry.title)}&quot;`}">${t("copyCorrection")}</button>
-        <button class="action-button" type="button" data-copy-command="${state.locale === "zh" ? `结果有效 / 无效 / 不确定：${escapeHTML(entry.title)}` : `Outcome effective / ineffective / uncertain: ${escapeHTML(entry.title)}`}">${t("copyReview")}</button>
+        <p>${t("actionHelp")}</p>
+        <button class="action-button is-primary" type="button" data-copy-command="${state.locale === "zh" ? `纠正记录「${escapeHTML(entry.title)}」：请根据我接下来的说明修改事实、依据与来源可信度；不要改写可核对的用户原话。` : `Correct the record &quot;${escapeHTML(entry.title)}&quot; using my next message. Update facts, evidence, and source trust without rewriting verifiable original words.`}">${t("copyCorrection")}</button>
+        <button class="action-button" type="button" data-copy-command="${state.locale === "zh" ? `补记「${escapeHTML(entry.title)}」的后来结果：请根据我提供的数据或反馈，更新数据变化、结果判断、依据与后续回看；不要把相关性写成确定因果。` : `Add the later outcome for &quot;${escapeHTML(entry.title)}&quot; using the data or feedback I provide. Update data change, judgment, evidence, and next review without turning correlation into proven causation.`}">${t("copyReview")}</button>
         <button class="action-button" type="button" data-copy-command="${state.locale === "zh" ? `为「${escapeHTML(entry.title)}」补充依据：` : `Add evidence for &quot;${escapeHTML(entry.title)}&quot;: `}">${t("copyEvidence")}</button>
       </div>
     </article>
@@ -1255,10 +1270,10 @@ document.addEventListener("click", (event) => {
     render();
     requestAnimationFrame(() => document.querySelector(".mobile-context-toggle")?.focus());
   }
-  if (actionButton.dataset.action === "open-resource-builder") {
+  if (actionButton.dataset.action === "open-resource-library") {
     state.utilityPanel = "resource";
     render();
-    requestAnimationFrame(() => document.querySelector("#resource-builder input")?.focus());
+    requestAnimationFrame(() => document.querySelector(".utility-close")?.focus());
   }
   if (actionButton.dataset.action === "open-deploy-guide") {
     state.utilityPanel = "deploy";

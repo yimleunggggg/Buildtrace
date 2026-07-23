@@ -61,7 +61,9 @@ const managedProjectFiles = [
   ["bin/buildtrace.mjs", "bin/buildtrace.mjs"],
 ];
 
-const publicRoot = join(root, "docs/buildtrace");
+const publicRoot = root;
+const blockedLocalSegments = new Set([".git", ".buildtrace", "node_modules"]);
+const allowedRootDocuments = new Set(["README.md", "README.en.md", "CHANGELOG.md", "DESIGN.md", "LICENSE", "LICENSE.md"]);
 
 function getOption(name, fallback) {
   const index = process.argv.indexOf(name);
@@ -175,6 +177,9 @@ function safeLocalPath(pathname) {
   const decoded = decodeURIComponent(pathname);
   const requested = resolve(root, `.${decoded}`);
   if (requested !== publicRoot && !requested.startsWith(`${publicRoot}${sep}`)) return null;
+  const segments = relative(publicRoot, requested).split(sep).filter(Boolean);
+  if (segments.some((segment) => blockedLocalSegments.has(segment) || segment === ".env" || segment.startsWith(".env."))) return null;
+  if (segments[0] !== "docs" && !allowedRootDocuments.has(segments.join("/"))) return null;
   return requested;
 }
 

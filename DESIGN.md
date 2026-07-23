@@ -15,7 +15,7 @@ The interface should feel like an editorial field notebook paired with a calm co
 
 BuildTrace has three layers, in this order:
 
-1. **Human layer:** a separately preserved “为什么做（人写的）”, original words inside records, and the person’s own decision patterns. Agent summaries may organize this material but must not replace it.
+1. **Human layer:** a separately preserved author note, original words inside records, and the person’s own decision patterns. The Markdown source keeps the explicit human-authorship boundary; the Viewer labels the section simply as “作者的话”. Agent summaries may organize this material but must not replace it.
 2. **Causal project layer:** each intervention connects intent, action, evidence, expected signal, review date, and outcome. This is the everyday board.
 3. **Cross-project learning layer:** recurring judgment patterns can later become a personal playbook across projects, while every project remains the source of truth for its own facts.
 
@@ -140,12 +140,13 @@ The board offers three everyday lenses over the same source: `项目脉络`, `�
 ## Information architecture
 
 - **Tutorial / 教程** explains the workflow in four short steps and never blocks access to the data.
-- **Board / 看板** opens on the strongest current signals: total records, pending reviews, effective decisions, and the next review date.
-- The desktop board is a three-column workbench: project navigation and workflows, a dense timeline and record index, then one focused causal detail pane.
-- Project resources and the automatic capture flow remain visible working tools, not promotional content. The flow explains how ordinary conversation becomes a record; only correction and outcome-review actions copy explicit Agent instructions, and none create browser-side truth.
-- The human-written project purpose sits immediately below the Viewer introduction. Its first paragraph is scannable and the complete original can be expanded without being rewritten by the Viewer.
-- The project resource cabinet groups code, docs, references, analytics, deployment, payments, admin, design, and community links. “Add resource” creates an Agent handoff command; it never edits browser state.
-- The deployment center starts with a privacy warning, then offers local, GitHub Pages, Cloudflare Pages, and Vercel instructions. Public hosting is never presented as the default.
+- **Board / 看板** opens on durable orientation signals: total records, key moments, outcomes due for evidence, and the latest record date. Record-level outcome labels remain available in context but do not pretend to be a project scorecard.
+- The desktop board is a two-column reading workspace: project navigation and the current lens. Record detail opens only on demand as a focused overlay, so three long reading surfaces never compete at once.
+- Project resources and the automatic capture flow remain available working tools, not promotional content. Resources and sharing/deployment live behind compact project utilities below the lens navigation instead of occupying the primary reading flow. Only correction and outcome-review actions copy explicit Agent instructions, and none create browser-side truth.
+- The author note sits immediately below the Viewer introduction. Its first paragraph appears once as a scannable lead; opening it reveals only the remaining original paragraphs, without rewriting or duplicating the lead.
+- The project resource drawer groups code, docs, references, analytics, deployment, payments, admin, design, and community links. “Add resource” creates an Agent handoff command; it never edits browser state.
+- The sharing/deployment drawer starts with a privacy warning, then offers local private use and generated team/public snapshots. Public hosting is never presented as the default or as primary page content.
+- The project timeline contains only records explicitly marked as key moments: major releases, important features, architecture turns, launches, or confirmed milestones. Ordinary fixes remain searchable in the full record index.
 - Tablet keeps the project rail and record workspace; detail opens as a focused overlay.
 - Mobile begins with compact status, workflow, resource and evidence utilities, followed by timeline and record list; record detail opens full-screen with a clear back action.
 - Search and filters change the visible index only. They never mutate `BUILDTRACE.md`.
@@ -160,20 +161,20 @@ The board offers three everyday lenses over the same source: `项目脉络`, `�
 
 ## Visual language
 
-- **Canvas:** near-black green `#141714`
-- **Raised surface:** `#1A1D1A`
+- **Canvas:** neutral near-black green `#181B19`
+- **Raised surface:** `#1E221F`
 - **Deep chrome:** `#0D0F0D`
-- **Primary ink:** `#F1F6F2`
-- **Muted ink:** `#89948C`
-- **Rule:** `#2B302C`
-- **Signal green:** `#5DF079` for selected controls, source status, links, and focus
+- **Primary ink:** `#F2F5F3`
+- **Muted ink:** `#A2ACA5`
+- **Rule:** `#343A36`; strong structural rule `#485149`
+- **Signal green:** `#8AD69A` for selected controls, source status, links, and focus
 - **Pending amber:** `#F0BD64`
 - **Confirmed green:** `#72E7A2`
 - **Invalid red:** `#F08D83`
 - **Display and long-form type:** Avenir Next / Noto Sans SC / PingFang SC
 - **Metadata and chrome type:** SFMono-Regular / Menlo / monospace
 
-The visual metaphor is a calm project console: thin rules, square corners, low-contrast grids, comment-like labels, and one bright signal color. Monospace belongs to navigation, dates, provenance, commands, and labels; Chinese explanations, original words, and long causal records stay in the interface typeface. Borders organize the app, not floating cards. Shadows appear only when an overlay must separate from the underlying workbench.
+The visual metaphor is a calm project console: thin but visible rules, square corners, plain dark reading surfaces, comment-like labels, and one restrained signal color. Monospace belongs to navigation, dates, provenance, commands, and labels; Chinese explanations, original words, and long causal records stay in the interface typeface. Borders organize the app, not floating cards. Decorative full-canvas grids are avoided behind long-form reading. Shadows appear only when an overlay must separate from the underlying workbench.
 
 [amber.ac](https://amber.ac/) is the explicit reference for this terminal-like visual restraint: dark chrome, code-editor rhythm, hairline structure, and sparse green signals. BuildTrace does not copy its branding, content, ASCII animation, source code, or assets; it adapts only a visual vocabulary to a much denser, long-form project-memory product.
 
@@ -186,7 +187,7 @@ The visual metaphor is a calm project console: thin rules, square corners, low-c
 - Desktop content max width: `1600px`
 - Touch targets: `44px` minimum
 - Desktop system bar: `50px`; mobile system bar: `56px`
-- Type ladder: `9–10px` metadata, `11–13px` interface labels, `14–16px` body, `24–48px` selected-record and orientation titles
+- Type ladder: `11–12px` metadata, `12–14px` interface labels, `14–16px` body, `24–44px` selected-record and orientation titles
 
 ## Motion
 
@@ -201,7 +202,7 @@ The visual metaphor is a calm project console: thin rules, square corners, low-c
 - Visible focus rings use the signal green and never depend on browser defaults alone.
 - Mobile long-form copy is `14–16px` with at least `1.7` line-height; metadata is never used for paragraph text.
 - Status never relies on color alone; every status includes text.
-- At `1440px`, the right detail rail becomes an overlay while the project rail and record workspace remain visible.
+- At every desktop width, the detail rail is an on-demand overlay while the project rail and record workspace remain visible.
 - At `760px`, utility sections stack above the record workspace and detail remains a full-screen overlay.
 - At `640px`, primary navigation becomes a fixed bottom bar and the four signals become a readable `2 × 2` grid.
 - No horizontal page scrolling at any supported viewport.
