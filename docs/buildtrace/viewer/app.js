@@ -14,6 +14,15 @@ const translations = {
     brandTagline: "项目因果记忆",
     board: "看板",
     tutorial: "教程",
+    about: "关于",
+    aboutTitle: "关于这个项目",
+    aboutNote: "这里保存作者为什么做这个项目，以及看板如何读取和更新。日常回看不必先读这些背景。",
+    aboutMaker: "作者的话",
+    liveRefresh: "自动刷新",
+    liveRefreshLocal: "本地服务会自动读取最新 Markdown",
+    liveRefreshNote: "通过 buildtrace serve 打开时，BUILDTRACE.md 保存后通常会在 10 秒内出现在看板中；页面隐藏时会暂停检查。线上静态看板仍需先完成新一轮部署。",
+    sourceUpdated: "已读取最新 Markdown。",
+    sourceUnavailable: "暂时无法检查更新",
     traceLens: "项目脉络",
     reviewLens: "复盘轨",
     playbookLens: "决策手册",
@@ -198,6 +207,15 @@ const translations = {
     brandTagline: "Project causal memory",
     board: "Board",
     tutorial: "Tutorial",
+    about: "About",
+    aboutTitle: "About this project",
+    aboutNote: "This keeps the maker's reason for building the project and explains how the board reads and refreshes. You do not need this background before everyday review.",
+    aboutMaker: "A note from the maker",
+    liveRefresh: "Auto refresh",
+    liveRefreshLocal: "The local server reads the latest Markdown",
+    liveRefreshNote: "When opened with buildtrace serve, saved changes to BUILDTRACE.md normally appear within 10 seconds. Checks pause while the page is hidden. A hosted static board still needs a new deployment first.",
+    sourceUpdated: "Latest Markdown loaded.",
+    sourceUnavailable: "Update check unavailable",
     traceLens: "Project trail",
     reviewLens: "Review track",
     playbookLens: "Decision playbook",
@@ -481,6 +499,8 @@ const state = {
   detailOpen: false,
   mobileContextOpen: false,
   utilityPanel: null,
+  sourceText: "",
+  sourceStatus: "live",
   tutorialStep: 0,
   completedSteps: new Set(readTutorialProgress()),
   trace: null,
@@ -755,7 +775,10 @@ function renderBoard() {
             <p>${t("heroNote")}</p>
           </div>
           <div class="trace-hero-actions">
-            <span class="source-mode">${escapeHTML(profileLabel(state.trace.publication?.profile))} · ${t("sourceMode")}</span>
+            <div class="source-state">
+              <span class="source-mode">${escapeHTML(profileLabel(state.trace.publication?.profile))} · ${t("sourceMode")}</span>
+              <span class="source-refresh" data-source-status="${escapeHTML(state.sourceStatus)}"><i aria-hidden="true"></i><span>${t(state.sourceStatus === "offline" ? "sourceUnavailable" : "liveRefresh")}</span></span>
+            </div>
             <div>
               <a class="source-link" href="../BUILDTRACE.md" target="_blank" rel="noreferrer">${t("openSource")}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" /></svg></a>
               <a class="hero-action" href="../BUILDTRACE.md?download=1" download="BUILDTRACE.md">${t("downloadSource")}</a>
@@ -763,7 +786,6 @@ function renderBoard() {
             </div>
           </div>
         </header>
-        ${renderHumanPurpose(state.trace.humanPurpose)}
         <section class="workbench-signals" aria-label="${t("projectSignals")}">
           ${renderSignal("01", t("totalRecords"), stats.total)}
           ${renderSignal("02", t("milestones"), timelineEntries.length)}
@@ -928,8 +950,28 @@ function getResourceHref(resource) {
 
 function renderUtilityPanel() {
   if (!state.utilityPanel) return "";
-  const body = state.utilityPanel === "resource" ? renderResourceManager() : renderDeployGuide();
-  return `<div class="utility-backdrop"><section class="utility-drawer" role="dialog" aria-modal="true" aria-label="${escapeHTML(state.utilityPanel === "resource" ? t("resourceVault") : t("deploymentDrawerTitle"))}" data-utility-drawer><button class="utility-close" type="button" data-action="close-utility" aria-label="${t("close")}">×</button>${body}</section></div>`;
+  const body = state.utilityPanel === "resource"
+    ? renderResourceManager()
+    : state.utilityPanel === "about"
+      ? renderAboutPanel()
+      : renderDeployGuide();
+  const label = state.utilityPanel === "resource"
+    ? t("resourceVault")
+    : state.utilityPanel === "about"
+      ? t("aboutTitle")
+      : t("deploymentDrawerTitle");
+  return `<div class="utility-backdrop"><section class="utility-drawer" role="dialog" aria-modal="true" aria-label="${escapeHTML(label)}" data-utility-drawer><button class="utility-close" type="button" data-action="close-utility" aria-label="${t("close")}">×</button>${body}</section></div>`;
+}
+
+function renderAboutPanel() {
+  const paragraphs = (state.trace.humanPurpose || "").split(/\n+/).map((item) => item.trim()).filter(Boolean);
+  return `<div class="utility-heading"><p class="eyebrow">ABOUT / PROJECT CONTEXT</p><h2>${t("aboutTitle")}</h2><p>${t("aboutNote")}</p></div>
+    <section class="about-live-card">
+      <span><i aria-hidden="true"></i>${t("liveRefresh")}</span>
+      <strong>${t("liveRefreshLocal")}</strong>
+      <p>${t("liveRefreshNote")}</p>
+    </section>
+    ${paragraphs.length ? `<section class="about-maker"><h3>${t("aboutMaker")}</h3>${paragraphs.map((paragraph) => `<p>${escapeHTML(paragraph)}</p>`).join("")}</section>` : ""}`;
 }
 
 function renderResourceManager() {
@@ -1159,6 +1201,7 @@ function renderTutorial() {
         </article>
       </section>
       <div class="toast" id="toast" hidden role="status"></div>
+      ${renderUtilityPanel()}
     </section>
   `;
 }
@@ -1326,6 +1369,11 @@ document.addEventListener("click", (event) => {
     render();
     requestAnimationFrame(() => document.querySelector(".utility-close")?.focus());
   }
+  if (actionButton.dataset.action === "open-about") {
+    state.utilityPanel = "about";
+    render();
+    requestAnimationFrame(() => document.querySelector(".utility-close")?.focus());
+  }
   if (actionButton.dataset.action === "close-utility") {
     state.utilityPanel = null;
     render();
@@ -1425,7 +1473,8 @@ async function loadTrace() {
     const sourceURL = new URL("../BUILDTRACE.md", window.location.href);
     const response = await fetch(sourceURL, { cache: "no-store" });
     if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
-    state.trace = parseBuildtrace(await response.text());
+    state.sourceText = await response.text();
+    state.trace = parseBuildtrace(state.sourceText);
     if (!state.trace.entries.length && state.trace.publication?.profile === "private") throw new Error("BUILDTRACE.md contains no project records");
     loadingState.hidden = true;
     render();
@@ -1439,3 +1488,39 @@ async function loadTrace() {
 }
 
 loadTrace();
+
+async function refreshTrace() {
+  if (document.hidden || !state.trace) return;
+  try {
+    const sourceURL = new URL("../BUILDTRACE.md", window.location.href);
+    const response = await fetch(sourceURL, { cache: "no-store" });
+    if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+    const nextSource = await response.text();
+    state.sourceStatus = "live";
+    if (nextSource === state.sourceText) {
+      document.querySelector(".source-refresh")?.setAttribute("data-source-status", "live");
+      return;
+    }
+    const nextTrace = parseBuildtrace(nextSource);
+    if (!nextTrace.entries.length && nextTrace.publication?.profile === "private") return;
+    state.sourceText = nextSource;
+    state.trace = nextTrace;
+    if (!nextTrace.entries.some((entry) => entry.id === state.selectedEntryId)) {
+      state.selectedEntryId = nextTrace.entries[0]?.id ?? null;
+      state.detailOpen = false;
+    }
+    render();
+    showToast(t("sourceUpdated"));
+  } catch {
+    state.sourceStatus = "offline";
+    const indicator = document.querySelector(".source-refresh");
+    indicator?.setAttribute("data-source-status", "offline");
+    const label = indicator?.querySelector("span");
+    if (label) label.textContent = t("sourceUnavailable");
+  }
+}
+
+window.setInterval(refreshTrace, 10000);
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) refreshTrace();
+});

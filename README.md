@@ -107,6 +107,8 @@ Agent 会在有意义的工作前读取项目目的、相关历史和到期回�
 buildtrace serve --target .
 ```
 
+Viewer 本身就是静态 HTML、CSS 和 JavaScript。通过上面的本地服务打开后，它会每 10 秒检查一次 Markdown；保存 `BUILDTRACE.md` 后无需重新构建，页面保持在前台时会自动读取最新内容。线上静态看板只有在新文件完成部署后才会更新，直接双击 `file://.../index.html` 也不是支持的打开方式。
+
 更完整、按实际场景写的说明见[《BuildTrace 使用手册》](docs/USAGE.zh-CN.md)。
 
 ## 旧上下文能找回多少

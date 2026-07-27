@@ -22,6 +22,8 @@ node docs/buildtrace/viewer/serve.mjs
 
 然后打开终端显示的本地地址。
 
+本地 Viewer 每 10 秒检查一次 `BUILDTRACE.md`，页面保持可见且文件变化时会自动刷新数据，不需要重新生成 HTML。线上静态托管不会绕过部署流程：只有新的 Markdown 与 Viewer 文件完成部署后，访问者才会看到更新。
+
 ## 生成团队快照
 
 输出目录必须为空或尚不存在：

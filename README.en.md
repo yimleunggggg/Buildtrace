@@ -101,6 +101,8 @@ Run the private local Viewer inside a project:
 node docs/buildtrace/viewer/serve.mjs
 ```
 
+The Viewer is already static HTML, CSS, and JavaScript. Through the local server it checks the Markdown source every 10 seconds, pauses while the page is hidden, and reads saved changes without a rebuild. A hosted static board updates only after the new files are deployed. Opening `index.html` directly through `file://` is not a supported path.
+
 ## Recovery is an audit, not a promise of magic
 
 `init` and `recover` inventory every safe project-matching source the local environment exposes: current and archived Codex rollouts, Claude Code project sessions, compaction markers, multi-Agent or sidechain edges, Git branches, likely conversation exports, and project evidence.
