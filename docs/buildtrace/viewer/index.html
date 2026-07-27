@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#0d0f0d" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230d0f0d'/%3E%3Cpath d='M8 9h16M8 16h11M8 23h14' stroke='%23f1f6f2' stroke-width='2.5'/%3E%3Ccircle cx='24' cy='9' r='2.5' fill='%235df079'/%3E%3C/svg%3E" />
+    <meta
+      name="description"
+      content="BuildTrace — evidence-backed project memory for humans and AI agents."
+    />
+    <title>BuildTrace · Project Memory</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content" data-i18n="skipToContent">跳到主要内容</a>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#board" aria-label="BuildTrace home">
+          <span class="brand-mark" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </span>
+          <span class="brand-copy">
+            <strong>BuildTrace</strong>
+            <small data-i18n="brandTagline">项目因果记忆</small>
+          </span>
+        </a>
+
+        <nav class="mode-nav" aria-label="主要导航" data-i18n-aria-label="primaryNavigation">
+          <button class="mode-button" type="button" data-mode="board">
+            <span data-i18n="board">看板</span>
+            <span class="mode-index">01</span>
+          </button>
+          <button class="mode-button" type="button" data-mode="tutorial">
+            <span data-i18n="tutorial">教程</span>
+            <span class="mode-index">02</span>
+          </button>
+        </nav>
+
+        <div class="topbar-actions">
+          <button class="text-control" type="button" id="density-toggle">
+            <span data-i18n="density">密度</span>
+            <span id="density-label">舒展</span>
+          </button>
+          <button class="language-control" type="button" id="language-toggle" aria-label="切换语言" data-i18n-aria-label="switchLanguage">
+            <span class="language-option" data-language-option="zh">中</span>
+            <span class="language-divider">/</span>
+            <span class="language-option" data-language-option="en">EN</span>
+          </button>
+        </div>
+      </header>
+
+      <main id="main-content" tabindex="-1">
+        <div class="loading-state" id="loading-state" role="status">
+          <span class="loading-line"></span>
+          <span data-i18n="loading">正在读取项目主源…</span>
+        </div>
+        <div id="app"></div>
+      </main>
+
+      <nav class="mobile-nav" aria-label="移动端导航" data-i18n-aria-label="mobileNavigation">
+        <button type="button" data-mode="board">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16M4 12h10M4 19h13" /></svg>
+          <span data-i18n="board">看板</span>
+        </button>
+        <button type="button" data-mode="tutorial">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3V4Zm0 12.5A3.5 3.5 0 0 1 8.5 13H19" /></svg>
+          <span data-i18n="tutorial">教程</span>
+        </button>
+      </nav>
+    </div>
+
+    <template id="error-template">
+      <section class="error-state">
+        <p class="eyebrow">SOURCE ERROR</p>
+        <h1 data-i18n="sourceError">无法读取项目记录</h1>
+        <p data-error-message></p>
+        <div class="error-command">
+          <code>npm run serve</code>
+        </div>
+        <p data-i18n="sourceHelp">请确认 BUILDTRACE.md 位于 docs/buildtrace/，并通过本地服务器打开 Viewer。</p>
+      </section>
+    </template>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

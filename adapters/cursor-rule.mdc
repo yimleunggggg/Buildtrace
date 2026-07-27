@@ -1,0 +1,26 @@
+---
+description: Use BuildTrace for meaningful project memory, context restore, evidence-backed backfill, corrections, and outcome review.
+alwaysApply: true
+---
+
+<!-- buildtrace:managed-adapter -->
+# BuildTrace
+
+Do not wait for fixed commands. Infer intent, concerns, tradeoffs, evidence, and outcomes from the user's ordinary natural language. Restore relevant context before meaningful work and record completed meaningful work in the same turn. Ask only when missing information would change the factual judgment.
+
+Before meaningful work, read `docs/buildtrace/BUILDTRACE.md` project purpose, the latest 3–5 records, relevant records, and due `结果状态: 待观察` records.
+
+After meaningful features, fixes, UX/content changes, growth/data work, architecture, releases, Agent workflow changes, or important decisions, update `docs/buildtrace/BUILDTRACE.md` following `docs/buildtrace/SKILL.md`.
+
+Rules:
+
+- `BUILDTRACE.md` is the only source of truth.
+- Every factual record needs `依据`.
+- Preserve user wording in `沟通原文`; keep Agent interpretation in `需求总结`.
+- On first install or backfill, audit all safe readable transcripts, compact residues, forks, multi-Agent traces, Git branches, and provided exports; state coverage and inaccessible gaps.
+- Keep complete relevant user messages, itemized requirements, `Agent 当时理解`, `Agent 计划`, and `执行轨迹` as separate evidence layers.
+- Do not invent inaccessible conversations, motives, dates, screenshots, commits, deploys, or results.
+- Do not create or update `nodes.json` or browser state as project memory.
+- The Viewer is read-only. Corrections happen through the Agent.
+- Do not interrupt active work with a long form. Draft at the end and ask only for high-value corrections.
+- Before building a substantial new capability, verify whether mature products, standards, or open-source projects already prove and serve the need. Prefer integration or licensed reuse over rebuilding; record the adopted pattern, the project-specific difference, and any license obligations.

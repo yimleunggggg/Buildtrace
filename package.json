@@ -1,0 +1,40 @@
+{
+  "name": "buildtrace",
+  "version": "1.18.0-alpha.1",
+  "description": "Markdown-first project causal memory for humans and AI agents",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yimleunggggg/Buildtrace.git"
+  },
+  "homepage": "https://github.com/yimleunggggg/Buildtrace",
+  "bugs": {
+    "url": "https://github.com/yimleunggggg/Buildtrace/issues"
+  },
+  "files": [
+    "adapters",
+    "bin",
+    "docs",
+    "skill",
+    "templates",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "DESIGN.md",
+    "LICENSE",
+    "README.md",
+    "README.en.md",
+    "VERSION"
+  ],
+  "bin": {
+    "buildtrace": "./bin/buildtrace.mjs"
+  },
+  "scripts": {
+    "test": "node --test",
+    "serve": "node ./bin/buildtrace.mjs serve",
+    "doctor": "node ./bin/buildtrace.mjs doctor"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

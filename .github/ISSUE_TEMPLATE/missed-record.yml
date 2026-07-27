@@ -1,0 +1,52 @@
+name: Meaningful record was missed
+description: Report a case where BuildTrace did not capture a meaningful change or decision
+title: "[missed record] "
+labels:
+  - extraction
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Share a redacted minimal case. Do not upload private project memory, recovery manifests, tokens, internal URLs, or full transcripts.
+  - type: dropdown
+    id: agent
+    attributes:
+      label: Agent
+      options:
+        - Codex
+        - Cursor
+        - Claude Code
+        - GitHub Copilot
+        - Windsurf
+        - Gemini CLI
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: request
+    attributes:
+      label: Redacted request
+      description: What did the user ask in ordinary language?
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected record
+      description: What meaningful change, decision, evidence, or later outcome should have been preserved?
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What was recorded, or was no record created?
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy check
+      options:
+        - label: I removed private paths, tokens, internal links, personal project data, and verbatim private transcripts.
+          required: true

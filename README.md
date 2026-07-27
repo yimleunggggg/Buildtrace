@@ -1,0 +1,200 @@
+# BuildTrace
+
+[简体中文](README.md) · [English](README.en.md)
+
+BuildTrace 给用 AI 做项目的人保存一条项目脉络：当时为什么这样做，Agent 怎么理解、怎么推进，后来数据有没有变化，这个判断最后成不成立。
+
+当前版本：`v1.18.0-alpha.1`
+
+## 我为什么做它
+
+最近几个月，我围绕自己的爱好密集地玩 vibe coding：做过户外圈子的社交软件，也因为在日本徒步时找不到交通信息，做了一个屋久岛公交查询工具。后者上线一个半月有了 800 多位用户，约 60% 来自自然搜索。还有一个户外行李和装备管理工具。很多时候，我就是自己产品的用户。
+
+代码越做越快，我却开始遇到一个很具体的问题：看数据复盘时，想不起那个阶段到底做过什么。思考在一个 Agent 里，开发在另一个工具里，部署和数据又散在别处。为了弄清“是哪件事让数据变了”，翻遍所有地方，也拼不出完整的因果链。
+
+更可惜的是，聊天里那些带着人的主观性的判断很快会消失：
+
+> 我觉得 Bing 来的用户大概率是日语意图。
+>
+> 这个阶段先不管转化，先让页面被索引到。
+
+这些话不会自然出现在 Git commit 里，遇到上下文压缩后也未必还在。可它们才说明项目为什么走到这里，也逐渐构成一个人的审美、运营逻辑和做事方式。
+
+BuildTrace 就从这个问题开始。更完整的自述见[《我为什么做 BuildTrace》](docs/INTRODUCTION.zh-CN.md)。如果要把整个产品一次性交给新的 Agent 或协作者，直接发送[《BuildTrace：产品与实现全景说明》](docs/PRODUCT-AND-IMPLEMENTATION.zh-CN.md)，不需要对方先阅读代码。
+
+## 它留下什么
+
+```text
+人的原话与假设
+        ↓
+Agent 当时的理解与计划
+        ↓
+实际做了什么
+        ↓
+数据或外部事实如何变化
+        ↓
+后来回看：成立、没成立，还是暂时无法判断
+```
+
+主数据是一份项目内的 Markdown 文件：`docs/buildtrace/BUILDTRACE.md`。本仓库中的[同名文件](docs/buildtrace/BUILDTRACE.md)只是明确标注的虚构演示，不是维护者或其他项目的档案。Agent 负责从自然对话和实际工作中记录，Viewer 只负责阅读、搜索和复盘。
+
+当前已经可以：
+
+- 保留用户完整原话、分项需求、Agent 理解、原计划和实际执行轨迹；
+- 从仍可访问的 Codex 任务、compact 线索、多 Agent 来源、Git 分支和项目文件中审计旧上下文；
+- 在只读看板里查看项目脉络、动作结果复盘轨和个人决策手册；
+- 给记录设置 `private`、`team`、`public`，生成独立的团队版或脱敏公开版；
+- 导出 JSON / JSONL，或把多个项目里反复出现的 `dp-*` 原则汇成个人决策手册。
+
+## 安装是干净的
+
+- `skill/buildtrace/` 只有通用规则，没有任何人的 `BUILDTRACE.md`；
+- 全局 Skill 只告诉 Agent 如何初始化、恢复与记录，不携带维护者或其他项目档案；
+- 每个项目第一次激活时，才在该项目内创建自己的主源；
+- 公开仓库只保留虚构演示。维护者自己的 BuildTrace 看板与其他真实项目看板留在各自本地项目中。
+
+## 第一次安装
+
+需要 Node.js 20 或更高版本。任何人拿到 GitHub 链接后，可执行一条命令：
+
+```bash
+npm install -g github:yimleunggggg/Buildtrace && buildtrace setup
+```
+
+这会安装干净 Skill，并在 Codex、Cursor、Claude Code、GitHub Copilot、Windsurf 与 Gemini CLI 的用户级规则中加入一段可识别、可重复更新的自动激活说明。以后进入一个可写项目开始有意义的工作时，Agent 会先检查该项目是否已有 BuildTrace；没有就初始化，再继续工作。
+
+更新：
+
+```bash
+npm install -g github:yimleunggggg/Buildtrace && buildtrace setup
+```
+
+通过 GitHub 安装的用户用同一条命令升级；参与 BuildTrace 开发、直接在克隆仓库中运行 `node bin/buildtrace.mjs setup` 时，用户级 Skill 会链接到当前仓库，规则修改会立即反映到本机安装。
+
+如果不想启用自动初始化，也可以只在目标项目手动说：
+
+> 为这个项目启用 BuildTrace，并尽可能恢复此前上下文。先告诉我搜索了哪些任务、compact、fork、多 Agent、Git 和项目文件，哪些已经映射，哪些不可访问，再继续工作。
+
+对应命令是 `buildtrace init --target /absolute/path/to/project`。初始化会自动生成私密恢复清单，不会把安装日误当作项目第一天。已有项目跟随模板更新时运行 `buildtrace sync --target /absolute/path/to/project`；项目事实不会被模板覆盖。
+
+## Agent 支持
+
+| Agent | 常驻自动激活 | Skill | 项目规则 | 本地旧会话审计 |
+| --- | --- | --- | --- | --- |
+| Codex | `~/.codex/AGENTS.md` | `~/.agents/skills/buildtrace` | `AGENTS.md` | 支持 rollout、compact、fork / 多 Agent 清单 |
+| Cursor | 全局 Skill + 项目 always-on rule | `~/.agents/skills` / `~/.cursor/skills` | `.cursor/rules/buildtrace.mdc` | 读取当前可访问会话或用户导出 |
+| Claude Code | `~/.claude/CLAUDE.md` | `~/.claude/skills/buildtrace` | `CLAUDE.md` | 支持 `~/.claude/projects` 会话清单、compact 与 sidechain 线索 |
+| GitHub Copilot | `~/.copilot/copilot-instructions.md` | `~/.agents/skills` / `~/.copilot/skills` | `.github/copilot-instructions.md` | 读取当前可访问会话或用户导出 |
+| Windsurf | `global_rules.md` | Agent 可读取项目规则 | `.windsurf/rules/buildtrace.md` + `AGENTS.md` | 读取当前可访问会话或用户导出 |
+| Gemini CLI | `~/.gemini/GEMINI.md` | 使用常驻规则 | `GEMINI.md` | 读取当前可访问会话或用户导出 |
+
+“支持适配”不等于绕过各工具权限。已删除、无权限、从未保留或没有导出的原文，BuildTrace 会标成不可访问，而不是补编。
+
+## 日常怎么用
+
+初始化完成后，不用背固定口令，也不用每次先说 `$buildtrace`。照常告诉 Agent：
+
+- “我觉得现在先让页面被收录，暂时别优化转化。”
+- “把这个功能做掉，但记得两周后看搜索点击有没有变化。”
+- “这个结果无效，原来的假设可能错了，补进记录。”
+- “恢复一下这个项目之前为什么选这套结构，再继续。”
+
+Agent 会在有意义的工作前读取项目目的、相关历史和到期回看；完成后，把本轮原话、理解、计划、实际执行和验证证据写回主源。只有信息缺失会改变判断时才应该追问。
+
+本地打开当前项目看板：
+
+```bash
+buildtrace serve --target .
+```
+
+更完整、按实际场景写的说明见[《BuildTrace 使用手册》](docs/USAGE.zh-CN.md)。
+
+## 旧上下文能找回多少
+
+第一次 `init` 会生成一份私有恢复清单，扫描当前用户仍安全可读的：
+
+- Codex active / archived rollouts 与 compact 标记；
+- 可辨认的多 Agent 和任务来源；
+- Git 全部分支、提交、工作区和项目内聊天导出；
+- README、运营日志、数据日报等项目证据。
+
+需要重新审计时运行：
+
+```bash
+node bin/buildtrace.mjs recover --target /path/to/project
+```
+
+这不是“保证恢复所有聊天”的承诺。删除的、无权限的、从未导出的会话无法凭空找回；fork 的原生父子关系也不一定被工具完整暴露。报告必须区分已搜索、已匹配、已映射、未映射和不可访问，不能把推断写成确认事实。完整规则见 [`recovery-architecture.md`](docs/buildtrace/references/recovery-architecture.md)。
+
+## 复盘、导出与跨项目使用
+
+导出可移植数据：
+
+```bash
+node bin/buildtrace.mjs export --target /path/to/project --format json --output /path/to/buildtrace.json
+node bin/buildtrace.mjs export --target /path/to/project --format jsonl --output /path/to/buildtrace.jsonl
+```
+
+从多个项目生成个人决策手册：
+
+```bash
+node bin/buildtrace.mjs playbook \
+  --target /path/to/project-a \
+  --target /path/to/project-b \
+  --output /path/to/personal-decision-playbook.md
+```
+
+只有相同的稳定原则 ID 才会聚合；表述冲突会原样保留，不由程序替人揉成一个结论。
+
+## 私密、团队与公开看板
+
+本地看板直接读取完整主源，默认最私密。团队或公开分享要先生成新的派生目录：
+
+```bash
+node bin/buildtrace.mjs publish --profile team --target /path/to/project --output /empty/team-site
+node bin/buildtrace.mjs publish --profile public --target /path/to/project --output /empty/public-site
+```
+
+旧记录默认是 `private`。团队版只包含 `team` / `public` 记录并清理内部路径；公开版只包含明确标记为 `public` 的记录，还会移除原话、Agent 内部过程、技术备注和项目资料。团队目录仍要部署在有访问控制的环境中。详见 [`DEPLOY.md`](docs/buildtrace/DEPLOY.md)。
+
+## 三条边界
+
+1. `BUILDTRACE.md` 是唯一可编辑主源；JSON、看板和个人手册都是可重建的派生物。
+2. Viewer 只读，不用 `nodes.json` 或浏览器缓存保存项目事实。
+3. 没有依据的内容不能写成事实，动作发生在数据变化之前也不等于它造成了变化。
+
+## 借鉴与致谢
+
+BuildTrace 不打算重做已经成熟的任务管理、知识库、产品分析或 DevOps 数据湖。设计新能力前，会先看这个需求是否已经被大量用户验证，再决定链接、接入、复用开放结构，还是只借鉴模式。
+
+目前明确参考了 [Cline Memory Bank](https://cline.bot/blog/memory-bank-how-to-make-cline-an-ai-agent-that-never-forgets)、[Linear Projects / Updates](https://linear.app/docs/initiative-and-project-updates)、[PostHog annotations](https://posthog.com/docs/user-guides/annotations)、[Apache DevLake](https://devlake.apache.org/)、[ONES](https://docs.ones.com/zh-Hans/get-started/quick-start-guide-to-ones-project)、[TAPD](https://www.tapd.cn/home/solution/tapdlite) 与 [amber.ac](https://amber.ac/) 的已验证模式或视觉语言。完整边界和归因说明见 [`inspiration-and-attribution.md`](docs/buildtrace/references/inspiration-and-attribution.md)。
+
+目前没有复制这些产品的代码或视觉资产。如果以后引入开源代码、schema 或资产，会记录来源和版本，并遵守原许可证；一句“感谢”不能替代许可证要求。
+
+## 项目结构与开发
+
+```text
+docs/buildtrace/BUILDTRACE.md   项目记忆唯一主源
+docs/buildtrace/SKILL.md        Agent 工作规则
+docs/buildtrace/references/     恢复、结构与归因规范
+docs/buildtrace/scripts/        确定性的历史审计与派生脚本
+docs/buildtrace/viewer/         只读 Viewer
+bin/buildtrace.mjs              init / sync / recover / export / playbook / publish / deploy-kit
+tests/                          解析器与 CLI 测试
+```
+
+```bash
+npm test
+npm run doctor
+npm run serve
+```
+
+当前仍是 alpha：CLI 通过 GitHub 安装，尚未发布到 npm registry；完整的跨工具历史读取仍受各工具保存范围、导出能力与权限限制。
+
+## 开源许可
+
+BuildTrace 采用 [MIT License](LICENSE) 开源。
+
+Copyright © 2026 Yim leung。
+
+该许可证只适用于 BuildTrace 仓库本身。使用 `init` 或 `sync` 将 BuildTrace 接入其他项目时，不会自动改变那些项目原有的许可证。

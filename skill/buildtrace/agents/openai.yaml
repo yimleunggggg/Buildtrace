@@ -1,0 +1,4 @@
+interface:
+  display_name: "BuildTrace"
+  short_description: "Restore and record project causality"
+  default_prompt: "Use BuildTrace to restore this project's relevant context, then record meaningful completed work with evidence."
