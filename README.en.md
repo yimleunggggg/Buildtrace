@@ -48,14 +48,11 @@ Today it can:
 - generate separate `private`, `team`, and redacted `public` derivatives;
 - export JSON / JSONL and aggregate stable `dp-*` principles across projects without silently merging conflicting wording.
 
-## Two real projects
+## Tested beyond the demo
 
-BuildTrace is currently being tested on itself and on [Yakushima Bus](https://yakushimabus.com).
+BuildTrace is dogfooded in the maintainer's own workspace and in a separate production project. Those real archives stay inside their respective local projects: they are not tracked in this repository, included in the install package, or copied into a new user's project.
 
-- **BuildTrace** has 17 records covering the move to a Markdown source, recovery architecture, Viewer decisions, privacy boundaries, and the current release.
-- **Yakushima Bus** has 37 records covering official timetable data, route search, maps, multilingual UX, SEO, analytics, operations, and later reviews.
-
-The second project matters: it catches the difference between copying a dashboard template and maintaining a living project memory during real product work.
+The tracked [`docs/buildtrace/BUILDTRACE.md`](docs/buildtrace/BUILDTRACE.md) is synthetic demo data. Real-project testing still matters because it catches the difference between copying a dashboard template and maintaining living project memory during ongoing product work.
 
 ## Install once, initialize each project
 
