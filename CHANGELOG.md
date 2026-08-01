@@ -5,6 +5,7 @@
 - Add the standard MIT License for the BuildTrace repository, with copyright held by Yim leung; project initialization and synchronization do not alter downstream project licenses.
 - Add a standalone Chinese product and implementation brief that lets a new Agent understand BuildTrace's purpose, causal record model, recovery boundary, architecture, CLI, privacy derivatives, current implementation, and operating contract without first reading the repository code.
 - Clarify in the English README that real dogfooding archives remain in their own local projects and are not shipped in the repository or install package; remove stale project record counts from the public introduction.
+- Refine the author story across the Chinese and English introductions around the durable problem BuildTrace solves, and link to the complete first-person essay instead of keeping time-sensitive project metrics in the README.
 
 ## 1.18.0-alpha.1 — 2026-07-27
 

@@ -8,21 +8,17 @@ Current release: `v1.18.0-alpha.1`
 
 ## Why I made it
 
-Over the past few months I have been building small products around things I care about: an outdoor community demo, a gear and packing tool, and a Yakushima bus finder I made after struggling with transport information on a hiking trip in Japan. The bus tool reached more than 800 users in its first month and a half, with roughly 60% coming from organic search.
+I am not an engineer. My background is in user operations, communities, and offline events. After using AI to build several small products around my own interests, I kept running into the same problem: code changed quickly, but the project forgot why.
 
-Building became faster. Reviewing what happened became harder.
-
-Ideas lived in one Agent conversation, implementation in another tool, deployments somewhere else, and results in GA4, Search Console, Bing, or a spreadsheet. When a metric moved, I could no longer reconstruct the middle of the story well enough to answer: “What did I do during that period, and did it actually matter?”
-
-The most valuable lines were often subjective and temporary:
+Git could tell me which files changed, and an Agent could summarize the current session. A few weeks later, looking at the data, I still could not remember why I made a change, what I expected, or whether it worked. The easiest things to lose were lines like:
 
 > I think visitors arriving from Bing probably have Japanese-language intent.
 >
 > At this stage, ignore conversion and get the page indexed first.
 
-Those judgments do not naturally appear in a Git commit. They may disappear after context compaction, yet they are where human taste, operating logic, curiosity, and uncertainty live.
+BuildTrace keeps those human words and hypotheses beside the Agent's interpretation, the work that was actually done, and the evidence that appeared later. Git records what a project became. BuildTrace records why it became that way, and whether the original judgment held up.
 
-BuildTrace is an attempt to keep that authorship attached to the project.
+[Read the full first-person story in Chinese](https://mp.weixin.qq.com/s/OBF-aNReio1grgVbTYSYzg), or read the shorter [repository introduction](docs/INTRODUCTION.zh-CN.md).
 
 ## What it records
 
