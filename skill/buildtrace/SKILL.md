@@ -5,7 +5,7 @@ description: Preserve evidence-backed project memory before meaningful work, aft
 
 # BuildTrace
 
-BuildTrace keeps project causality in the current project's `docs/buildtrace/BUILDTRACE.md`. This installed Skill contains rules only. It must never contain or select another project's records.
+BuildTrace keeps project causality in the current project's `docs/buildtrace/BUILDTRACE.md`, unless that project explicitly names a different source path. Respect source overrides in every read, snapshot, status check and write. This installed Skill contains rules only. It must never contain or select another project's records.
 
 ## Activate
 
@@ -15,7 +15,9 @@ At meaningful work:
 2. If `docs/buildtrace/BUILDTRACE.md` is missing and the user has enabled automatic BuildTrace setup, run `buildtrace init --target "<absolute-project-root>"`.
 3. Read the project copy at `docs/buildtrace/SKILL.md`; it is versioned with the project and contains the full schema and privacy rules.
 4. Restore project intent, recent and relevant records, and due follow-ups before implementation.
-5. After a meaningful feature, fix, design, architecture, release, operational action, or important decision, update the Markdown source in the same turn.
+5. Before changing an existing archive, run `buildtrace snapshot --target "<absolute-project-root>"`. After editing, run `buildtrace verify-history --target "<absolute-project-root>"`.
+6. After a meaningful feature, fix, design, architecture, release, operational action, or important decision, update the Markdown source in the same turn.
+7. Re-read the saved record or run `buildtrace status --target "<absolute-project-root>"`. In the handoff, give its title, ID and file location. Say "recorded" only after the file is saved and checked; loading rules or initializing a project is not evidence that this session was recorded.
 
 Do not create a record for spelling fixes, pure formatting, trivial spacing changes, or disposable exploration. Fold small follow-up polish into the nearest meaningful record.
 
@@ -32,6 +34,7 @@ Do not create a record for spelling fixes, pure formatting, trivial spacing chan
 ## Evidence and privacy
 
 - Markdown is the only editable truth. Viewer, JSON, JSONL, recovery manifests, and decision playbooks are derivatives.
+- Existing records are append-only evidence. Do not delete or rewrite prior user quotes, interpretations, plans, or execution to satisfy a newer schema. Add a dated correction with new evidence; use `.buildtrace/history/` to audit or restore accidental changes.
 - Do not infer that a commit was deployed or that a preceding action caused a later metric change.
 - Old and new records default to `private`; only the user can authorize `team` or `public`.
 - Never mix records between projects, even when the global Skill is shared.

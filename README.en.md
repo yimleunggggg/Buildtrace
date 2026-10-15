@@ -6,6 +6,31 @@ BuildTrace keeps the part of an AI-assisted project that is easiest to lose: why
 
 Current release: `v1.18.0-alpha.1`
 
+## Start in three steps
+
+1. Give a coding AI with project-file and terminal access this request:
+
+   > Install BuildTrace from https://github.com/yimleunggggg/Buildtrace and enable it for future projects with `buildtrace setup`. Preserve my existing Agent settings. Then enable it in this project, recover accessible history, save this session's meaningful work, and show me the saved record and board address.
+
+   Or run this yourself (Node.js 20+ required), then reopen your Agent or start a new session:
+
+   ```bash
+   npm install -g git+https://github.com/yimleunggggg/Buildtrace.git && buildtrace setup
+   ```
+
+2. Work normally. For an existing project, say “Enable BuildTrace here and recover accessible history first.” Your AI should report inaccessible sources honestly, not invent missing conversations. You do not need a special command after each change.
+
+3. Ask “Open this project's BuildTrace board.” To check it yourself, run these inside the project:
+
+   ```bash
+   buildtrace status --target .
+   buildtrace serve --target .
+   ```
+
+   Open the address printed by the second command and keep that terminal running. This address works only on your computer; other devices need a separately hosted board. The source file updates when your AI saves a record, and the local board checks for those changes every 10 seconds.
+
+BuildTrace currently relies on your AI following the installed instructions. It is not a background service that captures every chat. Ask for the saved record title, ID and file path when checking that recording worked.
+
 ## Why I made it
 
 I am not an engineer. My background is in user operations, communities, and offline events. After using AI to build several small products around my own interests, I kept running into the same problem: code changed quickly, but the project forgot why.
@@ -50,19 +75,19 @@ BuildTrace is dogfooded in the maintainer's own workspace and in a separate prod
 
 The tracked [`docs/buildtrace/BUILDTRACE.md`](docs/buildtrace/BUILDTRACE.md) is synthetic demo data. Real-project testing still matters because it catches the difference between copying a dashboard template and maintaining living project memory during ongoing product work.
 
-## Install once, initialize each project
+## Install once, give each project its own records
 
 Requires Node.js 20 or later.
 
 ```bash
-npm install -g github:yimleunggggg/Buildtrace && buildtrace setup
+npm install -g git+https://github.com/yimleunggggg/Buildtrace.git && buildtrace setup
 ```
 
 This installs a clean, rule-only Skill and idempotent user-level auto-activation instructions for Codex, Cursor, Claude Code, GitHub Copilot, Windsurf, and Gemini CLI. The global Skill contains no `BUILDTRACE.md` and no maintainer or downstream-project archive.
 
 Run the same command again to upgrade a GitHub installation. Contributors who clone this repository and run `node bin/buildtrace.mjs setup` get live links to the checkout, so edits to the repository's clean Skill appear locally without another copy step.
 
-The user-level Skill becomes discoverable from every repository, but BuildTrace does **not** silently modify every project. Initialize each project once so it gets its own source, project instructions, recovery manifest, and Viewer:
+The user-level Skill becomes discoverable from every repository. With automatic setup enabled, supported Agents are instructed to initialize a writable project on first meaningful work, not to scan and change every project on your disk. Each project needs its own source, instructions, history audit and board. You can also initialize explicitly:
 
 ```bash
 buildtrace init --target /path/to/your-project
@@ -74,7 +99,7 @@ Update an installed project from the latest BuildTrace checkout:
 node bin/buildtrace.mjs sync --target /path/to/your-project
 ```
 
-`sync` updates managed Viewer, Skill, CLI, reference, and deployment files after backing up the previous copies. It does not rewrite the project's `BUILDTRACE.md` or `AGENTS.md`.
+`sync` updates managed Viewer, Skill, CLI, reference, and deployment files after backing up the previous copies. It does not rewrite the project's `BUILDTRACE.md`. In shared Agent instruction files such as `AGENTS.md`, it updates only the marked BuildTrace block and preserves other instructions.
 
 ## Everyday use
 
@@ -87,6 +112,20 @@ Once the project instructions are active, no fixed command is required. Speak no
 > Restore why this project chose the current data structure before changing it.
 
 Before meaningful work, the Agent reads the purpose, related history, recent records, and due reviews. After a meaningful feature, fix, decision, release, or operation, it writes the conversation, interpretation, plan, execution, and verification back in the same turn.
+
+Recording currently depends on your working AI following the instructions; there is no background collector that guarantees every conversation is captured. After saving, your AI should show the record title, ID and file path. Check the actual archive with `buildtrace status --target .`.
+
+Project initialization now backs up an existing `AGENTS.md` and adds a managed BuildTrace block without a manual merge. Tools such as WorkBuddy that read this file can use the same project rules; this does not imply dedicated conversation capture support.
+
+Existing evidence is not a scratch document. BuildTrace keeps content-addressed local snapshots. `verify-history` compares records with stable IDs against a saved baseline and reports changes to protected evidence fields, including prior quotes, requirements, understanding, plans and execution. It is a post-edit check, not a filesystem write blocker; records without stable IDs and fields outside that comparison still require review:
+
+```bash
+buildtrace snapshot --target .
+buildtrace verify-history --target .
+buildtrace history --target .
+```
+
+Snapshots live in Git-ignored `.buildtrace/history/`. Restore an inspected version with `buildtrace restore --target . --snapshot <hash-prefix> --confirm`; the current version is snapshotted before restoration. Keep an independent backup as well. `audit-quotes` checks declared provenance and fidelity metadata; it does not compare the archive against all original transcripts or prove that every message was captured. Missing original text must be reported, never invented.
 
 Run the private local Viewer inside a project:
 

@@ -967,6 +967,28 @@ a:visited {
   font-size: 13px;
   line-height: 1.75;
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.trace-reference {
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+
+.trace-reference summary {
+  cursor: pointer;
+  padding: 6px 0;
+  font-size: inherit;
+  font-weight: 400;
+}
+
+.trace-reference code {
+  display: block;
+  padding: 6px 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .command-copy {
@@ -6136,11 +6158,10 @@ body {
 }
 
 .lens-meta {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 1px;
+  display: flex;
+  justify-content: flex-end;
   border-top: 1px solid var(--rule);
-  background: var(--rule);
+  background: #1a1e1b;
 }
 
 .profile-strip {
@@ -6904,6 +6925,9 @@ textarea {
   color: var(--ink-soft);
   font-size: 15px;
   line-height: 1.5;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  -webkit-line-clamp: 3;
 }
 
 .records-panel .workspace-tools {
@@ -7229,6 +7253,7 @@ textarea {
   .timeline-track {
     padding-right: 16px;
     padding-left: 16px;
+    grid-auto-columns: minmax(220px, 1fr);
   }
 
   .records-panel .workspace-tools {

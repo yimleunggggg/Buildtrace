@@ -8,49 +8,49 @@ const translations = {
     switchLanguage: "切换语言",
     projectSignals: "项目概览",
     recordIndex: "项目记录索引",
-    statusFilter: "结果状态筛选",
+    statusFilter: "记录筛选",
     selectedRecordDetail: "所选记录详情",
     tutorialChapters: "教程章节",
-    brandTagline: "项目因果记忆",
+    brandTagline: "项目记忆",
     board: "看板",
     tutorial: "教程",
     about: "关于",
     aboutTitle: "关于这个项目",
-    aboutNote: "这里保存作者为什么做这个项目，以及看板如何读取和更新。日常回看不必先读这些背景。",
+    aboutNote: "了解项目的来由，以及如何记录和查看进展。",
     aboutMaker: "作者的话",
-    liveRefresh: "自动刷新",
-    liveRefreshLocal: "本地服务会自动读取最新 Markdown",
-    liveRefreshNote: "通过 buildtrace serve 打开时，BUILDTRACE.md 保存后通常会在 10 秒内出现在看板中；页面隐藏时会暂停检查。线上静态看板仍需先完成新一轮部署。",
-    sourceUpdated: "已读取最新 Markdown。",
+    liveRefresh: "检查文件更新",
+    liveRefreshLocal: "保存记录后，看板会刷新",
+    liveRefreshNote: "本地看板每 10 秒检查一次记录文件，切到后台会暂停。这只表示文件更新，不代表每轮对话都已保存。线上看板在重新发布后更新。",
+    sourceUpdated: "已显示最新保存的记录。",
     sourceUnavailable: "暂时无法检查更新",
     traceLens: "项目脉络",
-    reviewLens: "复盘轨",
+    reviewLens: "结果回顾",
     playbookLens: "决策手册",
     traceLensNote: "按时间查看关键版本与功能",
     reviewLensNote: "假设 → 动作 → 数据 → 判断",
-    playbookLensNote: "沉淀可跨项目复用的判断",
+    playbookLensNote: "收下以后还想用的经验",
     reviewTrackTitle: "动作后来有没有效果",
-    reviewTrackNote: "不把上线当结果。把人的假设、实际动作、后续数据和成立与否放在同一条轨道上。",
-    reviewHypothesis: "人的假设",
+    reviewTrackNote: "当时期待什么，做完后发生了什么？把后来的数据和反馈放回来一起看。",
+    reviewHypothesis: "当时怎么想",
     reviewAction: "做了什么",
     reviewEvidence: "数据变化 / 观察",
-    reviewJudgment: "后来是否成立",
+    reviewJudgment: "现在怎么看",
     reviewOpen: "查看完整复盘",
     noStructuredValue: "这一步尚未记录",
-    reviewTrackEmpty: "还没有结构化复盘轨",
-    reviewTrackEmptyNote: "下次记录一个需要验证的判断，并写清观察指标、数据源和时间窗口。",
+    reviewTrackEmpty: "还没有需要回看的结果",
+    reviewTrackEmptyNote: "可以告诉 AI：“这次先这样做，两周后看有没有改善。”再约好看什么数据。",
     decisionPlaybookTitle: "个人决策手册",
-    decisionPlaybookNote: "这里只展示你明确确认、来源可靠且能回到真实记录的原则。Agent 未经确认的总结不会进入手册。",
-    decisionCandidate: "单项目候选",
+    decisionPlaybookNote: "只收下你确认过的经验，每一条都能找到它来自哪次项目记录。",
+    decisionCandidate: "在一个项目中使用",
     decisionRepeated: "反复出现",
-    decisionConflict: "需要人工统一",
+    decisionConflict: "有不同说法，待你确认",
     decisionEvidence: "来自真实记录",
-    noDecisionPrinciples: "还没有决策原则",
-    noDecisionPrinciplesNote: "只有这次记录真实体现、以后值得复用的判断，才需要稳定的 dp-* ID。",
-    crossProjectCommand: "生成跨项目手册",
+    noDecisionPrinciples: "还没有收下的经验",
+    noDecisionPrinciplesNote: "遇到以后还想用的做法，告诉 AI：“把这条收进我的决策手册”，并保留对应记录。",
+    crossProjectCommand: "汇总多个项目的经验",
     visibility: "可见范围",
-    profilePrivate: "私密主源",
-    profileTeam: "团队快照",
+    profilePrivate: "仅自己查看",
+    profileTeam: "团队版",
     profilePublic: "脱敏公开版",
     profilePrivateNote: "完整内容只在本地项目中读取",
     profileTeamNote: "仅含团队/公开记录；分享时仍需访问控制",
@@ -58,53 +58,53 @@ const translations = {
     density: "密度",
     comfortable: "舒展",
     compact: "紧凑",
-    loading: "正在读取项目主源…",
+    loading: "正在打开项目记录…",
     sourceError: "无法读取项目记录",
-    sourceHelp: "请确认 BUILDTRACE.md 位于 docs/buildtrace/，并通过本地服务器打开 Viewer。",
-    boardEyebrow: "PROJECT TRACE / LIVE SOURCE",
+    sourceHelp: "在项目文件夹运行 buildtrace serve --target .，再打开终端给出的地址。记录文件应位于 docs/buildtrace/BUILDTRACE.md。",
+    boardEyebrow: "PROJECT NOTES",
     boardTitle: "记住为什么，\n不只记住做了什么。",
-    boardNote: "每条记录都把动机、行动、证据和结果放在一起。看板只读展示 Markdown 主源，不制造第二份事实。",
-    openSource: "查看 BUILDTRACE.md",
+    boardNote: "回到当时的原话、决定和实际进展，看看后来发生了什么。",
+    openSource: "查看记录文件",
     totalRecords: "全部记录",
     pendingReview: "等待结果",
-    effective: "后来成立",
+    effective: "有效",
     nextReview: "下次补结果",
     milestones: "关键节点",
     dueOutcomes: "需要补结果",
     latestRecord: "最近记录",
     noReview: "暂无",
-    search: "搜索标题、动机或证据",
+    search: "搜索记录、原话或资料",
     all: "全部",
     pending: "等待结果",
-    valid: "后来成立",
+    valid: "有效",
     uncertain: "暂无结论",
-    ineffective: "后来未成立",
+    ineffective: "无效",
     noResults: "没有匹配记录",
     noResultsHint: "换一个关键词，或清除当前筛选。",
-    noPublishedRecords: "当前没有可在此范围展示的记录",
-    noPublishedRecordsHint: "旧记录默认私密；只有明确标记为团队或公开的记录才会进入对应快照。",
+    noPublishedRecords: "这个分享版还没有记录",
+    noPublishedRecordsHint: "请先让 AI 将要分享的记录设为团队或公开，再重新生成看板。",
     backToRecords: "返回记录",
-    sourceTrust: "来源可信度",
+    sourceTrust: "来源核对",
     evidence: "依据",
-    scene: "场景",
+    scene: "分类",
     resultStatus: "后来结果",
     reviewDate: "后续回看",
     quote: "沟通原文",
-    summary: "需求总结",
+    summary: "这次要做什么",
     why: "为什么做",
     changes: "做了什么",
     technical: "技术备注",
     result: "结果",
     copyCorrection: "纠正这条记录",
     copyReview: "补记后来结果",
-    actionHelp: "会复制一句明确的话给 Agent，不会直接改动看板。",
-    copied: "指令已复制，可以粘贴给 Agent。",
+    actionHelp: "点击后复制一段话，粘贴给正在使用的 AI，再补充你的说明。",
+    copied: "已复制，粘贴给 AI 即可。",
     copyFallback: "浏览器没有授予剪贴板权限。请从下面手动复制：",
-    copyPrepared: "指令已准备。浏览器若未写入剪贴板，可在这里直接复制。",
+    copyPrepared: "下面这段话可以发给 AI。若未自动复制，请选中文字复制。",
     closeCopyPanel: "关闭复制面板",
-    tutorialEyebrow: "5 MINUTE WORKFLOW",
-    tutorialTitle: "四步留下\n可信的项目脉络。",
-    tutorialNote: "教程不是强制流程。先理解最小闭环，然后直接回到看板工作。",
+    tutorialEyebrow: "GETTING STARTED",
+    tutorialTitle: "第一次怎么用？",
+    tutorialNote: "安装一次，照常和 AI 做项目。这里介绍怎样开始、查看记录和补充结果。",
     progress: "教程进度",
     markComplete: "标记完成",
     completed: "已完成",
@@ -113,72 +113,72 @@ const translations = {
     openBoard: "进入看板",
     copy: "复制",
     workbench: "项目工作台",
-    workbenchNote: "先定位状态，再读因果；所有内容来自 Markdown 主源。",
+    workbenchNote: "先看最近进展，再打开感兴趣的记录。",
     projectResources: "项目入口",
-    resourceVault: "项目资料柜",
-    resourceVaultNote: "代码、文档、数据、部署、支付、设计与参考资料集中放在这里。它们是项目上下文，不是一次变更记录。",
+    resourceVault: "项目资料",
+    resourceVaultNote: "把常用的文档、数据看板、设计和网站入口放在这里，回顾时方便找到。",
     addResource: "添加项目资料",
     manageResources: "整理资料入口",
-    resourceBuilderTitle: "把资料交给 Agent 写入主源",
-    resourceBuilderNote: "Viewer 保持只读。填写后会复制一条明确指令，由 Agent 把入口加入 BUILDTRACE.md。",
+    resourceBuilderTitle: "添加一份项目资料",
+    resourceBuilderNote: "填好后复制下面的内容，发给 AI 保存。网页不会直接添加资料。",
     resourceTitle: "名称",
     resourceURL: "链接或项目内路径",
     resourceCategory: "分类",
     resourceNote: "什么时候看 / 有什么用",
-    copyResourceCommand: "复制添加指令",
-    readonlyReminder: "不会写入浏览器缓存，也不会从网页修改项目事实。",
-    workflows: "自动记录链路",
-    sourceCoverage: "依据覆盖",
+    copyResourceCommand: "复制给 AI 保存",
+    readonlyReminder: "请等 AI 确认保存，再刷新这里查看。",
+    workflows: "如何记录",
+    sourceCoverage: "记录参考了哪些资料",
     timelineOverview: "关键节点",
     timelineNote: "只展示重要版本、功能、架构变化与项目里程碑",
     noMilestones: "还没有标记关键节点。普通改动仍可在下方项目记录中找到。",
     records: "项目记录",
-    allScenes: "全部场景",
-    restoreContext: "自动恢复上下文",
+    allScenes: "全部分类",
+    restoreContext: "回顾之前的工作",
     restoreContextNote: "开工前读取相关记录",
-    recordSession: "自动摘取本轮",
-    recordSessionNote: "从自然语言、改动与验证提炼",
-    reviewDue: "自动识别结果",
-    reviewDueNote: "从后续反馈更新结论",
-    fillGaps: "只问关键缺口",
-    fillGapsNote: "缺失会影响判断时才追问",
+    recordSession: "记录这次工作",
+    recordSessionNote: "保存原话、做法和验证结果",
+    reviewDue: "补充后来的结果",
+    reviewDueNote: "把新数据和反馈放回记录",
+    fillGaps: "检查遗漏",
+    fillGapsNote: "找出影响理解的缺失信息",
     noResources: "尚未记录项目入口",
     evidenceMissing: "尚未记录依据",
     causalChain: "记录详情",
     originalWords: "当时原话",
     showAllQuotes: "展开全部原话",
-    agentUnderstanding: "Agent 当时理解",
-    agentPlan: "Agent 计划",
-    executionTrace: "执行轨迹",
+    agentUnderstanding: "AI 当时怎么理解",
+    agentPlan: "AI 打算怎么做",
+    executionTrace: "实际做了哪些步骤",
     technicalNotes: "实现与验证",
     evidenceSource: "依据 / 来源",
     resultReview: "结果回看",
     copyEvidence: "补充依据",
-    projectContext: "项目上下文",
-    projectContextNote: "入口、工作方式与依据",
+    projectContext: "项目与资料",
+    projectContextNote: "项目名称、筛选与记录方式",
     recordKind: "事项类型",
-    recordTags: "节点标签",
+    recordTags: "记录分类",
     relatedRecords: "同类记录",
-    relatedRecordsNote: "与当前节点属于同一事项类型",
-    automationDetails: "自动记录如何工作",
+    relatedRecordsNote: "看看这类事情之前怎么处理",
+    automationDetails: "让 AI 回顾或补记",
     heroTitle: "别让你的思考埋在 AI 对话里",
-    heroNote: "人的判断、取舍和行动会散落在对话里。BuildTrace 把它们连同后来结果，留成一条可以追溯的项目脉络。",
+    heroNote: "记下当时为什么这样做、做了什么。过段时间回来，接着看进展和结果。",
     humanPurpose: "作者的话",
     humanPurposeExpand: "继续读",
-    sourceMode: "Markdown 唯一主源 · Viewer 只读",
-    downloadSource: "下载 Markdown",
-    newRecordDraft: "新节点草稿",
+    sourceMode: "记录保存在项目文件里",
+    downloadSource: "下载记录",
+    newRecordDraft: "让 AI 记录这次工作",
     deploymentTitle: "可部署成线上看板，手机也能看",
-    deploymentNote: "BuildTrace 是静态只读看板。可以随项目部署到 Vercel、Cloudflare Pages、GitHub Pages 或国内静态托管；线上仍只读取项目里的 BUILDTRACE.md。",
+    deploymentNote: "可以把看板发布到一个固定网址，方便在手机或其他设备上查看。线上内容会在重新发布后更新。",
     deploymentStatus: "静态站优先",
     deploymentGuide: "查看部署步骤",
     projectTools: "项目工具",
     openResources: "项目资料",
     shareDeploy: "分享 / 部署",
-    deploymentDrawerTitle: "部署自己的只读看板",
-    deploymentDrawerNote: "默认先在本地使用；需要共享时，再选择带访问控制或公开托管。",
+    deploymentDrawerTitle: "在其他设备查看或分享",
+    deploymentDrawerNote: "本地地址只在这台电脑上可用。要在手机查看，可以发布团队版或公开版；团队版需要登录保护。",
     privacyFirst: "公开前先检查隐私",
-    privacyNote: "BUILDTRACE.md 可能包含人的原话、未验证假设、本地路径和内部入口。公开部署会让这些内容随静态文件一起可见。",
+    privacyNote: "记录可能含有聊天原话和内部资料。请使用下面的分享命令生成副本，先检查内容，再发布到网上。",
     localPrivate: "本地 · 默认私密",
     localPrivateNote: "不上传项目记忆，适合日常个人使用。",
     copyCommand: "复制命令",
@@ -201,49 +201,49 @@ const translations = {
     switchLanguage: "Switch language",
     projectSignals: "Project overview",
     recordIndex: "Project record index",
-    statusFilter: "Outcome status filter",
+    statusFilter: "Record filters",
     selectedRecordDetail: "Selected record detail",
     tutorialChapters: "Tutorial chapters",
-    brandTagline: "Project causal memory",
+    brandTagline: "Project memory",
     board: "Board",
     tutorial: "Tutorial",
     about: "About",
     aboutTitle: "About this project",
-    aboutNote: "This keeps the maker's reason for building the project and explains how the board reads and refreshes. You do not need this background before everyday review.",
+    aboutNote: "Why this project exists, and how to save and review your work.",
     aboutMaker: "A note from the maker",
-    liveRefresh: "Auto refresh",
-    liveRefreshLocal: "The local server reads the latest Markdown",
-    liveRefreshNote: "When opened with buildtrace serve, saved changes to BUILDTRACE.md normally appear within 10 seconds. Checks pause while the page is hidden. A hosted static board still needs a new deployment first.",
-    sourceUpdated: "Latest Markdown loaded.",
+    liveRefresh: "Checking file updates",
+    liveRefreshLocal: "The board refreshes after records are saved",
+    liveRefreshNote: "The local board checks the file every 10 seconds while visible. This does not mean every conversation has been saved. Hosted boards update after you publish again.",
+    sourceUpdated: "Showing the latest saved records.",
     sourceUnavailable: "Update check unavailable",
     traceLens: "Project trail",
-    reviewLens: "Review track",
+    reviewLens: "Outcomes",
     playbookLens: "Decision playbook",
     traceLensNote: "Browse major versions and features over time",
     reviewLensNote: "Hypothesis → action → data → judgment",
-    playbookLensNote: "Keep decisions that transfer across projects",
+    playbookLensNote: "Keep lessons you want to use again",
     reviewTrackTitle: "Did the action work later?",
-    reviewTrackNote: "Shipping is not the outcome. Keep the human hypothesis, action, later data, and judgment in one review track.",
-    reviewHypothesis: "Human hypothesis",
+    reviewTrackNote: "What did you expect, and what actually happened? Bring the later data and feedback back to the original record.",
+    reviewHypothesis: "What you expected",
     reviewAction: "What changed",
     reviewEvidence: "Data change / observation",
-    reviewJudgment: "Did it hold?",
+    reviewJudgment: "What you think now",
     reviewOpen: "Open full review",
     noStructuredValue: "Not recorded yet",
-    reviewTrackEmpty: "No structured review tracks yet",
-    reviewTrackEmptyNote: "Next time, record a testable judgment with its metric, source, and observation window.",
+    reviewTrackEmpty: "No outcomes to follow up yet",
+    reviewTrackEmptyNote: "Tell your AI: ‘Let’s try this and check for improvement in two weeks.’ Agree on which data to check.",
     decisionPlaybookTitle: "Personal decision playbook",
-    decisionPlaybookNote: "Only human-confirmed principles with trusted source records and traceable evidence appear here. Agent-generated summaries stay out.",
-    decisionCandidate: "Project candidate",
+    decisionPlaybookNote: "Lessons you have confirmed, each linked to the project record it came from.",
+    decisionCandidate: "Used in one project",
     decisionRepeated: "Repeated",
-    decisionConflict: "Needs human review",
+    decisionConflict: "Different accounts to review",
     decisionEvidence: "Evidence records",
-    noDecisionPrinciples: "No decision principles yet",
-    noDecisionPrinciplesNote: "Use a stable dp-* ID only for a judgment this record truly demonstrates and may be useful again.",
-    crossProjectCommand: "Generate cross-project playbook",
+    noDecisionPrinciples: "No lessons saved yet",
+    noDecisionPrinciplesNote: "Tell your AI ‘Add this to my decision playbook’ when you find a useful lesson. Keep its original project record linked.",
+    crossProjectCommand: "Collect lessons from several projects",
     visibility: "Visibility",
-    profilePrivate: "Private source",
-    profileTeam: "Team snapshot",
+    profilePrivate: "For your eyes only",
+    profileTeam: "Team copy",
     profilePublic: "Redacted public view",
     profilePrivateNote: "Full content stays in the local project",
     profileTeamNote: "Team/public records only; sharing still requires access control",
@@ -251,53 +251,53 @@ const translations = {
     density: "Density",
     comfortable: "Roomy",
     compact: "Compact",
-    loading: "Reading the project source…",
+    loading: "Opening project records…",
     sourceError: "Project record could not be loaded",
-    sourceHelp: "Confirm BUILDTRACE.md is in docs/buildtrace/ and open the Viewer through the local server.",
-    boardEyebrow: "PROJECT TRACE / LIVE SOURCE",
+    sourceHelp: "Run buildtrace serve --target . in your project folder and open the address it prints. Records should be in docs/buildtrace/BUILDTRACE.md.",
+    boardEyebrow: "PROJECT NOTES",
     boardTitle: "Remember why,\nnot only what changed.",
-    boardNote: "Each record keeps intent, action, evidence, and outcome together. The board reads the Markdown source without creating a second version of truth.",
-    openSource: "Open BUILDTRACE.md",
+    boardNote: "Return to the original words, decisions, and work, and see what happened afterwards.",
+    openSource: "Open record file",
     totalRecords: "All records",
     pendingReview: "Waiting for outcome",
-    effective: "Held up later",
+    effective: "Effective",
     nextReview: "Next outcome check",
     milestones: "Key moments",
     dueOutcomes: "Outcome due",
     latestRecord: "Latest record",
     noReview: "None",
-    search: "Search title, intent, or evidence",
+    search: "Search records, quotes, or sources",
     all: "All",
     pending: "Waiting for outcome",
-    valid: "Held up later",
+    valid: "Effective",
     uncertain: "No conclusion",
     ineffective: "Did not hold",
     noResults: "No matching records",
     noResultsHint: "Try another phrase or clear the current filter.",
-    noPublishedRecords: "No records are available in this sharing scope",
-    noPublishedRecordsHint: "Legacy records stay private; only explicitly team or public records enter a shared snapshot.",
+    noPublishedRecords: "This shared board has no records yet",
+    noPublishedRecordsHint: "Ask your AI to mark the records you want to share as team or public, then generate the board again.",
     backToRecords: "Back to records",
     sourceTrust: "Source trust",
     evidence: "Evidence",
-    scene: "Scene",
+    scene: "Category",
     resultStatus: "Later outcome",
     reviewDate: "Review date",
     quote: "Original words",
-    summary: "Need",
+    summary: "What you asked for",
     why: "Why",
     changes: "What changed",
     technical: "Technical notes",
     result: "Result",
     copyCorrection: "Correct this record",
     copyReview: "Add the later outcome",
-    actionHelp: "Copies one clear message for your Agent. It never edits the board directly.",
-    copied: "Command copied. Paste it to your Agent.",
+    actionHelp: "Copy a message, paste it to the AI you use, and add your explanation.",
+    copied: "Copied. Paste it to your AI.",
     copyFallback: "Clipboard access was not granted. Copy the text below manually:",
-    copyPrepared: "Command ready. If the browser blocked clipboard access, copy it here.",
+    copyPrepared: "Send the text below to your AI. Select and copy it if automatic copying did not work.",
     closeCopyPanel: "Close copy panel",
-    tutorialEyebrow: "5 MINUTE WORKFLOW",
-    tutorialTitle: "Leave a trustworthy\nproject trail in four steps.",
-    tutorialNote: "The tutorial is not a gate. Learn the smallest loop, then return to the board and work.",
+    tutorialEyebrow: "GETTING STARTED",
+    tutorialTitle: "Using BuildTrace for the first time",
+    tutorialNote: "Install once, then work with your AI as usual. Learn how to start, find your records, and add later results.",
     progress: "Tutorial progress",
     markComplete: "Mark complete",
     completed: "Completed",
@@ -306,72 +306,72 @@ const translations = {
     openBoard: "Open board",
     copy: "Copy",
     workbench: "Project workbench",
-    workbenchNote: "Locate status first, then read causality. Everything comes from the Markdown source.",
+    workbenchNote: "Look at recent progress, then open a record to read more.",
     projectResources: "Project resources",
-    resourceVault: "Project resource cabinet",
-    resourceVaultNote: "Keep code, docs, analytics, deployment, payments, design, and references together. They are project context, not individual change records.",
+    resourceVault: "Project resources",
+    resourceVaultNote: "Keep useful documents, analytics, designs, and websites close by when reviewing the project.",
     addResource: "Add project resource",
     manageResources: "Organize resources",
-    resourceBuilderTitle: "Ask the Agent to update the source",
-    resourceBuilderNote: "The Viewer stays read-only. This form copies a precise instruction for your Agent to add the resource to BUILDTRACE.md.",
+    resourceBuilderTitle: "Add a project resource",
+    resourceBuilderNote: "Fill this in, then send the copied text to your AI to save. The web page does not add resources directly.",
     resourceTitle: "Name",
     resourceURL: "URL or project-relative path",
     resourceCategory: "Category",
     resourceNote: "When to use it / why it matters",
-    copyResourceCommand: "Copy add instruction",
-    readonlyReminder: "Nothing is written to browser storage or back into project facts from this page.",
-    workflows: "Automatic capture",
-    sourceCoverage: "Evidence coverage",
+    copyResourceCommand: "Copy for your AI",
+    readonlyReminder: "Wait for your AI to confirm it is saved, then refresh this page.",
+    workflows: "How records are saved",
+    sourceCoverage: "Sources used in these records",
     timelineOverview: "Key moments",
     timelineNote: "Major releases, features, architecture changes, and confirmed milestones only",
     noMilestones: "No key moments are marked yet. Regular changes remain available in the full record list.",
     records: "Project records",
-    allScenes: "All scenes",
-    restoreContext: "Restore automatically",
+    allScenes: "All categories",
+    restoreContext: "Review previous work",
     restoreContextNote: "Read relevant records before work",
-    recordSession: "Capture automatically",
-    recordSessionNote: "Infer from language, changes, and checks",
-    reviewDue: "Recognize outcomes",
-    reviewDueNote: "Update conclusions from later feedback",
-    fillGaps: "Ask only for critical gaps",
-    fillGapsNote: "Ask when missing context changes judgment",
+    recordSession: "Save this work",
+    recordSessionNote: "Keep quotes, changes, and test results",
+    reviewDue: "Add later results",
+    reviewDueNote: "Bring new data and feedback back",
+    fillGaps: "Check for missing details",
+    fillGapsNote: "Find gaps that make the work hard to understand",
     noResources: "No project resources recorded",
     evidenceMissing: "No evidence recorded",
     causalChain: "Record detail",
     originalWords: "Original words",
     showAllQuotes: "Expand every original message",
-    agentUnderstanding: "Agent understanding at the time",
-    agentPlan: "Agent plan",
-    executionTrace: "Execution trace",
+    agentUnderstanding: "How the AI understood it",
+    agentPlan: "How the AI planned to work",
+    executionTrace: "Steps actually taken",
     technicalNotes: "Implementation and verification",
     evidenceSource: "Evidence / source",
     resultReview: "Outcome review",
     copyEvidence: "Add evidence",
-    projectContext: "Project context",
-    projectContextNote: "Resources, workflows, and evidence",
+    projectContext: "Project and resources",
+    projectContextNote: "Project name, filters, and recording",
     recordKind: "Work type",
     recordTags: "Record tags",
     relatedRecords: "Related records",
     relatedRecordsNote: "Records with the same work type",
-    automationDetails: "How automatic capture works",
+    automationDetails: "Ask your AI to review or add records",
     heroTitle: "Don't let your thinking get buried in AI chats",
-    heroNote: "Judgment, tradeoffs, and action get scattered across chats. BuildTrace keeps them with later outcomes in a project trail you can trace.",
+    heroNote: "Keep why you made a change and what you did. Come back later to check progress and results.",
     humanPurpose: "A note from the maker",
     humanPurposeExpand: "Keep reading",
-    sourceMode: "Markdown source of truth · Read-only Viewer",
-    downloadSource: "Download Markdown",
-    newRecordDraft: "New record draft",
+    sourceMode: "Records are saved in your project files",
+    downloadSource: "Download records",
+    newRecordDraft: "Ask AI to save this work",
     deploymentTitle: "Deploy your own board and view it on mobile",
-    deploymentNote: "BuildTrace is a static, read-only board. Deploy it with the project to Vercel, Cloudflare Pages, GitHub Pages, or a regional static host; the online board still reads only the project's BUILDTRACE.md.",
+    deploymentNote: "Publish the board at a fixed address to view it on another device. Online content updates when you publish again.",
     deploymentStatus: "Static-first",
     deploymentGuide: "View deployment steps",
     projectTools: "Project tools",
     openResources: "Project resources",
     shareDeploy: "Share / deploy",
-    deploymentDrawerTitle: "Deploy your own read-only board",
-    deploymentDrawerNote: "Use it locally by default. Choose access-controlled or public hosting only when you need to share it.",
+    deploymentDrawerTitle: "View on another device or share",
+    deploymentDrawerNote: "A local address only works on this computer. Publish a team or public copy for other devices; team hosting needs sign-in protection.",
     privacyFirst: "Check privacy before publishing",
-    privacyNote: "BUILDTRACE.md may contain original words, unverified hypotheses, local paths, and internal links. A public static deployment makes that content visible too.",
+    privacyNote: "Records may contain private conversations and internal resources. Use the commands below to create a sharing copy, review it, then publish it.",
     localPrivate: "Local · private by default",
     localPrivateNote: "Keeps project memory on your machine for everyday personal use.",
     copyCommand: "Copy command",
@@ -391,95 +391,101 @@ const translations = {
 
 const tutorialSteps = [
   {
-    zh: {
-      title: "确认唯一主源",
-      subtitle: "先建立可信边界",
-      lead: "BuildTrace 的第一条规则很简单：项目事实只写进 BUILDTRACE.md。看板、搜索和筛选都从这里读取。",
-      points: [
-        "确认 docs/buildtrace/BUILDTRACE.md 存在。",
-        "不要让 Viewer、JSON 或浏览器缓存成为第二份事实。",
-        "找不到依据时写 unknown，不补一个看似完整的故事。",
+    "zh": {
+      "title": "安装一次",
+      "subtitle": "让常用 AI 工具读到规则",
+      "lead": "需要 Node.js 20 或更高版本。在终端运行下面的命令，然后重新打开 AI 工具或开始新会话。",
+      "points": [
+        "安装包含通用规则，不携带作者的项目记录。",
+        "以后进入可写项目，已配置的 AI 会按规则检查并启用 BuildTrace。",
+        "其他工具如果会读取项目的 AGENTS.md，也能使用其中的记录规则；具体是否执行要看工具。"
       ],
-      command: "npm run doctor",
+      "command": "npm install -g git+https://github.com/yimleunggggg/Buildtrace.git && buildtrace setup"
     },
-    en: {
-      title: "Confirm the single source",
-      subtitle: "Set the trust boundary first",
-      lead: "BuildTrace starts with one rule: project facts live in BUILDTRACE.md. The board, search, and filters only read from that file.",
-      points: [
-        "Confirm docs/buildtrace/BUILDTRACE.md exists.",
-        "Do not let the Viewer, JSON, or browser storage become a second source of truth.",
-        "When evidence is missing, record unknown instead of completing the story.",
+    "en": {
+      "title": "Install once",
+      "subtitle": "Give your AI tools the recording rules",
+      "lead": "Requires Node.js 20 or later. Run the command below, then reopen your AI tool or start a new session.",
+      "points": [
+        "The install contains rules, not the author's project records.",
+        "In writable projects, configured AI tools follow the rules to check and initialize BuildTrace.",
+        "Other tools that read a project's AGENTS.md can also use its rules. Execution depends on the tool."
       ],
-      command: "npm run doctor",
-    },
+      "command": "npm install -g git+https://github.com/yimleunggggg/Buildtrace.git && buildtrace setup"
+    }
   },
   {
-    zh: {
-      title: "开始前恢复上下文",
-      subtitle: "读初心、最近记录和到期回看",
-      lead: "项目规则激活后，新一轮有意义的工作开始前，Agent 会自动恢复与当前任务有关的上下文，不需要用户先说固定口令。重点不是读完历史，而是找回现在的判断依据。",
-      points: [
-        "照常描述你想做什么，Agent 自动判断需要读取哪些记录。",
-        "读取项目初心，避免功能偏离产品边界。",
-        "读取最近记录和到期待观察项，找到当前连续性。",
+    "zh": {
+      "title": "在项目里开始",
+      "subtitle": "照常说你想做什么",
+      "lead": "第一次可以把下面这段话发给 AI。已有项目会先查找可读取的历史，新项目从这次工作开始记录。",
+      "points": [
+        "说清为什么做，以及你在意的取舍。",
+        "重要功能、修复、运营动作或决定值得记录，小修边可以并在一起。",
+        "找不到的旧原话应标明缺失；请 AI 分清已经读过的历史和只找到线索的历史。"
       ],
+      "command": "为这个项目启用 BuildTrace。先找回能读取的历史，再继续工作。完成后请保存本轮记录，告诉我记录标题、ID 和文件位置，并打开看板。"
     },
-    en: {
-      title: "Restore context before work",
-      subtitle: "Read intent, recent records, and due reviews",
-      lead: "Once the project rules are active, the Agent automatically restores context relevant to meaningful work. The user does not need a fixed command. The goal is not to reread history; it is to recover the reasoning behind the next move.",
-      points: [
-        "Describe the work normally; the Agent decides which records are relevant.",
-        "Read the project intent so new features stay inside the product boundary.",
-        "Read recent records and due outcomes to recover continuity.",
+    "en": {
+      "title": "Start in a project",
+      "subtitle": "Describe your work as usual",
+      "lead": "Send the message below to your AI the first time. Existing projects can look for accessible history; new projects start with today's work.",
+      "points": [
+        "Explain why you want a change and which tradeoffs matter.",
+        "Save important features, fixes, operations, and decisions. Keep small follow-ups together.",
+        "Missing original messages should be marked as missing. Ask which history was actually read and which was only found."
       ],
-    },
+      "command": "Enable BuildTrace for this project. Restore accessible history, then continue the work. Save this session's record when finished, show its title, ID and file location, and open the board."
+    }
   },
   {
-    zh: {
-      title: "完成后记录因果",
-      subtitle: "只记录有意义的变化",
-      lead: "一次功能、修复、设计或重要决策完成后，Agent 会自动从本轮自然语言、真实改动和验证中摘取因果，不需要用户再说“记录本轮”。",
-      points: [
-        "保留用户原话，同时单独写 Agent 的需求总结。",
-        "写清为什么做、实际做了什么、依据在哪里。",
-        "无法当场判断效果时，设为待观察并约定回看日期。",
+    "zh": {
+      "title": "确认真的记下了",
+      "subtitle": "看记录，而不只看“已启用”",
+      "lead": "AI 完成工作后应给出记录标题、ID 和文件位置。你可以直接查看文件，或在项目文件夹运行下面的命令。",
+      "points": [
+        "status 显示项目有没有档案、记录数量和最新标题，不能证明所有对话都完整记录。",
+        "serve 打印看板地址；在浏览器打开，查看这次原话和实际步骤。",
+        "本地服务运行时，保存记录后看板会自动刷新。终端关闭或电脑离线后，本地地址可能无法使用。"
       ],
+      "command": "buildtrace status --target .\nbuildtrace serve --target ."
     },
-    en: {
-      title: "Record causality after work",
-      subtitle: "Capture only meaningful change",
-      lead: "After a feature, fix, design change, or important decision, the Agent automatically extracts causality from ordinary language, real changes, and verification. The user does not need to say ‘Record this session.’",
-      points: [
-        "Keep the user's original words and write the Agent summary separately.",
-        "State why it happened, what actually changed, and where the evidence lives.",
-        "If impact is not yet knowable, mark it pending and set a review date.",
+    "en": {
+      "title": "Check the work was saved",
+      "subtitle": "Look for a record, not just an enabled message",
+      "lead": "Your AI should show the saved title, ID and file path. Open the file or run these commands in your project folder.",
+      "points": [
+        "status shows the archive, record count and latest title. It does not prove every conversation was fully captured.",
+        "serve prints the board address. Open it to check your words and the steps taken.",
+        "The local board refreshes when records are saved. Its address may stop working when the terminal closes or the computer goes offline."
       ],
-    },
+      "command": "buildtrace status --target .\nbuildtrace serve --target ."
+    }
   },
   {
-    zh: {
-      title: "回看结果并修正",
-      subtitle: "让记录随着证据变准",
-      lead: "项目记忆不是一次性归档。用户照常描述后来发生的结果，Agent 识别它对应的记录并更新结论；只有指向不明确时才追问。",
-      points: [
-        "用数据、截图、commit 或用户反馈完成结果回看。",
-        "结论可以是有效、无效或不确定，不强迫成功叙事。",
-        "修正时同步修改依据和来源可信度。",
+    "zh": {
+      "title": "过段时间再回来",
+      "subtitle": "补结果，也能换工具继续",
+      "lead": "有了新数据或反馈，直接告诉 AI 对应哪件事。换工具时，也可以请它先读项目记录再继续。",
+      "points": [
+        "比如：“两周过去了，点击率没变化，把这个结果补回去。”",
+        "原来的判断应保留，后来修正要写明时间和新依据。",
+        "想查漏写就说：“检查本轮哪些重要内容还没保存”，并要求给出实际记录位置。"
       ],
+      "command": "先读 BuildTrace，告诉我这个项目最近做了什么、为什么这么做，还有什么没完成，再继续。"
     },
-    en: {
-      title: "Review outcomes and correct",
-      subtitle: "Let evidence make the record more accurate",
-      lead: "Project memory is not a one-time archive. Describe later results normally; the Agent identifies the relevant record and updates the conclusion, asking only when the target is ambiguous.",
-      points: [
-        "Use data, screenshots, commits, or user feedback to review the outcome.",
-        "A result can be effective, ineffective, or uncertain. Do not force a success story.",
-        "When correcting a record, update both its evidence and source trust.",
+    "en": {
+      "title": "Come back later",
+      "subtitle": "Add results or continue in another tool",
+      "lead": "When you have new data or feedback, tell your AI which work it relates to. In a new tool, ask it to read the records before continuing.",
+      "points": [
+        "For example: ‘It has been two weeks and clicks have not changed. Add that outcome.’",
+        "Keep the earlier judgment and date any later correction with its new evidence.",
+        "To check for missed records, ask which important parts of this session are not saved and request their actual file locations."
       ],
-    },
-  },
+      "command": "Read BuildTrace first. Tell me what this project recently did, why, and what remains unfinished, then continue."
+    }
+  }
 ];
 
 const app = document.querySelector("#app");
@@ -632,6 +638,7 @@ function sceneLabel(scene) {
     "ops-release": ["发布与运维", "Release & operations"],
     "ai-workflow": ["AI 工作流", "AI workflow"],
     decision: ["产品决策", "Product decision"],
+    "portfolio-information-architecture": ["作品集结构", "Portfolio structure"],
   };
   return labels[scene]?.[state.locale === "zh" ? 0 : 1] ?? scene;
 }
@@ -699,7 +706,7 @@ function applyDetailIsolation() {
 function renderBoard() {
   const stats = getBuildtraceStats(state.trace.entries);
   const timelineEntries = state.trace.entries.filter((entry) => entry.milestone);
-  const scenes = [...new Set(state.trace.entries.map((entry) => entry.scene).filter(Boolean))];
+  const scenes = [...new Set(state.trace.entries.flatMap((entry) => entry.scenes || [entry.scene]).filter(Boolean))];
   const query = state.query.trim().toLowerCase();
   const visibleEntries = state.trace.entries.filter((entry) => {
     const matchesStatus =
@@ -710,12 +717,12 @@ function renderBoard() {
       (state.status === "effective" && entry.status === "有效") ||
       (state.status === "uncertain" && entry.status === "不确定") ||
       (state.status === "ineffective" && entry.status === "无效");
-    const matchesScene = state.scene === "all" || entry.scene === state.scene;
+    const matchesScene = state.scene === "all" || (entry.scenes || [entry.scene]).includes(state.scene);
     const haystack = [
       entry.title,
       entry.evidence,
-      entry.scene,
-      sceneLabel(entry.scene),
+      ...(entry.scenes || [entry.scene]),
+      ...(entry.scenes || [entry.scene]).map(sceneLabel),
       statusLabel(entry.status),
       trustLabel(entry.sourceTrust),
       ...Object.values(entry.sections),
@@ -731,6 +738,10 @@ function renderBoard() {
   const selected = state.trace.entries.find((entry) => entry.id === state.selectedEntryId);
   const evidenceTokens = getEvidenceTokens(state.trace.entries);
   const isPrivateSource = (state.trace.publication?.profile || "private") === "private";
+  const latestEntry = state.trace.entries.reduce((latest, entry) => {
+    if (!latest) return entry;
+    return entry.date.slice(0, 10) > latest.date.slice(0, 10) ? entry : latest;
+  }, null);
 
   return `
     <section class="board-view workbench-shell">
@@ -770,19 +781,18 @@ function renderBoard() {
       <section class="workbench-main">
         <header class="workbench-header trace-hero">
           <div class="trace-hero-copy">
-            <p class="eyebrow">${t("boardEyebrow")}</p>
+            <p class="eyebrow">${escapeHTML(state.trace.title)} / ${t("boardEyebrow")}</p>
             <h1>${t("heroTitle")}</h1>
             <p>${t("heroNote")}</p>
           </div>
           <div class="trace-hero-actions">
             <div class="source-state">
-              <span class="source-mode">${escapeHTML(profileLabel(state.trace.publication?.profile))} · ${t("sourceMode")}</span>
               <span class="source-refresh" data-source-status="${escapeHTML(state.sourceStatus)}"><i aria-hidden="true"></i><span>${t(state.sourceStatus === "offline" ? "sourceUnavailable" : "liveRefresh")}</span></span>
             </div>
             <div>
               <a class="source-link" href="../BUILDTRACE.md" target="_blank" rel="noreferrer">${t("openSource")}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" /></svg></a>
               <a class="hero-action" href="../BUILDTRACE.md?download=1" download="BUILDTRACE.md">${t("downloadSource")}</a>
-              ${isPrivateSource ? `<button class="hero-action is-primary" type="button" data-copy-command="${state.locale === "zh" ? "新节点草稿：先判断本轮是否达到独立记录门槛。只有未来复盘仍重要的功能、修复、设计、架构、发布、运营动作或决策才新增记录；小修边并入最近相关记录。根据本轮原话、实际文件改动和验证证据起草，不确定内容标记 unknown，不要编造。" : "New record draft: first check whether this work deserves a separate record. Create one only for a feature, fix, design change, architecture change, release, operating action, or decision that will matter in a future review; merge small follow-up polish into the nearest related record. Use original words, actual file changes, and verification evidence. Mark uncertainty as unknown and do not invent facts."}">${t("newRecordDraft")}</button>` : ""}
+              ${isPrivateSource ? `<button class="hero-action is-primary" type="button" data-copy-command="${state.locale === "zh" ? "请按 BuildTrace 记录这次值得保留的工作，保存完整相关原话、实际步骤和验证结果；小修边并入已有记录。保存后检查文件，告诉我记录标题、ID 和位置。缺失的信息请注明，不要补编。" : "New record draft: first check whether this work deserves a separate record. Create one only for a feature, fix, design change, architecture change, release, operating action, or decision that will matter in a future review; merge small follow-up polish into the nearest related record. Use original words, actual file changes, and verification evidence. Mark uncertainty as unknown and do not invent facts."}">${t("newRecordDraft")}</button>` : ""}
             </div>
           </div>
         </header>
@@ -790,7 +800,7 @@ function renderBoard() {
           ${renderSignal("01", t("totalRecords"), stats.total)}
           ${renderSignal("02", t("milestones"), timelineEntries.length)}
           ${renderSignal("03", t("dueOutcomes"), stats.due, stats.due > 0)}
-          ${renderSignal("04", t("latestRecord"), state.trace.entries[0] ? formatSignalDate(state.trace.entries[0].date.slice(0, 10)) : t("noReview"))}
+          ${renderSignal("04", t("latestRecord"), latestEntry ? formatSignalDate(latestEntry.date.slice(0, 10)) : t("noReview"))}
         </section>
         ${renderLensNavigation()}
         ${renderReviewTracks(state.trace.entries, state.lens !== "review")}
@@ -798,7 +808,7 @@ function renderBoard() {
         <section class="timeline-panel" aria-label="${t("timelineOverview")}" ${state.lens !== "trace" ? "hidden" : ""}>
           <div class="panel-heading"><div><strong>${t("timelineOverview")}</strong><small>${t("timelineNote")}</small></div><span>${timelineEntries.length}</span></div>
           ${timelineEntries.length ? `<div class="timeline-track">
-            ${[...timelineEntries].reverse().map((entry) => `<button type="button" data-entry-id="${escapeHTML(entry.id)}" data-entry-context="timeline" aria-current="${entry.id === state.selectedEntryId}"><span>${escapeHTML(entry.date)}</span><strong>${escapeHTML(entry.title)}</strong><small>${escapeHTML(sceneLabel(entry.scene))}</small></button>`).join("")}
+            ${[...timelineEntries].reverse().map((entry) => `<button type="button" data-entry-id="${escapeHTML(entry.id)}" data-entry-context="timeline" aria-current="${entry.id === state.selectedEntryId}"><span>${escapeHTML(entry.date)}</span><strong>${escapeHTML(entry.title)}</strong><small>${escapeHTML((entry.scenes || [entry.scene]).map(sceneLabel).join(" · "))}</small></button>`).join("")}
           </div>` : `<p class="timeline-empty">${t("noMilestones")}</p>`}
         </section>
         <section class="records-panel" ${state.lens !== "trace" ? "hidden" : ""}>
@@ -851,7 +861,6 @@ function renderLensNavigation() {
   return `<section class="lens-console" aria-label="${t("workbench")}">
     <nav class="lens-nav">${lenses.map(([value, index, label, note]) => `<button type="button" data-lens="${value}" aria-pressed="${state.lens === value}"><span>${index}</span><strong>${escapeHTML(label)}</strong><small>${escapeHTML(note)}</small></button>`).join("")}</nav>
     <div class="lens-meta">
-      <div class="profile-strip" data-profile="${escapeHTML(profile)}"><span>${t("visibility")}</span><strong>${escapeHTML(profileLabel(profile))}</strong><p>${escapeHTML(profileNote(profile))}</p></div>
       ${isPrivateSource ? `<div class="project-utilities" aria-label="${t("projectTools")}">
         <button type="button" data-action="open-resource-library"><span>${t("openResources")}</span><strong>${state.trace.resources.length}</strong></button>
         <button type="button" data-action="open-deploy-guide"><span>${t("shareDeploy")}</span><strong>↗</strong></button>
@@ -900,8 +909,8 @@ function renderReviewTracks(entries, hidden = false) {
         ${renderReviewStage("04", t("reviewJudgment"), judgments)}
       </div>
     </article>`;
-  }).join("")}</div>` : `<div class="lens-empty"><strong>${t("reviewTrackEmpty")}</strong><p>${t("reviewTrackEmptyNote")}</p><button type="button" data-copy-command="${state.locale === "zh" ? "记录一个复盘轨：保留我的原始假设，写清实际动作、观察指标、数据源、基线、目标和时间窗口；没有的数据不要编造。" : "Record a review track: keep my original hypothesis, actual action, metric, source, baseline, target, and observation window. Do not invent missing data."}">${t("newRecordDraft")}</button></div>`;
-  return `<section class="lens-workspace review-workspace" ${hidden ? "hidden" : ""}><header><p class="eyebrow">HYPOTHESIS / ACTION / EVIDENCE / JUDGMENT</p><h2>${t("reviewTrackTitle")}</h2><p>${t("reviewTrackNote")}</p></header>${content}</section>`;
+  }).join("")}</div>` : `<div class="lens-empty"><strong>${t("reviewTrackEmpty")}</strong><p>${t("reviewTrackEmptyNote")}</p><button type="button" data-copy-command="${state.locale === "zh" ? "请记下这次为什么这样做、期待什么变化，并和我约好什么时候看哪些数据。保存原话与实际动作，没有的数据注明缺失。" : "Record a review track: keep my original hypothesis, actual action, metric, source, baseline, target, and observation window. Do not invent missing data."}">${t("newRecordDraft")}</button></div>`;
+  return `<section class="lens-workspace review-workspace" ${hidden ? "hidden" : ""}><header><h2>${t("reviewTrackTitle")}</h2><p>${t("reviewTrackNote")}</p></header>${content}</section>`;
 }
 
 function isConfirmedDecisionPrinciple(principle, sourceTrust = principle.sourceTrust, evidence = principle.evidence) {
@@ -920,11 +929,11 @@ function renderDecisionPlaybook(principles = [], hidden = false) {
     const variants = [...new Set(evidence.map((item) => `${item.category}\u0000${item.text}`))];
     const status = variants.length > 1 ? "conflict" : evidence.length > 1 ? "repeated" : "candidate";
     const label = t(status === "conflict" ? "decisionConflict" : status === "repeated" ? "decisionRepeated" : "decisionCandidate");
-    return `<article class="principle-card" data-status="${status}"><div class="principle-kicker"><code>${escapeHTML(id)}</code><span>${escapeHTML(label)}</span></div><h3>${escapeHTML(evidence[0].text)}</h3><p>${escapeHTML(evidence[0].category)}</p><details><summary>${t("decisionEvidence")} · ${evidence.length}</summary><ul>${evidence.map((item) => `<li><button type="button" data-entry-id="${escapeHTML(item.recordId)}"><span>${escapeHTML(item.recordDate)}</span>${escapeHTML(item.recordTitle)}</button></li>`).join("")}</ul></details>${variants.length > 1 ? `<div class="principle-conflict">${variants.map((variant) => `<p>${escapeHTML(variant.split("\u0000")[1])}</p>`).join("")}</div>` : ""}</article>`;
+    return `<article class="principle-card" data-status="${status}"><div class="principle-kicker"><span>${escapeHTML(label)}</span></div><h3>${escapeHTML(evidence[0].text)}</h3><p>${escapeHTML(evidence[0].category)}</p><details><summary>${t("decisionEvidence")} · ${evidence.length}</summary><code class="principle-reference">${escapeHTML(id)}</code><ul>${evidence.map((item) => `<li><button type="button" data-entry-id="${escapeHTML(item.recordId)}"><span>${escapeHTML(item.recordDate)}</span>${escapeHTML(item.recordTitle)}</button></li>`).join("")}</ul></details>${variants.length > 1 ? `<div class="principle-conflict">${variants.map((variant) => `<p>${escapeHTML(variant.split("\u0000")[1])}</p>`).join("")}</div>` : ""}</article>`;
   });
-  const command = "node bin/buildtrace.mjs playbook --target /path/to/project-a --target /path/to/project-b --output personal-decision-playbook.md";
+  const command = state.locale === "zh" ? "请把我指定的几个项目中，已由我确认的经验汇总成决策手册。先列出可以读取的项目供我选择；每条保留来源，不合并相互矛盾的说法。" : "Collect my confirmed lessons from the projects I choose into a decision playbook. List accessible projects first so I can select them. Keep sources linked and retain conflicting accounts.";
   const content = cards.length ? `<div class="principle-grid">${cards.join("")}</div>` : `<div class="lens-empty"><strong>${t("noDecisionPrinciples")}</strong><p>${t("noDecisionPrinciplesNote")}</p></div>`;
-  return `<section class="lens-workspace playbook-workspace" ${hidden ? "hidden" : ""}><header class="playbook-head"><div><p class="eyebrow">STABLE PRINCIPLES / REAL EVIDENCE</p><h2>${t("decisionPlaybookTitle")}</h2><p>${t("decisionPlaybookNote")}</p></div><button type="button" data-copy-command="${escapeHTML(command)}">${t("crossProjectCommand")}</button></header>${content}</section>`;
+  return `<section class="lens-workspace playbook-workspace" ${hidden ? "hidden" : ""}><header class="playbook-head"><div><h2>${t("decisionPlaybookTitle")}</h2><p>${t("decisionPlaybookNote")}</p></div><button type="button" data-copy-command="${escapeHTML(command)}">${t("crossProjectCommand")}</button></header>${content}</section>`;
 }
 
 function renderHumanPurpose(purpose) {
@@ -965,7 +974,7 @@ function renderUtilityPanel() {
 
 function renderAboutPanel() {
   const paragraphs = (state.trace.humanPurpose || "").split(/\n+/).map((item) => item.trim()).filter(Boolean);
-  return `<div class="utility-heading"><p class="eyebrow">ABOUT / PROJECT CONTEXT</p><h2>${t("aboutTitle")}</h2><p>${t("aboutNote")}</p></div>
+  return `<div class="utility-heading"><h2>${t("aboutTitle")}</h2><p>${t("aboutNote")}</p><button type="button" class="utility-primary" data-mode="tutorial">${t("tutorialTitle")}</button></div>
     <section class="about-live-card">
       <span><i aria-hidden="true"></i>${t("liveRefresh")}</span>
       <strong>${t("liveRefreshLocal")}</strong>
@@ -982,12 +991,12 @@ function renderResourceManager() {
       return `<a class="utility-resource" href="${escapeHTML(href || "#")}" ${href ? 'target="_blank" rel="noreferrer"' : 'aria-disabled="true"'}><span data-resource-kind="${escapeHTML(resource.category)}">${escapeHTML(resource.label.slice(0, 1))}</span><div><strong>${escapeHTML(resource.title)}</strong><small>${escapeHTML(resourceCategoryLabel(resource.category))}</small><p>${escapeHTML(resource.note || resource.url)}</p></div><b>${href ? "↗" : "—"}</b></a>`;
     }).join("")
     : `<p class="resource-vault-empty">${t("noResources")}</p>`;
-  return `<div class="utility-heading"><p class="eyebrow">PROJECT CONTEXT</p><h2>${t("resourceVault")}</h2><p>${t("resourceVaultNote")}</p></div><div class="utility-resource-list">${cards}</div><details class="resource-add"><summary>${t("addResource")} <span>+</span></summary>${renderResourceBuilder(false)}</details>`;
+  return `<div class="utility-heading"><h2>${t("resourceVault")}</h2><p>${t("resourceVaultNote")}</p></div><div class="utility-resource-list">${cards}</div><details class="resource-add"><summary>${t("addResource")} <span>+</span></summary>${renderResourceBuilder(false)}</details>`;
 }
 
 function renderResourceBuilder(showHeading = true) {
   const categories = ["code", "docs", "reference", "data", "deploy", "finance", "admin", "design", "community", "other"];
-  return `${showHeading ? `<div class="utility-heading"><p class="eyebrow">READ-ONLY HANDOFF</p><h2>${t("resourceBuilderTitle")}</h2><p>${t("resourceBuilderNote")}</p></div>` : `<p class="resource-builder-note">${t("resourceBuilderNote")}</p>`}<form class="resource-builder" id="resource-builder"><label><span>${t("resourceTitle")}</span><input name="title" required autocomplete="off" placeholder="${state.locale === "zh" ? "例如：PostHog 产品数据" : "e.g. PostHog product analytics"}" /></label><label><span>${t("resourceURL")}</span><input name="url" required autocomplete="off" placeholder="https://… / ./docs/…" /></label><label><span>${t("resourceCategory")}</span><select name="category">${categories.map((category) => `<option value="${category}">${escapeHTML(resourceCategoryLabel(category))}</option>`).join("")}</select></label><label><span>${t("resourceNote")}</span><textarea name="note" rows="3" placeholder="${state.locale === "zh" ? "例如：复盘自然搜索与关键行为时查看" : "e.g. Use when reviewing organic search and key behavior"}"></textarea></label><p class="readonly-note">${t("readonlyReminder")}</p><button class="utility-primary" type="submit">${t("copyResourceCommand")}</button></form>`;
+  return `${showHeading ? `<div class="utility-heading"><h2>${t("resourceBuilderTitle")}</h2><p>${t("resourceBuilderNote")}</p></div>` : `<p class="resource-builder-note">${t("resourceBuilderNote")}</p>`}<form class="resource-builder" id="resource-builder"><label><span>${t("resourceTitle")}</span><input name="title" required autocomplete="off" placeholder="${state.locale === "zh" ? "例如：PostHog 产品数据" : "e.g. PostHog product analytics"}" /></label><label><span>${t("resourceURL")}</span><input name="url" required autocomplete="off" placeholder="https://… / ./docs/…" /></label><label><span>${t("resourceCategory")}</span><select name="category">${categories.map((category) => `<option value="${category}">${escapeHTML(resourceCategoryLabel(category))}</option>`).join("")}</select></label><label><span>${t("resourceNote")}</span><textarea name="note" rows="3" placeholder="${state.locale === "zh" ? "例如：复盘自然搜索与关键行为时查看" : "e.g. Use when reviewing organic search and key behavior"}"></textarea></label><p class="readonly-note">${t("readonlyReminder")}</p><button class="utility-primary" type="submit">${t("copyResourceCommand")}</button></form>`;
 }
 
 function renderDeployGuide() {
@@ -995,9 +1004,9 @@ function renderDeployGuide() {
   const teamCommand = "node bin/buildtrace.mjs publish --profile team --target . --output .buildtrace/team-site";
   const publicCommand = "node bin/buildtrace.mjs publish --profile public --target . --output .buildtrace/public-site";
   const githubCommand = "node bin/buildtrace.mjs deploy-kit --provider github-pages --target .";
-  const teamNote = state.locale === "zh" ? "生成已移除私密记录和内部路径的团队快照；部署时仍要配置访问控制。" : "Generate a team snapshot without private records and internal paths; add access control when hosting.";
-  const publicNote = state.locale === "zh" ? "只发布明确标为 public 的记录；原话、Agent 过程和技术路径在生成阶段删除。" : "Publish only explicitly public records; original words, Agent process, and technical paths are removed at generation time.";
-  return `<div class="utility-heading"><p class="eyebrow">PRIVATE BY DEFAULT</p><h2>${t("deploymentDrawerTitle")}</h2><p>${t("deploymentDrawerNote")}</p></div><div class="privacy-warning"><strong>${t("privacyFirst")}</strong><p>${t("privacyNote")}</p></div><div class="deploy-options">${renderDeployOption(t("localPrivate"), t("localPrivateNote"), localCommand, "01")}${renderDeployOption(t("profileTeam"), teamNote, teamCommand, "02")}${renderDeployOption(t("profilePublic"), publicNote, publicCommand, "03")}${renderDeployOption("GitHub Pages", t("deploymentGithubNote"), githubCommand, "04")}</div><a class="deploy-doc-link" href="../DEPLOY.md" target="_blank" rel="noreferrer">${t("openDeployDoc")} ↗</a>`;
+  const teamNote = state.locale === "zh" ? "生成团队版副本，移除不分享的记录和内部路径。请发布到需要登录才能访问的地方。" : "Generate a team snapshot without private records and internal paths; add access control when hosting.";
+  const publicNote = state.locale === "zh" ? "只分享你指定为公开的记录，自动移除聊天原话、AI 工作过程和内部路径。发布前请检查生成的文件。" : "Publish only explicitly public records; original words, Agent process, and technical paths are removed at generation time.";
+  return `<div class="utility-heading"><h2>${t("deploymentDrawerTitle")}</h2><p>${t("deploymentDrawerNote")}</p></div><div class="privacy-warning"><strong>${t("privacyFirst")}</strong><p>${t("privacyNote")}</p></div><div class="deploy-options">${renderDeployOption(t("localPrivate"), t("localPrivateNote"), localCommand, "01")}${renderDeployOption(t("profileTeam"), teamNote, teamCommand, "02")}${renderDeployOption(t("profilePublic"), publicNote, publicCommand, "03")}${renderDeployOption("GitHub Pages", t("deploymentGithubNote"), githubCommand, "04")}</div><a class="deploy-doc-link" href="../DEPLOY.md" target="_blank" rel="noreferrer">${t("openDeployDoc")} ↗</a>`;
 }
 
 function renderDeployOption(title, note, command, index) {
@@ -1029,6 +1038,11 @@ function hasRecordedOutcome(entry) {
   return ["有效", "无效"].includes(entry.status);
 }
 
+function recordPreview(entry) {
+  const first = (entry.sectionItems?.summary?.[0] || entry.sections.why || entry.sections.changes || "").trim();
+  return first.replace(/^\[[A-Z]\d+\s*<-[^\]]+]\s*/, "");
+}
+
 function renderRecordList(entries) {
   if (!entries.length) {
     const published = state.trace.publication?.profile && state.trace.publication.profile !== "private";
@@ -1045,14 +1059,11 @@ function renderRecordList(entries) {
                 <span class="record-date">${escapeHTML(entry.date.slice(5).replace("-", "."))}</span>
                 <span class="record-copy">
                   <strong>${escapeHTML(entry.title)}</strong>
-                  ${entry.sections.summary ? `<span class="record-summary">${escapeHTML(entry.sections.summary)}</span>` : ""}
+                  ${recordPreview(entry) ? `<span class="record-summary">${escapeHTML(recordPreview(entry))}</span>` : ""}
                   <span class="record-tags" aria-label="${t("recordTags")}">
-                    ${renderRecordTag(sceneLabel(entry.scene), "scene")}
-                    ${hasRecordedOutcome(entry) ? renderRecordTag(statusLabel(entry.status), `status-${entry.status}`) : ""}
-                    ${renderRecordTag(visibilityLabel(entry.visibility), `visibility-${entry.visibility}`)}
+                    ${(entry.scenes || [entry.scene]).slice(0, 3).map((scene) => renderRecordTag(sceneLabel(scene), "scene")).join("")}
                   </span>
                 </span>
-                ${hasRecordedOutcome(entry) ? `<span class="status-dot" data-status="${escapeHTML(entry.status)}" aria-hidden="true"></span>` : ""}
               </button>
             </li>
           `,
@@ -1072,10 +1083,9 @@ function renderDetail(entry) {
     <article class="detail-article">
       <p class="detail-overline">${t("recordTags")}</p>
       <div class="detail-kicker" aria-label="${t("recordTags")}">
-        ${renderRecordTag(sceneLabel(entry.scene), "scene", t("recordKind"))}
+        ${(entry.scenes || [entry.scene]).map((scene, index) => renderRecordTag(sceneLabel(scene), "scene", index === 0 ? t("recordKind") : "")).join("")}
         ${hasRecordedOutcome(entry) ? renderRecordTag(statusLabel(entry.status), `status-${entry.status}`, t("resultStatus")) : ""}
         ${renderRecordTag(trustLabel(entry.sourceTrust), `trust-${entry.sourceTrust}`, t("sourceTrust"))}
-        ${renderRecordTag(visibilityLabel(entry.visibility), `visibility-${entry.visibility}`, t("visibility"))}
       </div>
       <h2>${escapeHTML(entry.title)}</h2>
       <div class="detail-date">${escapeHTML(formatDate(entry.date))}${entry.reviewDate !== "无" ? `<span>${t("reviewDate")} ${escapeHTML(formatDate(entry.reviewDate))}</span>` : ""}</div>
@@ -1102,7 +1112,7 @@ function renderDetail(entry) {
       ${relatedEntries.length ? `<section class="related-section"><div class="related-heading"><div><h3>${t("relatedRecords")}</h3><p>${t("relatedRecordsNote")} · ${escapeHTML(sceneLabel(entry.scene))}</p></div><span>${relatedEntries.length}</span></div><div class="related-list">${relatedEntries.map((related) => `<button type="button" data-entry-id="${escapeHTML(related.id)}" data-entry-context="related"><span>${escapeHTML(related.date.slice(5).replace("-", "."))}</span><strong>${escapeHTML(related.title)}</strong><small>${escapeHTML(statusLabel(related.status))}</small></button>`).join("")}</div></section>` : ""}
       <div class="detail-actions">
         <p>${t("actionHelp")}</p>
-        <button class="action-button is-primary" type="button" data-copy-command="${state.locale === "zh" ? `纠正记录「${escapeHTML(entry.title)}」：请根据我接下来的说明修改事实、依据与来源可信度；不要改写可核对的用户原话。` : `Correct the record &quot;${escapeHTML(entry.title)}&quot; using my next message. Update facts, evidence, and source trust without rewriting verifiable original words.`}">${t("copyCorrection")}</button>
+        <button class="action-button is-primary" type="button" data-copy-command="${state.locale === "zh" ? `纠正记录「${escapeHTML(entry.title)}」：先保存快照，再根据我接下来的说明追加修正时间、事实和新依据。保留已有原话与当时的判断，保存后检查历史并给我记录位置。` : `Correct the record &quot;${escapeHTML(entry.title)}&quot;: snapshot it first, then append a dated correction and new evidence using my next message. Preserve existing words and judgments, verify history, and show the saved location.`}">${t("copyCorrection")}</button>
         <button class="action-button" type="button" data-copy-command="${state.locale === "zh" ? `补记「${escapeHTML(entry.title)}」的后来结果：请根据我提供的数据或反馈，更新数据变化、结果判断、依据与后续回看；不要把相关性写成确定因果。` : `Add the later outcome for &quot;${escapeHTML(entry.title)}&quot; using the data or feedback I provide. Update data change, judgment, evidence, and next review without turning correlation into proven causation.`}">${t("copyReview")}</button>
         <button class="action-button" type="button" data-copy-command="${state.locale === "zh" ? `为「${escapeHTML(entry.title)}」补充依据：` : `Add evidence for &quot;${escapeHTML(entry.title)}&quot;: `}">${t("copyEvidence")}</button>
       </div>
@@ -1124,9 +1134,9 @@ function renderQuoteDisclosure(entry) {
     </summary>
     <div class="detail-quote-full">
       ${quotes.map((quote) => `<article>
-        <small>${escapeHTML([quote.id, quote.speaker, quote.fidelity].filter((value) => value && value !== "unknown").join(" · ") || quote.id)}</small>
+        <small>${escapeHTML(quoteFidelityLabel(quote.fidelity))}</small>
         <p>${escapeHTML(quote.text || "—")}</p>
-        ${quote.sourceRef ? `<code>${escapeHTML(quote.sourceRef)}</code>` : ""}
+        ${quote.sourceRef ? `<details class="trace-reference"><summary>${state.locale === "zh" ? "查看来源" : "View source"}</summary><code>${escapeHTML([quote.id, quote.speaker, quote.sourceRef, quote.fidelity].filter(Boolean).join(" · "))}</code></details>` : ""}
       </article>`).join("")}
     </div>
   </details>`;
@@ -1135,7 +1145,26 @@ function renderQuoteDisclosure(entry) {
 function renderItemSection(label, items, fallback, className) {
   const values = items?.length ? items : (fallback ? [fallback] : []);
   if (!values.length) return "";
-  return `<section class="${className}"><span>${escapeHTML(label)}</span><ul>${values.map((item) => `<li>${escapeHTML(item)}</li>`).join("")}</ul></section>`;
+  const references = [];
+  const list = values.map((item, index) => {
+    const match = item.match(/^\[((?:R|U|P|E)\d+\b[^\]]*)]\s*([\s\S]*)$/);
+    if (!match) return `<li>${escapeHTML(item)}</li>`;
+    references.push(`${index + 1}. ${match[1]}`);
+    return `<li>${escapeHTML(match[2])}</li>`;
+  }).join("");
+  const sources = references.length ? `<details class="trace-reference"><summary>${state.locale === "zh" ? "查看来源对应" : "View source references"}</summary><code>${escapeHTML(references.join("\n"))}</code></details>` : "";
+  return `<section class="${className}"><span>${escapeHTML(label)}</span><ul>${list}</ul>${sources}</section>`;
+}
+
+function quoteFidelityLabel(fidelity) {
+  const labels = {
+    verbatim: ["原话记录", "Original message"],
+    "compacted-summary": ["会话摘要，原话未取得", "Session summary; original unavailable"],
+    "artifact-evidence": ["来自文件或附件", "From a file or attachment"],
+    "attachment-only": ["仅有附件", "Attachment only"],
+    unavailable: ["未取得原话", "Original unavailable"],
+  };
+  return labels[fidelity]?.[state.locale === "zh" ? 0 : 1] || (state.locale === "zh" ? "来源尚未核对" : "Source not checked yet");
 }
 
 function renderStructuredSection(label, items = [], kind = "") {
@@ -1210,6 +1239,7 @@ function setMode(mode) {
   if (!['board', 'tutorial'].includes(mode)) return;
   state.mode = mode;
   state.detailOpen = false;
+  state.utilityPanel = null;
   history.replaceState(null, "", mode === "tutorial" ? "#tutorial" : "#board");
   render();
   window.scrollTo({ top: 0, behavior: "auto" });
@@ -1411,8 +1441,8 @@ document.addEventListener("submit", (event) => {
   if (!title || !url) return;
   const resourceLine = `- [${category}] ${title}: ${url}${note ? ` — ${note}` : ""}`;
   const command = state.locale === "zh"
-    ? `把下面项目资料添加到 docs/buildtrace/BUILDTRACE.md 的「项目入口 / 参考资料」中。保留现有入口，不改写项目记录；如果已有同名入口就更新它。\n\n${resourceLine}`
-    : `Add the project resource below to the “项目入口 / 参考资料” section in docs/buildtrace/BUILDTRACE.md. Keep existing resources and project records; update the existing item if the name already exists.\n\n${resourceLine}`;
+    ? `把下面项目资料添加到本项目实际使用的 BuildTrace 记录文件的「项目入口 / 参考资料」中，遵循项目指定的文件路径。先保存快照；保留现有入口和项目记录，如果已有同名入口就更新它。保存后核验并告诉我文件位置。\n\n${resourceLine}`
+    : `Add the project resource below to the “项目入口 / 参考资料” section of this project's BuildTrace archive, respecting any source-path override. Take a snapshot first. Keep existing resources and project records; update the existing item if the name already exists. Verify the saved file and report its location.\n\n${resourceLine}`;
   let output = event.target.querySelector(".resource-command-output");
   if (!output) {
     output = document.createElement("textarea");
@@ -1490,7 +1520,7 @@ async function loadTrace() {
 loadTrace();
 
 async function refreshTrace() {
-  if (document.hidden || !state.trace) return;
+  if (document.hidden || !state.trace || state.utilityPanel === "resource") return;
   try {
     const sourceURL = new URL("../BUILDTRACE.md", window.location.href);
     const response = await fetch(sourceURL, { cache: "no-store" });

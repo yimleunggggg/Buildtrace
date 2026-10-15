@@ -7,7 +7,7 @@
 Node.js 版本需要 20 或更高：
 
 ```bash
-npm install -g github:yimleunggggg/Buildtrace && buildtrace setup
+npm install -g git+https://github.com/yimleunggggg/Buildtrace.git && buildtrace setup
 ```
 
 全局安装完成两件事：
@@ -15,12 +15,14 @@ npm install -g github:yimleunggggg/Buildtrace && buildtrace setup
 - 把不含任何项目档案的干净 Skill 安装到 Agent 能发现的用户目录；
 - 给 Codex、Cursor、Claude Code、GitHub Copilot、Windsurf 与 Gemini CLI 添加可重复更新的常驻指令。
 
+安装后重新打开 AI 工具或开始新会话。第一次对它说：“为当前项目启用 BuildTrace，完成后给我保存的记录和看板地址。”不用理解命令也能开始。若想自行核对，运行 `buildtrace status --target .`；它显示实际文件里的最新记录，不会把加载规则当作保存成功。
+
 以后在一个可写项目开始有意义的工作时，Agent 会先检查 `docs/buildtrace/BUILDTRACE.md`。没有时运行 `buildtrace init`，为当前项目创建自己的独立主源、规则、Viewer 和私密历史恢复清单。它不会提前批量修改硬盘上的所有仓库，也不会把一个项目的记录复制到另一个项目。
 
 更新版本：
 
 ```bash
-npm install -g github:yimleunggggg/Buildtrace && buildtrace setup
+npm install -g git+https://github.com/yimleunggggg/Buildtrace.git && buildtrace setup
 ```
 
 GitHub 安装使用同一条命令升级。若你在克隆的 BuildTrace 仓库里参与开发，运行 `node bin/buildtrace.mjs setup` 会把用户级 Skill 直接链接到这份工作区，修改规则后本机立即同步。
@@ -54,7 +56,9 @@ GEMINI.md
 .buildtrace/recovery/latest.json
 ```
 
-项目已经有 `AGENTS.md` 时，安装器不会直接覆盖，而会生成待合并文件并提示你处理。已有的 `BUILDTRACE.md` 也不会被改写。
+项目已经有 `AGENTS.md` 时，安装器会先备份原文件，再加入带标记的 BuildTrace 区块，保留你原有的指令。以后同步只更新该区块，无需手动合并。已有的 `BUILDTRACE.md` 不会被初始化或同步命令改写。
+
+WorkBuddy 等工具如果读取项目的 `AGENTS.md`，就能接触到同一套规则。是否真的记录，仍要看它有没有执行写文件步骤；目前没有独立后台采集器替所有工具保存聊天。
 
 初始化还会做第一次历史审计。报告位于 `.buildtrace/recovery/latest.json`，默认应保持私密并被 Git 忽略。它是“去哪里继续核对”的清单，不是项目事实主源。
 
@@ -145,6 +149,10 @@ buildtrace serve --target .
 
 Viewer 不能编辑主数据。详情底部的「纠正这条记录」会复制一句话，让 Agent 根据你的下一条说明修正事实和依据；「补记后来结果」用于一段时间后把数据、反馈和结论补回同一条记录。两者都不会直接修改看板，也不是日常必做步骤。不要去改浏览器缓存。
 
+已有档案采用追加式记录约定。Agent 修改前应运行 `buildtrace snapshot --target .`，修改后运行 `buildtrace verify-history --target .`；看板服务启动和检测到文件变化时也会留快照。`buildtrace history --target .` 查看历史，`buildtrace restore --target . --snapshot <hash-prefix> --confirm` 回溯误改。纠错应追加新依据，不能删除或重新组织已有原话和“当时理解”。
+
+这里的校验是修改后检测，不会阻止有文件权限的工具直接编辑。当前比较依赖稳定记录 ID，尚未覆盖没有 ID 的旧记录及所有字段；快照与原文件同机，也应另做独立备份。`buildtrace audit-quotes --target .` 只检查记录声明的来源和原文类型，不会自动与全部聊天逐字比对，不能据此声称原话完整。找不到的原文必须标成 `compacted-summary`、`artifact-evidence` 或 `unavailable`，不能补写成 `verbatim`。
+
 ## 八、同步模板更新
 
 当 BuildTrace 仓库更新后，在最新版仓库执行：
@@ -153,7 +161,7 @@ Viewer 不能编辑主数据。详情底部的「纠正这条记录」会复制�
 node bin/buildtrace.mjs sync --target /absolute/path/to/your-project
 ```
 
-同步范围包括 Viewer、Skill、项目内 CLI、结构参考和部署说明。项目自己的 `BUILDTRACE.md` 与 `AGENTS.md` 会保留。被替换的旧模板进入 `.buildtrace/backups/`，方便核对差异。
+同步范围包括看板、Skill、项目内 CLI、结构参考、部署说明，以及 Agent 文件里带标记的 BuildTrace 区块。项目自己的 `BUILDTRACE.md` 和区块外的指令会保留。被替换的内容先进入 `.buildtrace/backups/`，方便核对差异。
 
 同步完成后建议做三件事：
 

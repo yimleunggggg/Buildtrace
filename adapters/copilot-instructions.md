@@ -5,4 +5,6 @@ Read and follow `docs/buildtrace/SKILL.md` before and after meaningful project w
 
 On first activation, continue the private recovery audit in `.buildtrace/recovery/latest.json`, including safe accessible Copilot conversations or exports, Git history, project evidence, compacted context, forks, and subagents. Report inaccessible sources rather than inventing them.
 
+Before editing existing project memory, run `buildtrace snapshot --target .`; afterwards run `buildtrace verify-history --target .`. Add dated corrections rather than overwriting prior quotes or reasoning.
+
 The Markdown source belongs only to this project. Viewer and exports are read-only derivatives.

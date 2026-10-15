@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { spawn, spawnSync } from "node:child_process";
-import { lstat, mkdir, mkdtemp, readFile, readlink, rm, symlink, writeFile } from "node:fs/promises";
+import { lstat, mkdir, mkdtemp, readFile, readlink, realpath, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, dirname, join, resolve } from "node:path";
 import test from "node:test";
@@ -67,10 +67,17 @@ test("init creates the portable package without overwriting existing files", asy
     assert.match(await readFile(join(target, ".github/copilot-instructions.md"), "utf8"), /BuildTrace project memory/);
     assert.match(await readFile(join(target, "GEMINI.md"), "utf8"), /BuildTrace project memory/);
     assert.match(await readFile(join(target, ".windsurf/rules/buildtrace.md"), "utf8"), /BuildTrace project memory/);
-    assert.equal(await readFile(join(target, "AGENTS.md"), "utf8"), "# Existing agent rules\n");
-    const buildtraceAgentRules = await readFile(join(target, "AGENTS.md.buildtrace"), "utf8");
-    assert.match(buildtraceAgentRules, /only project-memory source/);
+    const buildtraceAgentRules = await readFile(join(target, "AGENTS.md"), "utf8");
+    assert.ok(buildtraceAgentRules.startsWith("# Existing agent rules\n"));
+    assert.match(buildtraceAgentRules, /buildtrace:project-adapter:start/);
+    assert.match(buildtraceAgentRules, /default project-memory source/);
     assert.match(buildtraceAgentRules, /Do not wait for fixed commands/);
+    const { readdir } = await import("node:fs/promises");
+    const [backupName] = await readdir(join(target, ".buildtrace/backups"));
+    assert.equal(await readFile(join(target, ".buildtrace/backups", backupName, "AGENTS.md"), "utf8"), "# Existing agent rules\n");
+    const repeated = spawnSync(process.execPath, [cli, "init", "--target", target, "--codex-home", join(target, "fake-codex-home")], { encoding: "utf8" });
+    assert.equal(repeated.status, 0, repeated.stderr);
+    assert.equal(await readFile(join(target, "AGENTS.md"), "utf8"), buildtraceAgentRules);
     assert.match(result.stdout, /kept/);
   } finally {
     await rm(target, { recursive: true, force: true });
@@ -108,6 +115,82 @@ test("sync updates managed files with a backup and preserves project facts", asy
     assert.match(privateIgnore, /^custom-private\/$/m);
     assert.match(privateIgnore, /^backups\/$/m);
     assert.match(privateIgnore, /^recovery\/$/m);
+    assert.match(privateIgnore, /^history\/$/m);
+  } finally {
+    await rm(target, { recursive: true, force: true });
+  }
+});
+
+test("history snapshots detect rewritten evidence and restore without losing the replaced version", async () => {
+  const target = await mkdtemp(join(tmpdir(), "buildtrace-history-"));
+  try {
+    const initResult = spawnSync(process.execPath, [cli, "init", "--target", target, "--codex-home", join(target, "fake-codex-home")], { encoding: "utf8" });
+    assert.equal(initResult.status, 0, initResult.stderr);
+    const sourcePath = join(target, "docs/buildtrace/BUILDTRACE.md");
+    const original = `# History fixture\n\n## 项目记录\n\n### 2026-10-13 — Preserve evidence\n\n记录 ID: bt-20261013-preserve-evidence\n来源可信度: confirmed\n来源覆盖: current-turn\n关联任务: current-turn\n依据: current-turn\n场景: decision\n关键节点: 否\n可见范围: private\n结果状态: 不确定\n后续回看: 无\n\n沟通原文:\n- [Q1 | user | current-turn/message-1 | verbatim]\n  > 用户完整原话。\n\n需求总结:\n- [R1 <- Q1] 保留原话。\n\nAgent 当时理解:\n- [U1 <- R1] 不重写。\n\nAgent 计划:\n- [P1 <- R1] 先留快照。\n\n执行轨迹:\n- [E1 <- P1 | completed] 已留快照。\n\n为什么做:\n- 防止误改。\n\n做了什么:\n- 增加历史。\n\n结果:\n- 待回看。\n`;
+    await writeFile(sourcePath, original);
+
+    const snapshot = spawnSync(process.execPath, [cli, "snapshot", "--target", target, "--reason", "test-baseline"], { encoding: "utf8" });
+    assert.equal(snapshot.status, 0, snapshot.stderr);
+    const hash = snapshot.stdout.match(/[a-f0-9]{12}/)?.[0];
+    assert.ok(hash);
+
+    const appended = original.replace("结果:\n- 待回看。", "结果:\n- 待回看。\n- 追加结果不会删除旧证据。\n");
+    await writeFile(sourcePath, appended);
+    const appendVerification = spawnSync(process.execPath, [cli, "verify-history", "--target", target], { encoding: "utf8" });
+    assert.equal(appendVerification.status, 0, appendVerification.stderr);
+
+    const rewritten = appended.replace("用户完整原话", "被 Agent 改写的原话");
+    await writeFile(sourcePath, rewritten);
+    const rewriteVerification = spawnSync(process.execPath, [cli, "verify-history", "--target", target], { encoding: "utf8" });
+    assert.notEqual(rewriteVerification.status, 0);
+    assert.match(rewriteVerification.stdout, /existing quote text was removed or rewritten/);
+
+    const restore = spawnSync(process.execPath, [cli, "restore", "--target", target, "--snapshot", hash, "--confirm"], { encoding: "utf8" });
+    assert.equal(restore.status, 0, restore.stderr);
+    assert.equal(await readFile(sourcePath, "utf8"), original);
+    assert.match(await readFile(join(target, ".buildtrace/history/index.jsonl"), "utf8"), /before-restore/);
+  } finally {
+    await rm(target, { recursive: true, force: true });
+  }
+});
+
+test("quote audit distinguishes verbatim evidence from missing provenance", async () => {
+  const target = await mkdtemp(join(tmpdir(), "buildtrace-quotes-"));
+  try {
+    const initResult = spawnSync(process.execPath, [cli, "init", "--target", target, "--codex-home", join(target, "fake-codex-home")], { encoding: "utf8" });
+    assert.equal(initResult.status, 0, initResult.stderr);
+    const sourcePath = join(target, "docs/buildtrace/BUILDTRACE.md");
+    const source = await readFile(sourcePath, "utf8");
+    await writeFile(sourcePath, source.replace("[Q1 | system | buildtrace-init | artifact-evidence]", "[Q1 | user | current-turn/message-1 | verbatim]"));
+    const valid = spawnSync(process.execPath, [cli, "audit-quotes", "--target", target], { encoding: "utf8" });
+    assert.equal(valid.status, 0, valid.stderr);
+    assert.match(valid.stdout, /1\/1 records/);
+
+    const validSource = await readFile(sourcePath, "utf8");
+    await writeFile(sourcePath, validSource.replace("| verbatim]", "| unknown]"));
+    const invalid = spawnSync(process.execPath, [cli, "audit-quotes", "--target", target], { encoding: "utf8" });
+    assert.notEqual(invalid.status, 0);
+    assert.match(invalid.stdout, /fidelity must be/);
+  } finally {
+    await rm(target, { recursive: true, force: true });
+  }
+});
+
+test("history verification keeps multiple BuildTrace sources in one project isolated", async () => {
+  const target = await mkdtemp(join(tmpdir(), "buildtrace-history-sources-"));
+  try {
+    await mkdir(join(target, "docs/buildtrace"), { recursive: true });
+    await mkdir(join(target, ".buildtrace/private-self"), { recursive: true });
+    const publicSource = join(target, "docs/buildtrace/BUILDTRACE.md");
+    const privateSource = join(target, ".buildtrace/private-self/BUILDTRACE.md");
+    await writeFile(publicSource, "# Public\n\n## 项目记录\n\n### 2026-10-13 — Public\n\n记录 ID: bt-public\n");
+    await writeFile(privateSource, "# Private\n\n## 项目记录\n\n### 2026-10-13 — Private\n\n记录 ID: bt-private\n");
+    assert.equal(spawnSync(process.execPath, [cli, "snapshot", "--target", target, "--source", publicSource], { encoding: "utf8" }).status, 0);
+    assert.equal(spawnSync(process.execPath, [cli, "snapshot", "--target", target, "--source", privateSource], { encoding: "utf8" }).status, 0);
+    const verification = spawnSync(process.execPath, [cli, "verify-history", "--target", target, "--source", privateSource], { encoding: "utf8" });
+    assert.equal(verification.status, 0, verification.stderr);
+    assert.doesNotMatch(verification.stdout, /bt-public/);
   } finally {
     await rm(target, { recursive: true, force: true });
   }
@@ -117,6 +200,7 @@ test("sync keeps custom root Agent instructions and refreshes only the managed B
   const target = await mkdtemp(join(tmpdir(), "buildtrace-sync-adapter-"));
   try {
     await writeFile(join(target, "CLAUDE.md"), "# Existing project instructions\n");
+    await writeFile(join(target, "AGENTS.md"), "# Existing cross-tool instructions\n");
     const result = spawnSync(process.execPath, [cli, "sync", "--target", target], { encoding: "utf8" });
     assert.equal(result.status, 0, result.stderr);
     const first = await readFile(join(target, "CLAUDE.md"), "utf8");
@@ -129,6 +213,59 @@ test("sync keeps custom root Agent instructions and refreshes only the managed B
     assert.match(updated, /^# Existing project instructions$/m);
     assert.match(updated, /^KEEP-ME$/m);
     assert.equal(updated.match(/buildtrace:project-adapter:start/g)?.length, 1);
+    const agents = await readFile(join(target, "AGENTS.md"), "utf8");
+    assert.ok(agents.startsWith("# Existing cross-tool instructions\n"));
+    assert.equal(agents.match(/buildtrace:project-adapter:start/g)?.length, 1);
+  } finally {
+    await rm(target, { recursive: true, force: true });
+  }
+});
+
+test("snapshot refuses a history index symlink without changing its destination", async () => {
+  const target = await mkdtemp(join(tmpdir(), "buildtrace-history-index-"));
+  try {
+    await mkdir(join(target, "docs/buildtrace"), { recursive: true });
+    await writeFile(join(target, "docs/buildtrace/BUILDTRACE.md"), "# Test archive\n");
+    await mkdir(join(target, ".buildtrace/history"), { recursive: true });
+    const unrelated = join(target, "unrelated.txt");
+    await writeFile(unrelated, "Keep this unchanged\n");
+    await symlink(unrelated, join(target, ".buildtrace/history/index.jsonl"));
+    const result = spawnSync(process.execPath, [cli, "snapshot", "--target", target], { encoding: "utf8" });
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /symlink/);
+    assert.equal(await readFile(unrelated, "utf8"), "Keep this unchanged\n");
+  } finally {
+    await rm(target, { recursive: true, force: true });
+  }
+});
+
+test("status reports the target archive without claiming live capture or changing it", async () => {
+  const target = await mkdtemp(join(tmpdir(), "buildtrace-status-"));
+  try {
+    const missing = spawnSync(process.execPath, [cli, "status", "--json"], { cwd: target, encoding: "utf8" });
+    assert.equal(missing.status, 0, missing.stderr);
+    assert.equal(JSON.parse(missing.stdout).initialized, false);
+    const initResult = spawnSync(process.execPath, [cli, "init", "--target", target, "--codex-home", join(target, "fake-codex-home")], { encoding: "utf8" });
+    assert.equal(initResult.status, 0, initResult.stderr);
+    const sourcePath = join(target, "docs/buildtrace/BUILDTRACE.md");
+    const original = await readFile(sourcePath, "utf8");
+    const status = spawnSync(process.execPath, [cli, "status", "--json"], { cwd: target, encoding: "utf8" });
+    assert.equal(status.status, 0, status.stderr);
+    const report = JSON.parse(status.stdout);
+    assert.equal(report.target, await realpath(target));
+    assert.equal(report.records, 1);
+    assert.equal(report.capture, "agent-written");
+    assert.equal(report.latest.title, "BuildTrace 初始化");
+    assert.match(report.sha256, /^[a-f0-9]{64}$/);
+    assert.equal(report.adapters.find((item) => item.path === "AGENTS.md").configured, true);
+    assert.equal(await readFile(sourcePath, "utf8"), original);
+    const customSource = join(target, "private-history.md");
+    await writeFile(customSource, original.replace("# buildtrace-status-", "# Private project "));
+    const customStatus = spawnSync(process.execPath, [cli, "status", "--target", target, "--source", customSource, "--json"], { encoding: "utf8" });
+    assert.equal(customStatus.status, 0, customStatus.stderr);
+    assert.equal(JSON.parse(customStatus.stdout).source, customSource);
+    const help = spawnSync(process.execPath, [cli, "--help"], { encoding: "utf8" });
+    assert.match(help.stdout, /buildtrace status/);
   } finally {
     await rm(target, { recursive: true, force: true });
   }
@@ -303,7 +440,7 @@ test("initialized CLI works inside a CommonJS project", async () => {
 
     const installedCli = join(target, "bin/buildtrace.mjs");
     const agentRules = await readFile(join(target, "AGENTS.md"), "utf8");
-    assert.match(agentRules, /only project-memory source/);
+    assert.match(agentRules, /default project-memory source/);
     assert.match(agentRules, /Do not wait for fixed commands/);
     assert.match(await readFile(join(target, ".cursor/rules/buildtrace.mdc"), "utf8"), /Do not wait for fixed commands/);
     const doctorResult = spawnSync(process.execPath, [installedCli, "doctor"], {

@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Make project initialization back up existing shared Agent instructions and insert an idempotent managed BuildTrace block, so tools that read `AGENTS.md` can use the project rules without a manual merge.
+- Add read-only `buildtrace status` with actual archive location, latest record, count, hash and configured rule files; require Agents to verify saved work and report the record title, ID and location.
+- Refuse symlink history indexes before appending snapshot metadata, avoiding writes through a replaced index file.
+- Add a three-step new-user path in both READMEs and the board tutorial, with explicit limits on automatic capture and cross-device access.
+- Rewrite board actions and guidance in plain language; move provenance codes into expandable details while retaining the complete source text and actual execution steps.
+- Add content-addressed local history with `snapshot`, `history`, `verify-history`, and guarded `restore`; the local Viewer preserves before/after snapshots when its Markdown source changes.
+- Add `audit-quotes` to expose missing or non-verbatim provenance without manufacturing old user messages, and make existing quotes and reasoning append-only in every Agent adapter.
+- Simplify the Viewer by hiding visibility and outcome badges from record lists, fixing the latest-record date, shortening card previews, and rewriting synthetic demo copy in plain language.
 - Add the standard MIT License for the BuildTrace repository, with copyright held by Yim leung; project initialization and synchronization do not alter downstream project licenses.
 - Add a standalone Chinese product and implementation brief that lets a new Agent understand BuildTrace's purpose, causal record model, recovery boundary, architecture, CLI, privacy derivatives, current implementation, and operating contract without first reading the repository code.
 - Clarify in the English README that real dogfooding archives remain in their own local projects and are not shipped in the repository or install package; remove stale project record counts from the public introduction.

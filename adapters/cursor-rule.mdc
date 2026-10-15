@@ -19,6 +19,7 @@ Rules:
 - Preserve user wording in `沟通原文`; keep Agent interpretation in `需求总结`.
 - On first install or backfill, audit all safe readable transcripts, compact residues, forks, multi-Agent traces, Git branches, and provided exports; state coverage and inaccessible gaps.
 - Keep complete relevant user messages, itemized requirements, `Agent 当时理解`, `Agent 计划`, and `执行轨迹` as separate evidence layers.
+- Before editing an existing archive, run `buildtrace snapshot --target .`; after editing, run `buildtrace verify-history --target .`. Existing evidence is append-only; add dated corrections instead of silently rewriting it.
 - Do not invent inaccessible conversations, motives, dates, screenshots, commits, deploys, or results.
 - Do not create or update `nodes.json` or browser state as project memory.
 - The Viewer is read-only. Corrections happen through the Agent.

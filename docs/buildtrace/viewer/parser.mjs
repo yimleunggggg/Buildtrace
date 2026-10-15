@@ -323,6 +323,7 @@ function parseEntry(header, body, index) {
     relatedTask: "",
     evidence: "",
     scene: "decision",
+    scenes: ["decision"],
     milestone: false,
     visibility: "private",
     status: "不确定",
@@ -392,6 +393,9 @@ function parseEntry(header, body, index) {
     .map((principle) => ({ ...principle, category: principle.category || principle.tag || "未分类" }));
   entry.milestone = ["是", "true", "yes", "major"].includes(String(entry.milestone).toLowerCase());
   entry.visibility = normalizeVisibility(entry.visibility);
+  entry.scenes = [...new Set(String(entry.scene).split(/\s*(?:\/|,|，|、)\s*/).map((scene) => scene.trim()).filter(Boolean))];
+  if (!entry.scenes.length) entry.scenes = ["decision"];
+  entry.scene = entry.scenes[0];
   if (entry.recordId) entry.id = entry.recordId;
 
   return entry;

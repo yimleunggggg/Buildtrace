@@ -211,7 +211,7 @@ BuildTrace 分成用户级 Skill 和项目级记忆两层。
 - 创建该项目自己的 Markdown 主源；
 - 安装项目内的 Skill、Viewer、解析器、恢复规范和 CLI；
 - 写入 Codex、Cursor、Claude Code、GitHub Copilot、Windsurf 与 Gemini CLI 的项目规则；
-- 已有 `AGENTS.md` 时不覆盖，而是生成一份待合并的 BuildTrace 规则；
+- 已有 `AGENTS.md` 时先备份，再添加带标记的 BuildTrace 区块；保留原有指令，无需手动合并；
 - 先运行一次本机历史审计；
 - 不覆盖已经存在的项目主源。
 
@@ -243,7 +243,7 @@ BuildTrace 分成用户级 Skill 和项目级记忆两层。
 
 ```bash
 # 从 GitHub 一键安装，并为常见 Agent 开启以后项目的自动初始化
-npm install -g github:yimleunggggg/Buildtrace && buildtrace setup
+npm install -g git+https://github.com/yimleunggggg/Buildtrace.git && buildtrace setup
 
 # 给一个真实项目初始化 BuildTrace
 buildtrace init --target /absolute/path/to/project
@@ -259,6 +259,7 @@ buildtrace serve --target .
 
 # 检查项目结构和记录合法性
 node bin/buildtrace.mjs doctor --target /absolute/path/to/project
+node bin/buildtrace.mjs status --target /absolute/path/to/project
 
 # 导出可移植结构
 node bin/buildtrace.mjs export --target /absolute/path/to/project --format json
@@ -282,7 +283,7 @@ node bin/buildtrace.mjs publish \
   --output /absolute/path/to/empty-directory
 ```
 
-`sync` 只更新 BuildTrace 管理的规则、脚本和 Viewer，替换前会在 `.buildtrace/backups/` 保存备份。它不会改写项目自己的 `BUILDTRACE.md` 和 `AGENTS.md`。
+`sync` 只更新 BuildTrace 管理的规则、脚本和 Viewer，替换前会在 `.buildtrace/backups/` 保存备份。它不会改写项目自己的 `BUILDTRACE.md`；`AGENTS.md` 等共用指令文件只更新带标记的 BuildTrace 区块，区块之外的指令保留。
 
 ## 私密、团队与公开版本
 

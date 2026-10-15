@@ -2,9 +2,40 @@
 
 [简体中文](README.md) · [English](README.en.md)
 
-BuildTrace 给用 AI 做项目的人保存一条项目脉络：当时为什么这样做，Agent 怎么理解、怎么推进，后来数据有没有变化，这个判断最后成不成立。
+BuildTrace 帮你记住和 AI 做项目时的原话、决定和实际进展。换工具或隔几周回来，还能找到当时为什么这样做，以及后来有没有效果。
 
 当前版本：`v1.18.0-alpha.1`
+
+## 第一次用，照这三步
+
+**1. 发给能访问项目文件和终端的编程 AI：**
+
+> 请从 https://github.com/yimleunggggg/Buildtrace 安装 BuildTrace，并运行 setup，让以后进入的项目按规则自动启用。保留我已有的工具配置。安装后在当前项目完成一次记录，告诉我记录标题、ID、文件位置和看板地址。
+
+如果你习惯用终端，需要 Node.js 20 或更高版本：
+
+```bash
+npm install -g git+https://github.com/yimleunggggg/Buildtrace.git && buildtrace setup
+```
+
+然后重新打开 AI 工具或开始新会话，让它读到新规则。
+
+**2. 进入一个项目，照常开始工作。** 第一次也可以说：
+
+> 为这个项目启用 BuildTrace，先找回能读取的历史，再继续工作。完成后保存这次原话、决定和实际步骤，给我记录位置。
+
+比如：“我担心首页太复杂，先简化搜索，两周后看使用情况。”你不用填表。AI 按规则记录重要工作；小修边合并到相关记录。已有项目的历史只恢复能核对的部分，缺失的原话会标明。
+
+**3. 看一眼有没有真的记下。** AI 应给出记录标题、ID 和文件位置。想自己检查或打开看板，在项目文件夹运行：
+
+```bash
+buildtrace status --target .
+buildtrace serve --target .
+```
+
+在浏览器打开 `serve` 打印的地址；终端要保持运行。以后也可以直接告诉 AI：“打开这个项目的 BuildTrace 看板。”本地地址只在这台电脑上有效；其他设备的访问方式见[部署说明](docs/buildtrace/DEPLOY.md)。
+
+目前的自动记录由正在工作的 AI 执行，尚无后台程序保证捕获每轮对话。`status` 只核对已保存文件；“规则已加载”不等于“本轮已记录”。
 
 ## 我为什么做它
 
@@ -56,15 +87,17 @@ Agent 当时的理解与计划
 需要 Node.js 20 或更高版本。任何人拿到 GitHub 链接后，可执行一条命令：
 
 ```bash
-npm install -g github:yimleunggggg/Buildtrace && buildtrace setup
+npm install -g git+https://github.com/yimleunggggg/Buildtrace.git && buildtrace setup
 ```
 
-这会安装干净 Skill，并在 Codex、Cursor、Claude Code、GitHub Copilot、Windsurf 与 Gemini CLI 的用户级规则中加入一段可识别、可重复更新的自动激活说明。以后进入一个可写项目开始有意义的工作时，Agent 会先检查该项目是否已有 BuildTrace；没有就初始化，再继续工作。
+这会安装通用 Skill，并为 Codex、Cursor、Claude Code、GitHub Copilot、Windsurf 与 Gemini CLI 配置记录规则。加载规则后，Agent 应在可写项目开始有意义工作时检查是否需要初始化。具体是否执行取决于工具和当前会话；首次使用请检查实际记录。
+
+每个已初始化项目的 `AGENTS.md` 也带有记录规则。WorkBuddy 等会读取这个文件的工具可以使用同一套规则，不必在每个工具里重新解释；这不等于它们已经有完整的专用会话采集适配。
 
 更新：
 
 ```bash
-npm install -g github:yimleunggggg/Buildtrace && buildtrace setup
+npm install -g git+https://github.com/yimleunggggg/Buildtrace.git && buildtrace setup
 ```
 
 通过 GitHub 安装的用户用同一条命令升级；参与 BuildTrace 开发、直接在克隆仓库中运行 `node bin/buildtrace.mjs setup` 时，用户级 Skill 会链接到当前仓库，规则修改会立即反映到本机安装。
@@ -73,7 +106,7 @@ npm install -g github:yimleunggggg/Buildtrace && buildtrace setup
 
 > 为这个项目启用 BuildTrace，并尽可能恢复此前上下文。先告诉我搜索了哪些任务、compact、fork、多 Agent、Git 和项目文件，哪些已经映射，哪些不可访问，再继续工作。
 
-对应命令是 `buildtrace init --target /absolute/path/to/project`。初始化会自动生成私密恢复清单，不会把安装日误当作项目第一天。已有项目跟随模板更新时运行 `buildtrace sync --target /absolute/path/to/project`；项目事实不会被模板覆盖。
+对应命令是 `buildtrace init --target /absolute/path/to/project`。初始化会生成历史来源清单，后续由 Agent 核对并补录。项目已有 `AGENTS.md` 时，先备份再加入 BuildTrace 区块，无需手动合并；同步只更新这个区块。已有项目升级运行 `buildtrace sync --target /absolute/path/to/project`，项目记录文件会保留。
 
 ## Agent 支持
 
@@ -98,6 +131,18 @@ npm install -g github:yimleunggggg/Buildtrace && buildtrace setup
 - “恢复一下这个项目之前为什么选这套结构，再继续。”
 
 Agent 会在有意义的工作前读取项目目的、相关历史和到期回看；完成后，把本轮原话、理解、计划、实际执行和验证证据写回主源。只有信息缺失会改变判断时才应该追问。
+
+已有档案按追加式记录约定维护。规则要求修改前保存内容哈希快照；修改后的校验会比较带稳定 ID 的记录与所选基线，检查记录删除，以及原话、需求总结、当时理解、计划和执行轨迹等受保护字段的变化：
+
+```bash
+buildtrace snapshot --target .
+buildtrace verify-history --target .
+buildtrace history --target .
+```
+
+快照保存在 Git 默认忽略的 `.buildtrace/history/`。若发生误改，可先查看历史，再用 `buildtrace restore --target . --snapshot <hash-prefix> --confirm` 回溯；恢复前的当前版本也会自动保存。真实纠错应追加时间、事实和新依据，不把旧说法静默改成“Agent 当时就知道”。
+
+这不是文件写入硬锁：没有稳定 ID 的旧记录和尚未纳入比较的字段仍需人工审查，原文件与快照同机也需要另做独立备份。`buildtrace audit-quotes --target .` 只检查记录声明的来源与原文类型，不会与全部原始聊天逐字比对，不能据此证明没有漏话。
 
 本地打开当前项目看板：
 

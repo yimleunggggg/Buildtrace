@@ -215,3 +215,9 @@ test("treats legacy records as private", () => {
   assert.equal(trace.entries[0].milestone, false);
   assert.equal(trace.publication.profile, "private");
 });
+
+test("splits legacy multi-scene fields without rewriting the source", () => {
+  const trace = parseBuildtrace(`# Multi scene\n\n## 项目记录\n\n### 2026-10-13 — Mixed work\n\n场景: decision / monetization / seo-growth\n`);
+  assert.deepEqual(trace.entries[0].scenes, ["decision", "monetization", "seo-growth"]);
+  assert.equal(trace.entries[0].scene, "decision");
+});
