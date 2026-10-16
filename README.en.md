@@ -31,6 +31,8 @@ Current release: `v1.18.0-alpha.1`
 
 BuildTrace currently relies on your AI following the installed instructions. It is not a background service that captures every chat. Ask for the saved record title, ID and file path when checking that recording worked.
 
+The current board is per project; a unified local project homepage is not implemented. Run different projects on different ports, or add `--port 0` to choose an available port. Use the printed address. Installing global instructions does not start a persistent board service.
+
 ## Why I made it
 
 I am not an engineer. My background is in user operations, communities, and offline events. After using AI to build several small products around my own interests, I kept running into the same problem: code changed quickly, but the project forgot why.

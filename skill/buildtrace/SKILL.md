@@ -25,6 +25,8 @@ Project memory is not a chat dump. Exclude routine progress nudges and acknowled
 
 For outcome updates, verify the intended project, source path, record ID and worktree before writing. Never append to whichever unrelated project happens to be open. Report ambiguous or divergent worktree copies for confirmation.
 
+Keep universal evidence safeguards separate from project preferences. Do not make one user's reading order, taxonomy or review habits mandatory for everyone. Link substantive feedback to the resulting adjustment with observable dates and source references; preserve the original plan. Group small follow-up edits under the relevant work, and link later independent changes as new dated records. Do not treat a backfill date as the start or deployment date, or require metrics and hypotheses for work that has none.
+
 ## First activation in an old project
 
 `buildtrace init` creates `.buildtrace/recovery/latest.json`. Continue the audit rather than treating installation day as project day one:
