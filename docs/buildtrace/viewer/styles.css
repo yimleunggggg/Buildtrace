@@ -7390,3 +7390,34 @@ textarea {
     --rule-strong: #89958c;
   }
 }
+
+/* Record reading: one overview, then optional evidence. */
+.record-reading-section { padding: 22px 0; border-bottom: 1px solid var(--rule); }
+.record-reading-section h3 { margin: 0 0 12px; color: var(--ink); font-size: 17px; line-height: 1.5; }
+.key-actions { margin: 0; padding-left: 21px; color: var(--ink-soft); font-size: 16px; line-height: 1.8; }
+.key-actions li + li { margin-top: 10px; }
+.reading-details { margin: 16px 0; border: 1px solid var(--rule); padding: 0 18px; color: var(--ink-soft); }
+.reading-details > summary, .process-step > summary { padding: 14px 0; min-height: 48px; cursor: pointer; font-size: 14px; line-height: 1.5; }
+.reading-details p, .reading-details li { font-size: 15px; line-height: 1.85; overflow-wrap: anywhere; }
+.reading-details code { display: block; padding: 12px 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.process-step { border-top: 1px solid var(--rule); }
+.missing-source { color: var(--muted); font-size: 14px; line-height: 1.7; }
+.coordination-quotes summary p { display: none; }
+.record-tag[data-kind="area"] { color: #b9e3f0; background: #152c33; border-color: #34616f; }
+.record-tag[data-kind="action"] { color: #ead6a7; background: #2b271b; border-color: #6b5a33; }
+.action-filter { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 12px 18px; border-bottom: 1px solid var(--rule); }
+.action-filter > span { color: var(--muted); font-size: 12px; }
+.action-filter button { min-height: 44px; padding: 8px 12px; border: 1px solid var(--rule); background: transparent; color: var(--ink-soft); font-size: 13px; }
+.action-filter button[aria-pressed="true"] { border-color: #9d8753; color: #ead6a7; background: #2b271b; }
+.taxonomy-rules li { margin: 14px 0; }
+.taxonomy-rules p { margin-top: 5px; color: var(--muted); font-size: 14px; line-height: 1.7; }
+.tutorial-success { padding: 18px; margin: 20px 0; border-left: 2px solid var(--action); background: var(--paper); font-size: 16px; line-height: 1.75; }
+.tutorial-detail h2 { font-size: clamp(25px, 3vw, 38px); line-height: 1.35; }
+.tutorial-detail .command-block code { font-family: var(--interface); font-size: 16px; line-height: 1.85; }
+@media (max-width: 760px) {
+  .reading-details { padding: 0 14px; }
+  .key-actions { font-size: 16px; }
+  .action-filter { padding: 10px 14px; gap: 6px; }
+  .tutorial-detail .command-block { padding: 18px; }
+  .tutorial-detail .command-block code { padding-right: 0; padding-top: 44px; }
+}

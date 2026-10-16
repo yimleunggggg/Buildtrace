@@ -1,9 +1,46 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
-import { getBuildtraceStats, parseBuildtrace } from "../docs/buildtrace/viewer/parser.js";
+import { buildRecordHandoff, getBuildtraceStats, parseBuildtrace, quoteKind, quoteRelevance } from "../docs/buildtrace/viewer/parser.js";
+import { buildPublication } from "../docs/buildtrace/scripts/derive-views.mjs";
 
 const source = await readFile(new URL("../docs/buildtrace/BUILDTRACE.md", import.meta.url), "utf8");
+
+test("project taxonomy overrides defaults without dropping historical categories or full detail", () => {
+  const trace = parseBuildtrace(`# Custom\n\n## 分类规则\n- [area | writing | 内容写作 | Writing] 稿件，不含代码。\n- [action | edit | 编辑 | Edit] 修改已有稿件。\n\n## 项目记录\n### 2026-10-16 — Edit article\n记录 ID: bt-article\n领域: writing\n动作: edit\n行动要点:\n- 修改开头\n做了什么:\n- 保留完整的修改细节，不用重点替换原文。\n\n### 2026-10-15 — Old UI fix\n场景: ux-content\n`);
+  assert.deepEqual(trace.taxonomy.areas.map((item) => item.id), ["writing"]);
+  assert.deepEqual(trace.entries[0].areas, ["writing"]);
+  assert.deepEqual(trace.entries[0].actions, ["edit"]);
+  assert.equal(trace.entries[0].sectionItems.actionHighlights[0], "修改开头");
+  assert.match(trace.entries[0].sections.changes, /完整/);
+  assert.deepEqual(trace.entries[1].areas, ["interface"]);
+  assert.equal(trace.entries[1].classificationSource, "legacy");
+  trace.entries[0].visibility = "public";
+  const published = parseBuildtrace(buildPublication(trace, "public").markdown);
+  assert.equal(published.taxonomy.areas[0].label, "内容写作");
+  assert.deepEqual(published.entries[0].actions, ["edit"]);
+  assert.equal(published.entries[0].sectionItems.actionHighlights[0], "修改开头");
+  assert.match(published.entries[0].sections.changes, /完整/);
+});
+
+test("source fidelity is independent from relevance and consequential short approvals", () => {
+  assert.equal(quoteKind({ fidelity: "unknown", text: "用户要求恢复资料柜。" }), "summary");
+  assert.equal(quoteKind({ fidelity: "verbatim", speaker: "user", text: "不要公开" }), "original");
+  assert.equal(quoteRelevance("怎么了？"), "coordination");
+  assert.equal(quoteRelevance("同意", "approval"), "substantive");
+  assert.equal(quoteRelevance("不要公开"), "substantive");
+  assert.equal(quoteRelevance("打不开"), "substantive");
+});
+
+test("outcome handoffs include stable project identity and refuse silent cross-worktree writes", () => {
+  const text = buildRecordHandoff({ title: "Travel app" }, { recordId: "bt-search", id: "unused", date: "2026-10-16", title: "Search change" }, "review", { projectRoot: "/project/travel", sourcePath: "/project/travel/private.md", branch: "ux-search" });
+  assert.match(text, /Travel app/);
+  assert.match(text, /bt-search/);
+  assert.match(text, /\/project\/travel\/private.md/);
+  assert.match(text, /ux-search/);
+  assert.match(text, /工作树/);
+  assert.doesNotMatch(text, /unused/);
+});
 
 test("parses project intent and records from BUILDTRACE.md", () => {
   const trace = parseBuildtrace(source);

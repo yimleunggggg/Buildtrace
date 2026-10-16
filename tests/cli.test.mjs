@@ -512,6 +512,41 @@ test("init creates an immediately readable project source", async () => {
   }
 });
 
+test("recovery discovers sibling worktrees, historical aliases and transitive native lineage", async () => {
+  const fixture = await mkdtemp(join(tmpdir(), "buildtrace-worktree-audit-"));
+  try {
+    const target = join(fixture, "main");
+    const linked = join(fixture, "linked");
+    const codexHome = join(fixture, "codex");
+    const alias = join(fixture, "old-location");
+    await mkdir(target);
+    await mkdir(alias);
+    for (const args of [["init", target], ["-C", target, "-c", "user.name=Test", "-c", "user.email=test@example.invalid", "commit", "--allow-empty", "-m", "fixture"], ["-C", target, "worktree", "add", "--detach", linked]]) {
+      const git = spawnSync("git", args, { encoding: "utf8" });
+      assert.equal(git.status, 0, git.stderr);
+    }
+    await mkdir(join(codexHome, "sessions"), { recursive: true });
+    const sessions = [
+      { id: "parent", cwd: linked },
+      { id: "child", cwd: "/not-the-project", source: { subagent: { thread_spawn: { parent_thread_id: "parent" } } } },
+      { id: "grandchild", cwd: "/another-location", source: { subagent: { thread_spawn: { parent_thread_id: "child" } } } },
+      { id: "old", cwd: alias },
+      { id: "unrelated", cwd: "/unrelated" },
+    ];
+    for (const payload of sessions) await writeFile(join(codexHome, "sessions", `${payload.id}.jsonl`), JSON.stringify({ type: "session_meta", payload }) + "\n");
+    const result = spawnSync(process.execPath, [cli, "recover", "--target", target, "--codex-home", codexHome, "--claude-home", join(fixture, "claude"), "--project-alias", alias], { encoding: "utf8" });
+    assert.equal(result.status, 0, result.stderr);
+    const report = JSON.parse(await readFile(join(target, ".buildtrace/recovery/latest.json"), "utf8"));
+    assert.equal(report.coverage.git.worktrees.length, 2);
+    assert.equal(report.coverage.git.commonDirectory, await realpath(join(target, ".git")));
+    assert.deepEqual(report.threads.map((thread) => thread.threadId).sort(), ["child", "grandchild", "old", "parent"]);
+    assert.equal(report.threads.find((thread) => thread.threadId === "grandchild").matchedBy, "native-lineage");
+    assert.equal(report.project.historicalAliases.length, 1);
+  } finally {
+    await rm(fixture, { recursive: true, force: true });
+  }
+});
+
 test("recover inventories matching Codex rollouts without duplicating transcript text", async () => {
   const target = await mkdtemp(join(tmpdir(), "buildtrace-recover-project-"));
   const codexHome = await mkdtemp(join(tmpdir(), "buildtrace-recover-codex-"));

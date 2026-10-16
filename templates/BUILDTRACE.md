@@ -34,6 +34,8 @@
 
 ## 项目记录
 
+<!-- 如需自定义，在本节之前添加“## 分类规则”；格式与判定示例见 references/classification-and-capture.md。未自定义时使用默认领域与动作，可增减；停用类别不删除旧记录。 -->
+
 ### YYYY-MM-DD — 第一条项目记录
 
 记录 ID: bt-YYYYMMDD-first-record
@@ -42,6 +44,8 @@
 关联任务: 未记录
 依据: 本轮对话
 场景: decision
+领域: product
+动作: decide
 关键节点: 否
 可见范围: private
 结果状态: 不确定

@@ -26,6 +26,10 @@ Mixed-fidelity material must not be hidden behind one record-level confidence la
 
 ## Recovery manifest
 
+Project matching now inventories Git's worktree list and common directory, matches Codex and Claude sessions against sibling working directories, and follows explicit parent/child relationships transitively. `recover --project-alias /old/project/path` adds a confirmed historical project location, including pre-Git work. Keep the path, branch and match reason for every source; do not silently treat divergent worktree archives as interchangeable.
+
+The manifest is discovery evidence, not a claim that the Agent read or promoted each source. Missing worktrees and unexposed fork metadata remain gaps. A matching thread can contain multiple projects; only project-relevant facts may be promoted.
+
 `buildtrace recover` writes `.buildtrace/recovery/latest.json`. It is a private, derived inventory, not a project-memory source and not a Viewer input. It contains source coverage, matching task IDs, rollout hashes, compacted-window counts, message references, multi-Agent edges, Git coverage, and unresolved gaps. It deliberately does not duplicate entire private transcripts.
 
 The Agent uses that manifest together with task-reading tools to promote relevant evidence into `docs/buildtrace/BUILDTRACE.md`. The promotion step is where complete relevant user messages, the Agent's contemporaneous understanding, requirements, plan, execution trace, and outcome become portable project memory.

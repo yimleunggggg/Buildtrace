@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Separate work areas from action types with project-local Markdown classification rules, portable exports and two-color filters; retain full detail alongside optional concise highlights.
+- Separate original messages, historical summaries and routine coordination; make public Agent statements/plans/actions auditable without implying access to private reasoning.
+- Simplify record reading into changes, reasons and current outcomes with optional evidence/process details; replace the tutorial's command-first flow with concrete messages and expected results.
+- Include project/record/source/worktree identity in correction and outcome handoffs, and extend recovery to sibling worktrees, historical aliases and transitive native Agent lineage.
+
 - Make project initialization back up existing shared Agent instructions and insert an idempotent managed BuildTrace block, so tools that read `AGENTS.md` can use the project rules without a manual merge.
 - Add read-only `buildtrace status` with actual archive location, latest record, count, hash and configured rule files; require Agents to verify saved work and report the record title, ID and location.
 - Refuse symlink history indexes before appending snapshot metadata, avoiding writes through a replaced index file.

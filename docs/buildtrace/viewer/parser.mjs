@@ -5,6 +5,8 @@ const FIELD_MAP = {
   "关联任务": "relatedTask",
   "依据": "evidence",
   "场景": "scene",
+  "领域": "area",
+  "动作": "action",
   "关键节点": "milestone",
   "可见范围": "visibility",
   "结果状态": "status",
@@ -14,6 +16,8 @@ const FIELD_MAP = {
 const SECTION_MAP = {
   "沟通原文": "quote",
   "需求总结": "summary",
+  "动机要点": "whyHighlights",
+  "行动要点": "actionHighlights",
   "Agent 当时理解": "agentUnderstanding",
   "Agent 计划": "agentPlan",
   "执行轨迹": "executionTrace",
@@ -27,6 +31,78 @@ const SECTION_MAP = {
   "技术备注": "technical",
   "结果": "result",
 };
+
+export const DEFAULT_TAXONOMY = {
+  areas: [
+    ["interface", "界面与交互", "Interface & UX", "页面布局、视觉、文案和用户操作；管理后台页面也按界面归类。"],
+    ["product", "产品逻辑", "Product logic", "用户流程、功能边界、业务规则和产品取舍。"],
+    ["backend", "服务与接口", "Backend & APIs", "接口、权限、后台任务和服务端行为，不是管理后台的页面外观。"],
+    ["data", "数据与内容", "Data & content", "数据结构、质量、导入、分析及内容资料。"],
+    ["growth", "运营与增长", "Growth & operations", "搜索、传播、活动、转化和商业化。"],
+    ["delivery", "发布与运行", "Delivery & runtime", "部署、版本发布、运行故障和监控。"],
+    ["workflow", "开发与 AI 协作", "Development & AI", "Agent、工具规则、开发流程和跨工具交接。"],
+    ["system", "系统架构", "System architecture", "跨模块边界、存储方案和系统级技术结构。"],
+  ].map(([id, label, en, rule]) => ({ id, label, en, rule })),
+  actions: [
+    ["add", "新增", "Add"], ["improve", "优化", "Improve"], ["fix", "修复", "Fix"],
+    ["decide", "决策", "Decide"], ["research", "调研", "Research"], ["analyze", "分析", "Analyze"],
+    ["restructure", "重构", "Restructure"], ["publish", "发布", "Publish"], ["review", "复盘", "Review"],
+  ].map(([id, label, en]) => ({ id, label, en, rule: "" })),
+};
+
+function parseTaxonomy(markdown) {
+  const block = markdown.match(/^## 分类规则\s*\n([\s\S]*?)(?=^## |$(?![\s\S]))/m)?.[1];
+  const parsed = { areas: [], actions: [] };
+  for (const line of (block || "").split("\n")) {
+    const match = line.match(/^\s*- \[(area|action)\s*\|\s*([a-z0-9-]+)\s*\|\s*([^|\]]+)(?:\|\s*([^\]]+))?]\s*(.*)$/);
+    if (!match) continue;
+    const [, kind, id, label, en, rule] = match;
+    const list = parsed[kind === "area" ? "areas" : "actions"];
+    if (!list.some((item) => item.id === id)) list.push({ id, label: label.trim(), en: en?.trim() || label.trim(), rule });
+  }
+  return {
+    areas: parsed.areas.length ? parsed.areas : DEFAULT_TAXONOMY.areas,
+    actions: parsed.actions.length ? parsed.actions : DEFAULT_TAXONOMY.actions,
+    customized: Boolean(block),
+  };
+}
+
+const LEGACY_AREAS = { "ux-content": "interface", decision: "product", architecture: "system", "analytics-data": "data", "seo-growth": "growth", monetization: "growth", "ops-release": "delivery", "ai-workflow": "workflow" };
+const LEGACY_ACTIONS = { feature: "add", bugfix: "fix", "ux-content": "improve", decision: "decide", architecture: "restructure", "analytics-data": "analyze", "seo-growth": "improve", monetization: "decide", "ops-release": "publish", "ai-workflow": "improve" };
+
+function splitTags(value) {
+  return [...new Set(String(value || "").split(/\s*[,，、/]\s*/).filter(Boolean))];
+}
+
+// Conservative display triage only. Never delete or rewrite the archived message.
+export function quoteRelevance(text, purpose = "") {
+  if (["decision", "approval", "evidence", "constraint"].includes(purpose)) return "substantive";
+  if (purpose === "coordination") return "coordination";
+  const plain = String(text || "").trim().replace(/[\s，。！？?!、；;～~]+$/g, "");
+  return /^(?:怎么了|怎么样了|如何了|好了没|好了吗|进度呢|继续|继续吧|继续做吧|好的|好|嗯|收到|谢谢|ok|okay|thanks|continue|any updates)$/i.test(plain) ? "coordination" : "substantive";
+}
+
+export function quoteKind(quote) {
+  if (["compacted-summary", "artifact-evidence", "inferred"].includes(quote.fidelity)) return "summary";
+  if (quote.fidelity === "verbatim" && quote.speaker === "user") return "original";
+  if (quote.fidelity === "unknown" && /^(?:用户(?:要求|指出|说|希望)|来自旧记录摘要|历史.*摘要)/.test(quote.text || "")) return "summary";
+  return "unverified";
+}
+
+export function buildRecordHandoff(project, entry, action, context = {}, locale = "zh") {
+  const identity = [
+    `Project: ${project.title}`,
+    `Record ID: ${entry.recordId || entry.id}`,
+    `Date: ${entry.date}`,
+    `Title: ${entry.title}`,
+    context.projectRoot ? `Project root: ${context.projectRoot}` : "",
+    context.sourcePath ? `Archive: ${context.sourcePath}` : "Archive: locate this project's BuildTrace source; respect source overrides",
+    context.branch ? `Viewed branch: ${context.branch}` : "",
+    context.repositoryUrl ? `Repository: ${context.repositoryUrl}` : "",
+  ].filter(Boolean).join("\n");
+  if (locale === "en") return `Please ${action === "review" ? "append the later outcome" : action === "evidence" ? "add evidence" : "append a correction"} for this specific record.\n\n${identity}\n\nFirst verify the project, archive and record ID. Do not write into an unrelated current project. If another worktree has a different version, list candidates and ask which to update; never silently merge them. Take a snapshot, append a dated update using my next evidence, preserve old words and reasoning, verify history and report the saved file and record ID. Missing evidence stays missing; correlation is not causation.\n\nMy new evidence or correction: `;
+  return `请为下面指定记录${action === "review" ? "补记后来结果" : action === "evidence" ? "补充依据" : "追加纠错"}。这不是给任意当前项目新增一条记录。\n\n${identity}\n\n先核对项目、实际档案路径和记录 ID；不要写进无关项目。若不同工作树有不同版本，先列出候选让我确认，不能静默合并。保存快照后，根据我接下来的证据追加日期、事实和判断，保留已有原话与当时的认识；校验历史并给出保存文件和记录 ID。缺失信息注明缺失，不把相关性说成确定因果。\n\n我补充的数据、反馈或纠错：`;
+}
 
 function cleanLine(line) {
   return line.replace(/^\s*[-*]\s+/, "").trim();
@@ -90,7 +166,7 @@ function parseQuoteItems(items) {
       };
     }
 
-    const [id = `Q${index + 1}`, speaker = "unknown", sourceRef = "", fidelity = "unknown"] = metadata[1]
+    const [id = `Q${index + 1}`, speaker = "unknown", sourceRef = "", fidelity = "unknown", ...qualifiers] = metadata[1]
       .split("|")
       .map((part) => part.trim());
     return {
@@ -98,6 +174,7 @@ function parseQuoteItems(items) {
       speaker,
       sourceRef,
       fidelity,
+      purpose: qualifiers.find((item) => /^(?:purpose|用途)=/.test(item))?.split("=").slice(1).join("=") || "",
       text: trimBlankLines(bodyLines).join("\n").trim(),
     };
   });
@@ -323,6 +400,8 @@ function parseEntry(header, body, index) {
     relatedTask: "",
     evidence: "",
     scene: "decision",
+    area: "",
+    action: "",
     scenes: ["decision"],
     milestone: false,
     visibility: "private",
@@ -331,6 +410,8 @@ function parseEntry(header, body, index) {
     sections: {
       quote: "",
       summary: "",
+      whyHighlights: "",
+      actionHighlights: "",
       agentUnderstanding: "",
       agentPlan: "",
       executionTrace: "",
@@ -396,6 +477,12 @@ function parseEntry(header, body, index) {
   entry.scenes = [...new Set(String(entry.scene).split(/\s*(?:\/|,|，|、)\s*/).map((scene) => scene.trim()).filter(Boolean))];
   if (!entry.scenes.length) entry.scenes = ["decision"];
   entry.scene = entry.scenes[0];
+  entry.areas = splitTags(entry.area);
+  entry.actions = splitTags(entry.action);
+  entry.classificationSource = entry.areas.length || entry.actions.length ? "explicit" : "legacy";
+  if (!entry.areas.length) entry.areas = [...new Set(entry.scenes.map((scene) => LEGACY_AREAS[scene]).filter(Boolean))];
+  if (!entry.areas.length) entry.areas = ["unclassified"];
+  if (!entry.actions.length) entry.actions = [...new Set(entry.scenes.map((scene) => LEGACY_ACTIONS[scene]).filter(Boolean))];
   if (entry.recordId) entry.id = entry.recordId;
 
   return entry;
@@ -439,6 +526,7 @@ export function parseBuildtrace(markdown) {
 
   return {
     title,
+    taxonomy: parseTaxonomy(normalized),
     publication: parsePublication(normalized),
     humanPurpose: parseHumanPurpose(normalized),
     principles: parsePrinciples(normalized),

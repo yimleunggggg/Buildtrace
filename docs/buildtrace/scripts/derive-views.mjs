@@ -2,6 +2,8 @@ const PROFILE_LEVEL = { private: 0, team: 1, public: 2 };
 
 const SECTION_LABELS = {
   summary: "需求总结",
+  whyHighlights: "动机要点",
+  actionHighlights: "行动要点",
   agentUnderstanding: "Agent 当时理解",
   agentPlan: "Agent 计划",
   executionTrace: "执行轨迹",
@@ -17,6 +19,7 @@ const SECTION_LABELS = {
 };
 
 const TEAM_SECTIONS = [
+  "whyHighlights", "actionHighlights",
   "summary",
   "agentUnderstanding",
   "agentPlan",
@@ -33,6 +36,7 @@ const TEAM_SECTIONS = [
 ];
 
 const PUBLIC_SECTIONS = [
+  "whyHighlights", "actionHighlights",
   "summary",
   "hypothesis",
   "why",
@@ -117,9 +121,12 @@ function renderRecord(entry, profile) {
     "关联任务: 已脱敏",
     `依据: ${evidence}`,
     `场景: ${cleanValue(entry.scene) || "decision"}`,
+    `领域: ${(entry.areas || []).map((value) => sanitizeSharedText(value, profile)).join(", ")}`,
+    `动作: ${(entry.actions || []).map((value) => sanitizeSharedText(value, profile)).join(", ")}`,
     `可见范围: ${profile}`,
     `结果状态: ${cleanValue(entry.status) || "不确定"}`,
     `后续回看: ${cleanValue(entry.reviewDate) || "无"}`,
+    `关键节点: ${entry.milestone ? "是" : "否"}`,
     "",
   ];
 
@@ -167,6 +174,13 @@ export function buildPublication(trace, profile, generatedAt = new Date().toISOS
   ];
 
   if (profile === "team") sections.push(renderTeamPrinciples(trace.principles));
+  if (trace.taxonomy?.customized) {
+    sections.push("## 分类规则", "");
+    for (const [kind, values] of [["area", trace.taxonomy.areas], ["action", trace.taxonomy.actions]]) {
+      for (const item of values) sections.push(`- [${kind} | ${item.id} | ${sanitizeSharedText(item.label, profile)} | ${sanitizeSharedText(item.en, profile)}]`);
+    }
+    sections.push("");
+  }
   sections.push("## 项目记录", "");
   if (includedEntries.length) {
     sections.push(includedEntries.map((entry) => renderRecord(entry, profile)).join("\n\n"));

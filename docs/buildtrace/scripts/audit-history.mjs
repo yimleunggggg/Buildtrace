@@ -77,6 +77,17 @@ function getTargetGit(target) {
   const branches = gitOutput(target, ["for-each-ref", "--format=%(refname:short)", "refs/heads", "refs/remotes"])
     .split("\n")
     .filter(Boolean);
+  const commonDirValue = gitOutput(target, ["rev-parse", "--git-common-dir"]);
+  const worktrees = [];
+  let worktree = null;
+  for (const field of gitOutput(target, ["worktree", "list", "--porcelain", "-z"]).split("\0")) {
+    if (field.startsWith("worktree ")) {
+      worktree = { path: field.slice(9), head: "", branch: "", prunable: false };
+      worktrees.push(worktree);
+    } else if (worktree && field.startsWith("HEAD ")) worktree.head = field.slice(5);
+    else if (worktree && field.startsWith("branch ")) worktree.branch = field.slice(7);
+    else if (worktree && field.startsWith("prunable")) worktree.prunable = true;
+  }
 
   return {
     status: commitLines.length ? "audited" : "not-found",
@@ -86,6 +97,8 @@ function getTargetGit(target) {
     firstCommit: commitLines[0] || null,
     latestCommit: commitLines.at(-1) || null,
     branches,
+    commonDirectory: commonDirValue ? resolve(target, commonDirValue) : null,
+    worktrees,
   };
 }
 
@@ -104,7 +117,7 @@ async function sha256(pathname) {
   return hash.digest("hex");
 }
 
-async function inspectRollout(pathname, target, targetRepositoryUrl, codexHome) {
+async function inspectRollout(pathname, projectPaths, targetRepositoryUrl, codexHome) {
   const counters = {
     compactedWindows: 0,
     exactUserMessages: 0,
@@ -124,9 +137,11 @@ async function inspectRollout(pathname, target, targetRepositoryUrl, codexHome) 
   let parentThreadId = null;
   let agentPath = null;
   let agentNickname = null;
+  let lineNumber = 0;
 
   const input = createInterface({ input: createReadStream(pathname), crlfDelay: Infinity });
   for await (const line of input) {
+    lineNumber += 1;
     if (!line.trim()) continue;
     let event;
     try {
@@ -153,6 +168,7 @@ async function inspectRollout(pathname, target, targetRepositoryUrl, codexHome) 
       continue;
     }
 
+    if (event.type === "turn_context" && event.payload?.cwd) workingDirectories.add(await canonicalPath(event.payload.cwd));
     if (event.type === "compacted") counters.compactedWindows += 1;
     if (event.type !== "response_item") continue;
 
@@ -160,7 +176,7 @@ async function inspectRollout(pathname, target, targetRepositoryUrl, codexHome) 
     if (payload.type === "message") {
       if (payload.role === "user") {
         counters.exactUserMessages += 1;
-        if (payload.id) messageRefs.push({ id: payload.id, role: "user" });
+        messageRefs.push({ id: payload.id || null, role: "user", line: lineNumber, timestamp: event.timestamp || null });
       } else if (payload.role === "assistant") {
         counters.agentMessages += 1;
         if (payload.id) messageRefs.push({ id: payload.id, role: "assistant" });
@@ -174,11 +190,10 @@ async function inspectRollout(pathname, target, targetRepositoryUrl, codexHome) 
     }
   }
 
-  const cwdMatch = [...workingDirectories].some((cwd) => isInside(cwd, target));
+  const cwdMatch = [...workingDirectories].some((cwd) => projectPaths.some((target) => isInside(cwd, target)));
   const repositoryMatch = Boolean(
     targetRepositoryUrl && [...repositoryUrls].some((url) => url === targetRepositoryUrl),
   );
-  if (!cwdMatch && !repositoryMatch) return null;
 
   const fileStat = await stat(pathname);
   const threadId = [...sessionIds].at(-1) || basename(pathname).match(/([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})\.jsonl$/)?.[1] || null;
@@ -188,7 +203,7 @@ async function inspectRollout(pathname, target, targetRepositoryUrl, codexHome) 
     sourcePath: relative(codexHome, pathname),
     sourceSha256: await sha256(pathname),
     sourceBytes: fileStat.size,
-    matchedBy: cwdMatch ? "cwd" : "git-origin",
+    matchedBy: cwdMatch ? "cwd-or-worktree" : repositoryMatch ? "git-origin" : null,
     workingDirectories: [...workingDirectories],
     repositoryUrls: [...repositoryUrls].filter(Boolean),
     firstTimestamp,
@@ -203,7 +218,7 @@ async function inspectRollout(pathname, target, targetRepositoryUrl, codexHome) 
   };
 }
 
-async function inspectClaudeSession(pathname, target, claudeHome) {
+async function inspectClaudeSession(pathname, projectPaths, claudeHome) {
   const counters = {
     compactedWindows: 0,
     exactUserMessages: 0,
@@ -251,11 +266,11 @@ async function inspectClaudeSession(pathname, target, claudeHome) {
     }
   }
 
-  const encodedTarget = target.replaceAll(sep, "-");
-  const cwdMatch = [...workingDirectories].some((cwd) => isInside(cwd, target));
-  const directoryMatch = pathname.split(sep).some((segment) =>
-    segment === encodedTarget || segment === encodedTarget.replace(/^-/, ""),
-  );
+  const cwdMatch = [...workingDirectories].some((cwd) => projectPaths.some((target) => isInside(cwd, target)));
+  const directoryMatch = projectPaths.some((target) => {
+    const encodedTarget = target.replaceAll(sep, "-");
+    return pathname.split(sep).some((segment) => segment === encodedTarget || segment === encodedTarget.replace(/^-/, ""));
+  });
   if (!cwdMatch && !directoryMatch) return null;
   const fileStat = await stat(pathname);
   return {
@@ -293,6 +308,8 @@ function readSpawnEdges(codexHome) {
 }
 
 async function inspectProjectEvidence(target) {
+  const targetStat = await stat(target).catch(() => null);
+  if (!targetStat?.isDirectory()) return { status: "unavailable", candidateFileCount: 0, likelyConversationExports: [], truncated: false };
   const paths = await walkFiles(
     target,
     (pathname) => EVIDENCE_EXTENSIONS.has(pathname.slice(pathname.lastIndexOf(".")).toLowerCase()),
@@ -311,6 +328,7 @@ async function inspectProjectEvidence(target) {
 
 export async function auditHistory({
   target,
+  aliases = [],
   codexHome = process.env.CODEX_HOME || join(homedir(), ".codex"),
   claudeHome = process.env.CLAUDE_HOME || join(homedir(), ".claude"),
 }) {
@@ -318,6 +336,8 @@ export async function auditHistory({
   const canonicalCodexHome = await canonicalPath(codexHome);
   const canonicalClaudeHome = await canonicalPath(claudeHome);
   const git = getTargetGit(canonicalTarget);
+  const historicalAliases = await Promise.all(aliases.map(canonicalPath));
+  const projectPaths = [...new Set(await Promise.all([canonicalTarget, ...git.worktrees.map((worktree) => worktree.path), ...historicalAliases].map(canonicalPath)))];
   const rolloutRoots = [
     join(canonicalCodexHome, "sessions"),
     join(canonicalCodexHome, "archived_sessions"),
@@ -327,16 +347,28 @@ export async function auditHistory({
     rolloutFiles.push(...await walkFiles(rolloutRoot, (pathname) => pathname.endsWith(".jsonl")));
   }
 
-  const threads = [];
+  const candidates = [];
   for (const pathname of rolloutFiles) {
     const thread = await inspectRollout(
       pathname,
-      canonicalTarget,
+      projectPaths,
       git.normalizedRepositoryUrl,
       canonicalCodexHome,
     );
-    if (thread) threads.push(thread);
+    if (thread) candidates.push(thread);
   }
+  const spawnGraph = readSpawnEdges(canonicalCodexHome);
+  const graph = [...spawnGraph.edges, ...candidates.filter((thread) => thread.parentThreadId).map((thread) => ({ parentThreadId: thread.parentThreadId, childThreadId: thread.threadId, status: "session-metadata" }))];
+  const threadIds = new Set(candidates.filter((thread) => thread.matchedBy).map((thread) => thread.threadId).filter(Boolean));
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (const edge of graph) {
+      if (!threadIds.has(edge.parentThreadId) && !threadIds.has(edge.childThreadId)) continue;
+      for (const id of [edge.parentThreadId, edge.childThreadId]) if (id && !threadIds.has(id)) { threadIds.add(id); changed = true; }
+    }
+  }
+  const threads = candidates.filter((thread) => thread.matchedBy || threadIds.has(thread.threadId)).map((thread) => ({ ...thread, matchedBy: thread.matchedBy || "native-lineage" }));
 
   const claudeFiles = await walkFiles(
     join(canonicalClaudeHome, "projects"),
@@ -346,15 +378,13 @@ export async function auditHistory({
   for (const pathname of claudeFiles) {
     const session = await inspectClaudeSession(
       pathname,
-      canonicalTarget,
+      projectPaths,
       canonicalClaudeHome,
     );
     if (session) claudeSessions.push(session);
   }
 
-  const threadIds = new Set(threads.map((thread) => thread.threadId).filter(Boolean));
-  const spawnGraph = readSpawnEdges(canonicalCodexHome);
-  const relevantEdges = spawnGraph.edges.filter((edge) =>
+  const relevantEdges = graph.filter((edge) =>
     threadIds.has(edge.parentThreadId) || threadIds.has(edge.childThreadId),
   );
   for (const edge of relevantEdges) {
@@ -362,7 +392,8 @@ export async function auditHistory({
     threadIds.add(edge.childThreadId);
   }
 
-  const projectEvidence = await inspectProjectEvidence(canonicalTarget);
+  const evidenceByWorktree = await Promise.all(projectPaths.map(async (path) => ({ path, ...await inspectProjectEvidence(path) })));
+  const projectEvidence = { ...evidenceByWorktree[0], worktrees: evidenceByWorktree };
   const totals = [...threads, ...claudeSessions].reduce((sum, thread) => {
     for (const [key, value] of Object.entries(thread.counters)) sum[key] = (sum[key] || 0) + value;
     return sum;
@@ -381,6 +412,8 @@ export async function auditHistory({
   }
   totals.exactUserMessageOccurrences = totals.exactUserMessages || 0;
   totals.exactUserMessages = userMessageIds.size + unidentifiedUserMessageOccurrences;
+  totals.identifiedUserMessages = userMessageIds.size;
+  totals.unidentifiedUserMessageOccurrences = unidentifiedUserMessageOccurrences;
 
   return {
     schemaVersion: 1,
@@ -388,6 +421,8 @@ export async function auditHistory({
     project: {
       path: canonicalTarget,
       repositoryUrl: git.repositoryUrl || null,
+      matchingPaths: projectPaths,
+      historicalAliases,
     },
     coverage: {
       codexTaskApi: {
@@ -399,7 +434,7 @@ export async function auditHistory({
         searchedFileCount: rolloutFiles.length,
         matchedRolloutCount: threads.length,
         matchedThreadCount: new Set(threads.map((thread) => thread.threadId || thread.sourcePath)).size,
-        note: "Rollout sources may repeat forked message prefixes. exactUserMessages is deduplicated by message ID; exactUserMessageOccurrences retains the pre-deduplication count.",
+        note: "Identified messages are deduplicated by message ID. Unidentified message occurrences cannot be fully deduplicated; they remain separately counted. These counts describe discovery, not substantive memories or completed recovery.",
       },
       claudeLocalSessions: {
         status: claudeFiles.length ? "audited" : "unavailable",
@@ -425,6 +460,7 @@ export async function auditHistory({
       },
       forkLineage: {
         status: "partial",
+        missingRelatedThreadIds: [...threadIds].filter((id) => !threads.some((thread) => thread.threadId === id)),
         note: "Native parent metadata is retained when exposed. Otherwise shared-prefix comparison can only infer lineage and must be labeled inferred.",
       },
       git,

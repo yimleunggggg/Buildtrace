@@ -21,6 +21,10 @@ At meaningful work:
 
 Do not create a record for spelling fixes, pure formatting, trivial spacing changes, or disposable exploration. Fold small follow-up polish into the nearest meaningful record.
 
+Project memory is not a chat dump. Exclude routine progress nudges and acknowledgments unless they confirm a consequential decision. Preserve complete substantive messages and meaningful attachment evidence; distinguish design references from proof of implementation. Read the project's `references/classification-and-capture.md` and custom taxonomy before classifying. Areas describe what part changed; actions describe what was done. Preserve full details alongside concise evidence-based highlights. Agent interpretation and plans must come from contemporaneous public statements, not private reasoning or hindsight.
+
+For outcome updates, verify the intended project, source path, record ID and worktree before writing. Never append to whichever unrelated project happens to be open. Report ambiguous or divergent worktree copies for confirmation.
+
 ## First activation in an old project
 
 `buildtrace init` creates `.buildtrace/recovery/latest.json`. Continue the audit rather than treating installation day as project day one:

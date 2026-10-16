@@ -4,6 +4,7 @@ import { createReadStream, existsSync } from "node:fs";
 import { appendFile, copyFile, cp, lstat, mkdir, readFile, readdir, readlink, realpath, rename, stat, symlink, unlink, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { createServer } from "node:http";
+import { spawnSync } from "node:child_process";
 import { homedir } from "node:os";
 import { basename, dirname, extname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -32,6 +33,7 @@ const requiredFiles = [
   "docs/buildtrace/agents/openai.yaml",
   "docs/buildtrace/references/inspiration-and-attribution.md",
   "docs/buildtrace/references/recovery-architecture.md",
+  "docs/buildtrace/references/classification-and-capture.md",
   "docs/buildtrace/references/record-schema-v2.md",
   "docs/buildtrace/references/record-schema-v3.md",
   "docs/buildtrace/scripts/audit-history.mjs",
@@ -49,6 +51,7 @@ const managedProjectFiles = [
   ["docs/buildtrace/agents/openai.yaml", "docs/buildtrace/agents/openai.yaml"],
   ["docs/buildtrace/references/inspiration-and-attribution.md", "docs/buildtrace/references/inspiration-and-attribution.md"],
   ["docs/buildtrace/references/recovery-architecture.md", "docs/buildtrace/references/recovery-architecture.md"],
+  ["docs/buildtrace/references/classification-and-capture.md", "docs/buildtrace/references/classification-and-capture.md"],
   ["docs/buildtrace/references/record-schema-v2.md", "docs/buildtrace/references/record-schema-v2.md"],
   ["docs/buildtrace/references/record-schema-v3.md", "docs/buildtrace/references/record-schema-v3.md"],
   ["docs/buildtrace/scripts/audit-history.mjs", "docs/buildtrace/scripts/audit-history.mjs"],
@@ -96,6 +99,7 @@ The user enabled BuildTrace for future projects in ${agentName}. At the start of
 4. After a meaningful feature, fix, design, architecture, release, operational action, or important decision, update the Markdown source in the same turn. Ordinary natural language is enough; do not wait for a fixed command. Verify the file afterwards and include its path and the saved record ID/title in the handoff. Reading rules or running init does not mean the current work was recorded.
 5. On first initialization of an existing project, continue from \`.buildtrace/recovery/latest.json\`: inspect every safe accessible matching task, compact trace, fork or subagent lineage, Git branch, project artifact, and authorized export. State what was searched, mapped, unavailable, and still unresolved.
 6. Never copy another project's records into the new project. The installed Skill contains rules only; project facts belong only in that project's \`docs/buildtrace/BUILDTRACE.md\`.
+7. Project memory is not a chat dump: keep substantive decisions, constraints, actions and evidence, not routine progress nudges. Follow project classification and capture rules; retain full details, separate summaries from exact words, and verify the project, record ID and worktree before any backfill or outcome update. Agent understanding means contemporaneous public statements, never private reasoning or hindsight.
 
 If the \`buildtrace\` command is unavailable, tell the user to install it from https://github.com/yimleunggggg/Buildtrace instead of silently skipping initialization.
 ${AUTO_BLOCK_END}
@@ -513,6 +517,15 @@ async function serve() {
   const server = createServer(async (request, response) => {
     try {
       const url = new URL(request.url || "/", "http://localhost");
+      if (url.pathname === "/_buildtrace/context.json") {
+        response.writeHead(200, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" });
+        const gitValue = (args) => {
+          const result = spawnSync("git", ["-C", canonicalTarget, ...args], { encoding: "utf8" });
+          return result.status === 0 ? result.stdout.trim() : "";
+        };
+        response.end(JSON.stringify({ projectRoot: canonicalTarget, sourcePath: canonicalSource, branch: gitValue(["branch", "--show-current"]), repositoryUrl: gitValue(["remote", "get-url", "origin"]) }));
+        return;
+      }
       if (url.pathname === "/") {
         response.writeHead(302, { Location: "/docs/buildtrace/viewer/" });
         response.end();
@@ -808,7 +821,7 @@ async function init() {
     .replace("YYYY-MM-DD — 第一条项目记录", `${today} — BuildTrace 初始化`)
     .replace("bt-YYYYMMDD-first-record", `bt-${today.replaceAll("-", "")}-buildtrace-init`)
     .replace("来源覆盖: current-turn", "来源覆盖: buildtrace-init, local-rollout-audit, git, project-files")
-    .replace("依据: 本轮对话", `依据: BuildTrace init；.buildtrace/recovery/latest.json（${matchedRollouts} 个匹配 rollout 来源、${matchedThreads} 个唯一 Codex 任务、${exactMessages} 条去重用户消息引用、${compactedWindows} 个 compact 窗口）`)
+    .replace("依据: 本轮对话", `依据: BuildTrace init；.buildtrace/recovery/latest.json（${matchedRollouts} 个匹配 rollout 来源、${matchedThreads} 个唯一 Codex 任务、${exactMessages} 条用户消息引用（有 ID 的已去重，无 ID 的仍按出现次数计）、${compactedWindows} 个 compact 窗口）`)
     .replace("[Q1 | user | current-turn | verbatim]", "[Q1 | system | buildtrace-init | artifact-evidence]")
     .replace("用户与这条记录有关的完整原话；保留换行，不改写、不合并。无法取得原文时明确使用 compacted-summary、artifact-evidence 或 unavailable。", "BuildTrace init 创建项目记忆结构并生成私有历史恢复清单；本条不是用户原话。")
     .replace("[R1 <- Q1] 第一件需求，按 Agent 当时的理解记录。", "[R1 <- Q1] 为现有项目建立唯一 Markdown 主源、只读 Viewer 与项目级自动记录规则。")
@@ -817,7 +830,7 @@ async function init() {
     .replace("[P1 <- R1] 当时准备先做什么。", "[P1 <- R1] 安装项目主源、Skill、Viewer、规则与命令。")
     .replace("[P2 <- R2] 当时准备随后做什么。", "[P2 <- R2] 扫描本机可读历史并生成覆盖清单。")
     .replace("[E1 <- P1 | completed] 实际完成的第一步及证据。", "[E1 <- P1 | completed] 已创建未与既有文件冲突的 BuildTrace 项目文件。")
-    .replace("[E2 <- P2 | changed] 计划若改变，记录实际变化和原因。", `[E2 <- P2 | completed] 已生成恢复清单：匹配 ${matchedRollouts} 个 rollout 来源、${matchedThreads} 个唯一 Codex 任务、${exactMessages} 条去重用户消息引用、${compactedWindows} 个 compact 窗口。`)
+    .replace("[E2 <- P2 | changed] 计划若改变，记录实际变化和原因。", `[E2 <- P2 | completed] 已生成恢复清单：匹配 ${matchedRollouts} 个 rollout 来源、${matchedThreads} 个唯一 Codex 任务、${exactMessages} 条用户消息引用（有 ID 的已去重，无 ID 的仍按出现次数计）、${compactedWindows} 个 compact 窗口。`)
     .replace("人的动机、顾虑、假设或取舍。", "让后续 Agent 能先恢复项目因果，再继续实施。")
     .replace("项目实际发生的变化。", "完成 BuildTrace 项目级初始化与历史证据盘点。")
     .replace("文件、命令、commit、验证或数据来源。", "docs/buildtrace/；.buildtrace/recovery/latest.json；BuildTrace init。")
@@ -850,13 +863,13 @@ async function recoverHistory(targetOverride = null) {
   await ensurePrivateBuildtraceIgnore(target);
   const codexHome = resolve(getOption("--codex-home", join(homedir(), ".codex")));
   const claudeHome = resolve(getOption("--claude-home", join(homedir(), ".claude")));
-  const report = await auditHistory({ target, codexHome, claudeHome });
+  const report = await auditHistory({ target, codexHome, claudeHome, aliases: getOptions("--project-alias") });
   const destination = await writeHistoryAudit(report, target);
   const matched = report.coverage.codexLocalRollouts.matchedThreadCount;
   const matchedRollouts = report.coverage.codexLocalRollouts.matchedRolloutCount;
   const exactMessages = report.totals.exactUserMessages || 0;
   const compacted = report.totals.compactedWindows || 0;
-  log(`✓ recovery audit: ${matchedRollouts} rollout source${matchedRollouts === 1 ? "" : "s"}, ${matched} unique Codex thread${matched === 1 ? "" : "s"}, ${exactMessages} deduplicated user message${exactMessages === 1 ? "" : "s"}, ${compacted} compacted window${compacted === 1 ? "" : "s"}`);
+  log(`✓ recovery audit: ${matchedRollouts} rollout source${matchedRollouts === 1 ? "" : "s"}, ${matched} unique Codex thread${matched === 1 ? "" : "s"}, ${exactMessages} user message reference${exactMessages === 1 ? "" : "s"}, ${compacted} compacted window${compacted === 1 ? "" : "s"}`);
   log(`✓ Claude Code: ${report.coverage.claudeLocalSessions.matchedSessionCount} matching local session${report.coverage.claudeLocalSessions.matchedSessionCount === 1 ? "" : "s"}`);
   log(`  manifest ${destination}`);
   log("! The Agent must still page matching app tasks and promote relevant evidence into BUILDTRACE.md.");
@@ -1164,6 +1177,7 @@ async function setupAgents() {
 }
 
 function help() {
+  log("Old project locations: buildtrace recover --target /current/project --project-alias /old/project (repeat --project-alias for multiple locations)\n");
   log("Inspect saved records: buildtrace status [--target /path/to/project] [--source /path/to/BUILDTRACE.md] [--json]\n");
   log(`BuildTrace ${process.env.npm_package_version || "v1.18"}\n\nCommands:\n  buildtrace setup [--home /path/to/test-home]\n  buildtrace doctor [--target /path/to/project]\n  buildtrace audit-quotes [--target /path/to/project] [--source /path/to/BUILDTRACE.md]\n  buildtrace snapshot [--target /path/to/project] [--source /path/to/BUILDTRACE.md] [--reason note]\n  buildtrace history [--target /path/to/project]\n  buildtrace verify-history [--target /path/to/project] [--source /path/to/BUILDTRACE.md]\n  buildtrace restore --target /path/to/project --snapshot <hash-prefix> --confirm\n  buildtrace serve [--target /path/to/project] [--source /path/to/BUILDTRACE.md] [--port 4173]\n  buildtrace init --target /path/to/project\n  buildtrace recover [--target /path/to/project] [--codex-home /path/to/.codex] [--claude-home /path/to/.claude]\n  buildtrace export [--target /path/to/project] [--format json|jsonl] [--output /path]\n  buildtrace playbook [--target /project/a --target /project/b] [--format md|json] [--output /path]\n  buildtrace publish --profile team|public [--target /path/to/project] --output /empty/directory\n  buildtrace sync --target /path/to/project\n  buildtrace deploy-kit --provider github-pages [--target /path/to/project]\n  buildtrace install-codex-skill [--dest /path/to/skill]`);
 }

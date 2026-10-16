@@ -1,1 +1,1 @@
-export { getBuildtraceStats, parseBuildtrace } from "./parser.mjs";
+export { buildRecordHandoff, DEFAULT_TAXONOMY, getBuildtraceStats, parseBuildtrace, quoteKind, quoteRelevance } from "./parser.mjs";

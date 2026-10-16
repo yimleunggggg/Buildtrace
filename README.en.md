@@ -103,6 +103,8 @@ node bin/buildtrace.mjs sync --target /path/to/your-project
 
 ## Everyday use
 
+The board starts with changes, reasons and current outcomes; full detail, original messages and the AI's stated plan/actions remain expandable. Historical paraphrases are labeled as summaries, not exact words. Routine status nudges are not core project memory. Categories have two independent dimensions—area and action—with project-local names and rules. Outcome requests carry the specific project, record ID and available worktree/source context; paste them into an AI with access to that project.
+
 Once the project instructions are active, no fixed command is required. Speak normally:
 
 > Prioritize Japanese search indexing for now. Review impressions and clicks in two weeks before changing conversion.

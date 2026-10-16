@@ -1,4 +1,4 @@
-import { getBuildtraceStats, parseBuildtrace } from "./parser.js";
+import { buildRecordHandoff, getBuildtraceStats, parseBuildtrace, quoteKind, quoteRelevance } from "./parser.js";
 
 const translations = {
   zh: {
@@ -392,98 +392,136 @@ const translations = {
 const tutorialSteps = [
   {
     "zh": {
-      "title": "安装一次",
-      "subtitle": "让常用 AI 工具读到规则",
-      "lead": "需要 Node.js 20 或更高版本。在终端运行下面的命令，然后重新打开 AI 工具或开始新会话。",
+      "title": "第一次：请 AI 帮你装好",
+      "subtitle": "在你做项目的工具里发这段话",
+      "lead": "打开 Codex、Cursor 或 Claude Code 等能操作项目文件的工具，进入你的项目。复制下面的话发给它，不需要你自己写代码。",
       "points": [
-        "安装包含通用规则，不携带作者的项目记录。",
-        "以后进入可写项目，已配置的 AI 会按规则检查并启用 BuildTrace。",
-        "其他工具如果会读取项目的 AGENTS.md，也能使用其中的记录规则；具体是否执行要看工具。"
+        "AI 会说明要安装什么；遇到权限确认时，先看清目标和改动。",
+        "安装好后重开会话，让工具读到新规则。",
+        "这不会把作者或其他项目的记录复制给你。"
       ],
-      "command": "npm install -g git+https://github.com/yimleunggggg/Buildtrace.git && buildtrace setup"
+      "command": "请从 https://github.com/yimleunggggg/Buildtrace 安装 BuildTrace，并为以后项目启用记录规则。保留我的已有配置。在当前项目试运行一次，告诉我装好了哪些东西、哪里还有问题。",
+      "terminal": "npm install -g git+https://github.com/yimleunggggg/Buildtrace.git && buildtrace setup",
+      "success": "AI 告诉你安装完成、哪些工具已配置。光说“已安装”还不代表保存了你的工作。"
     },
     "en": {
-      "title": "Install once",
-      "subtitle": "Give your AI tools the recording rules",
-      "lead": "Requires Node.js 20 or later. Run the command below, then reopen your AI tool or start a new session.",
+      "title": "Ask your coding AI to install it",
+      "subtitle": "Send this in your project",
+      "lead": "Open your project in an AI tool with file and terminal access, such as Codex, Cursor or Claude Code. Send the message below.",
       "points": [
-        "The install contains rules, not the author's project records.",
-        "In writable projects, configured AI tools follow the rules to check and initialize BuildTrace.",
-        "Other tools that read a project's AGENTS.md can also use its rules. Execution depends on the tool."
+        "Review installation permissions.",
+        "Start a new session after installation.",
+        "No other person's project archive is included."
       ],
-      "command": "npm install -g git+https://github.com/yimleunggggg/Buildtrace.git && buildtrace setup"
+      "command": "Install BuildTrace from https://github.com/yimleunggggg/Buildtrace and enable recording for future projects. Preserve my settings. Try it in this project and report what was installed and any problems.",
+      "terminal": "npm install -g git+https://github.com/yimleunggggg/Buildtrace.git && buildtrace setup",
+      "success": "Your AI reports which tools were configured. Installation alone is not a saved work record."
     }
   },
   {
     "zh": {
-      "title": "在项目里开始",
-      "subtitle": "照常说你想做什么",
-      "lead": "第一次可以把下面这段话发给 AI。已有项目会先查找可读取的历史，新项目从这次工作开始记录。",
+      "title": "照常做事，多说一句为什么",
+      "subtitle": "不用每轮说“帮我记录”",
+      "lead": "比如你正在改搜索页面，可以直接这样说：",
       "points": [
-        "说清为什么做，以及你在意的取舍。",
-        "重要功能、修复、运营动作或决定值得记录，小修边可以并在一起。",
-        "找不到的旧原话应标明缺失；请 AI 分清已经读过的历史和只找到线索的历史。"
+        "保留有价值的需求、顾虑、取舍和实际改动。",
+        "“继续”“怎么样了”这类催进度不用当项目判断存。",
+        "同一功能的小修边放在一起，不堆很多小节点。"
       ],
-      "command": "为这个项目启用 BuildTrace。先找回能读取的历史，再继续工作。完成后请保存本轮记录，告诉我记录标题、ID 和文件位置，并打开看板。"
+      "command": "搜索页面太复杂，我担心第一次来的用户看不懂。先只保留搜索框和热门地点；改完帮我验证手机上能不能顺利查到结果。",
+      "success": "完成后，AI 给你一条记录的位置。打开能看到你为什么改、实际改了什么、验证结果，而不只是一段“任务完成”。"
     },
     "en": {
-      "title": "Start in a project",
-      "subtitle": "Describe your work as usual",
-      "lead": "Send the message below to your AI the first time. Existing projects can look for accessible history; new projects start with today's work.",
+      "title": "Work normally; explain why",
+      "subtitle": "No recording command every turn",
+      "lead": "For example, while changing a search page:",
       "points": [
-        "Explain why you want a change and which tradeoffs matter.",
-        "Save important features, fixes, operations, and decisions. Keep small follow-ups together.",
-        "Missing original messages should be marked as missing. Ask which history was actually read and which was only found."
+        "Save decisions, tradeoffs and actual changes.",
+        "Routine status nudges are not project decisions.",
+        "Group small follow-up changes together."
       ],
-      "command": "Enable BuildTrace for this project. Restore accessible history, then continue the work. Save this session's record when finished, show its title, ID and file location, and open the board."
+      "command": "The search page is too complicated for a first-time visitor. Keep the search box and popular destinations, then verify the flow on a phone.",
+      "success": "After the work, your AI shows where it saved your reason, actual changes and checks."
     }
   },
   {
     "zh": {
-      "title": "确认真的记下了",
-      "subtitle": "看记录，而不只看“已启用”",
-      "lead": "AI 完成工作后应给出记录标题、ID 和文件位置。你可以直接查看文件，或在项目文件夹运行下面的命令。",
+      "title": "想看记录，就让 AI 打开",
+      "subtitle": "发给正在这个项目里工作的 AI",
+      "lead": "不用记网址。你想回顾哪个项目，就在那个项目的会话里发下面这句话。",
       "points": [
-        "status 显示项目有没有档案、记录数量和最新标题，不能证明所有对话都完整记录。",
-        "serve 打印看板地址；在浏览器打开，查看这次原话和实际步骤。",
-        "本地服务运行时，保存记录后看板会自动刷新。终端关闭或电脑离线后，本地地址可能无法使用。"
+        "看板先显示做了什么、为什么做和目前结果。",
+        "想核对时，再展开原话、AI 的公开计划和实际步骤。",
+        "链接打不开就让 AI 检查并启动服务；本地网址只在这台电脑上用。"
       ],
-      "command": "buildtrace status --target .\nbuildtrace serve --target ."
+      "command": "打开这个项目的 BuildTrace 看板。先确认服务真的可访问，再给我链接，并指出最新一条记录。",
+      "terminal": "buildtrace status --target .\nbuildtrace serve --target .",
+      "success": "浏览器能打开，最新记录确实对应刚才完成的工作。如果只有“初始化”，这次工作还没记下。"
     },
     "en": {
-      "title": "Check the work was saved",
-      "subtitle": "Look for a record, not just an enabled message",
-      "lead": "Your AI should show the saved title, ID and file path. Open the file or run these commands in your project folder.",
+      "title": "Ask to open this project's board",
+      "subtitle": "Use the AI working in that project",
+      "lead": "You do not need to remember an address.",
       "points": [
-        "status shows the archive, record count and latest title. It does not prove every conversation was fully captured.",
-        "serve prints the board address. Open it to check your words and the steps taken.",
-        "The local board refreshes when records are saved. Its address may stop working when the terminal closes or the computer goes offline."
+        "Start with changes, reasons and current outcomes.",
+        "Expand original messages and AI actions to check details.",
+        "A local address only works on this computer while its service runs."
       ],
-      "command": "buildtrace status --target .\nbuildtrace serve --target ."
+      "command": "Open this project's BuildTrace board. Verify that it is reachable before giving me the link, and point out the latest record.",
+      "terminal": "buildtrace status --target .\nbuildtrace serve --target .",
+      "success": "The page opens and its latest record matches your work, not just the initialization."
     }
   },
   {
     "zh": {
-      "title": "过段时间再回来",
-      "subtitle": "补结果，也能换工具继续",
-      "lead": "有了新数据或反馈，直接告诉 AI 对应哪件事。换工具时，也可以请它先读项目记录再继续。",
+      "title": "有新结果，把它补回同一件事",
+      "subtitle": "先确认项目，再说数据或反馈",
+      "lead": "在看板选中那条记录，点“补记后来结果”。它会复制项目名称和记录编号。发给能访问该项目的 AI，然后补上你的真实反馈。",
       "points": [
-        "比如：“两周过去了，点击率没变化，把这个结果补回去。”",
-        "原来的判断应保留，后来修正要写明时间和新依据。",
-        "想查漏写就说：“检查本轮哪些重要内容还没保存”，并要求给出实际记录位置。"
+        "例如：“两周后搜索点击没有变，这是报表截图。”",
+        "AI 先核对项目和那条记录，不往其他项目乱写。",
+        "原来的想法保留，后来结果追加日期；有多个工作树就先确认更新哪一份。"
       ],
-      "command": "先读 BuildTrace，告诉我这个项目最近做了什么、为什么这么做，还有什么没完成，再继续。"
+      "command": "请先确认我说的是哪个项目、哪条记录，再补充这个结果：两周过去了，搜索点击没变化。我会附上报表。找不到记录就先问我，别新编一条。",
+      "success": "原记录下面多了带日期和依据的结果，早先的判断没有被改写。"
     },
     "en": {
-      "title": "Come back later",
-      "subtitle": "Add results or continue in another tool",
-      "lead": "When you have new data or feedback, tell your AI which work it relates to. In a new tool, ask it to read the records before continuing.",
+      "title": "Add later results to the same work",
+      "subtitle": "Confirm the project and record first",
+      "lead": "Select the record, copy its “Add the later outcome” request, and send it to an AI with access to that project. Add your evidence.",
       "points": [
-        "For example: ‘It has been two weeks and clicks have not changed. Add that outcome.’",
-        "Keep the earlier judgment and date any later correction with its new evidence.",
-        "To check for missed records, ask which important parts of this session are not saved and request their actual file locations."
+        "Describe the actual data or feedback.",
+        "Verify the project and record ID before writing.",
+        "Keep earlier judgments. Confirm the correct worktree if versions differ."
       ],
-      "command": "Read BuildTrace first. Tell me what this project recently did, why, and what remains unfinished, then continue."
+      "command": "Confirm the project and record before appending this result: after two weeks, search clicks have not changed. I will attach the report. Ask if you cannot locate the record.",
+      "success": "The original record gains a dated outcome with evidence; the earlier judgment stays intact."
+    }
+  },
+  {
+    "zh": {
+      "title": "旧项目或换工具，先找回上下文",
+      "subtitle": "不是从今天重新开始",
+      "lead": "已有项目也能用。AI 会找能访问的旧会话、分支、工作树和项目资料，但不可能凭空恢复已删除或没导出的聊天。",
+      "points": [
+        "让 AI 列出找过哪里、找到什么、还有哪些没看完。",
+        "找到历史线索不等于已经读完，更不等于全部补记。",
+        "换工具时，把同一项目文件夹交给新工具，先读记录再继续。"
+      ],
+      "command": "请检查这个项目以前的工作，包括同仓库的其他工作树和可访问的旧会话。先告诉我找过哪些来源、最早找到什么、还缺什么，再补回有证据的重要决定和改动。不要把摘要当原话。",
+      "success": "你得到具体来源和缺口清单，而不是一句“已恢复全部历史”。"
+    },
+    "en": {
+      "title": "Restore history before continuing",
+      "subtitle": "For old projects and new tools",
+      "lead": "Look for accessible old sessions, branches, worktrees and project artifacts. Deleted or never-exported conversations cannot be recreated.",
+      "points": [
+        "Ask what was searched, found and still unread.",
+        "Finding a source is not the same as mapping its history.",
+        "In a new tool, open the same project and read its records first."
+      ],
+      "command": "Audit this project's accessible history, including sibling worktrees. Report the sources, earliest evidence and gaps, then backfill meaningful decisions and changes. Do not present summaries as verbatim messages.",
+      "success": "You receive a concrete coverage and gap report, not a claim that everything was recovered."
     }
   }
 ];
@@ -501,6 +539,8 @@ const state = {
   query: "",
   status: "all",
   scene: "all",
+  actionFilter: "all",
+  projectContext: null,
   selectedEntryId: null,
   detailOpen: false,
   mobileContextOpen: false,
@@ -643,6 +683,16 @@ function sceneLabel(scene) {
   return labels[scene]?.[state.locale === "zh" ? 0 : 1] ?? scene;
 }
 
+function taxonomyLabel(kind, id) {
+  const item = state.trace.taxonomy[kind].find((item) => item.id === id);
+  if (!item) return id === "unclassified" ? (state.locale === "zh" ? "待分类" : "Unclassified") : id;
+  return state.locale === "zh" ? item.label : item.en;
+}
+
+function renderClassification(entry) {
+  return entry.areas.map((area) => renderRecordTag(taxonomyLabel("areas", area), "area")).join("") + entry.actions.map((action) => renderRecordTag(taxonomyLabel("actions", action), "action")).join("");
+}
+
 function trustLabel(trust) {
   const labels = {
     confirmed: ["来源已确认", "Confirmed source"],
@@ -705,8 +755,9 @@ function applyDetailIsolation() {
 
 function renderBoard() {
   const stats = getBuildtraceStats(state.trace.entries);
-  const timelineEntries = state.trace.entries.filter((entry) => entry.milestone);
-  const scenes = [...new Set(state.trace.entries.flatMap((entry) => entry.scenes || [entry.scene]).filter(Boolean))];
+  const timelineEntries = state.trace.entries.filter((entry) => entry.milestone).sort((a, b) => a.date.localeCompare(b.date));
+  const scenes = [...new Set(state.trace.entries.flatMap((entry) => entry.areas))];
+  const actions = [...new Set(state.trace.entries.flatMap((entry) => entry.actions))];
   const query = state.query.trim().toLowerCase();
   const visibleEntries = state.trace.entries.filter((entry) => {
     const matchesStatus =
@@ -717,9 +768,11 @@ function renderBoard() {
       (state.status === "effective" && entry.status === "有效") ||
       (state.status === "uncertain" && entry.status === "不确定") ||
       (state.status === "ineffective" && entry.status === "无效");
-    const matchesScene = state.scene === "all" || (entry.scenes || [entry.scene]).includes(state.scene);
+    const matchesScene = (state.scene === "all" || entry.areas.includes(state.scene)) && (state.actionFilter === "all" || entry.actions.includes(state.actionFilter));
     const haystack = [
       entry.title,
+      ...entry.areas.map((area) => taxonomyLabel("areas", area)),
+      ...entry.actions.map((action) => taxonomyLabel("actions", action)),
       entry.evidence,
       ...(entry.scenes || [entry.scene]),
       ...(entry.scenes || [entry.scene]).map(sceneLabel),
@@ -730,7 +783,7 @@ function renderBoard() {
       .join(" ")
       .toLowerCase();
     return matchesStatus && matchesScene && (!query || haystack.includes(query));
-  });
+  }).sort((a, b) => b.date.localeCompare(a.date));
 
   if (!state.selectedEntryId || !visibleEntries.some((entry) => entry.id === state.selectedEntryId)) {
     state.selectedEntryId = visibleEntries[0]?.id ?? null;
@@ -808,7 +861,7 @@ function renderBoard() {
         <section class="timeline-panel" aria-label="${t("timelineOverview")}" ${state.lens !== "trace" ? "hidden" : ""}>
           <div class="panel-heading"><div><strong>${t("timelineOverview")}</strong><small>${t("timelineNote")}</small></div><span>${timelineEntries.length}</span></div>
           ${timelineEntries.length ? `<div class="timeline-track">
-            ${[...timelineEntries].reverse().map((entry) => `<button type="button" data-entry-id="${escapeHTML(entry.id)}" data-entry-context="timeline" aria-current="${entry.id === state.selectedEntryId}"><span>${escapeHTML(entry.date)}</span><strong>${escapeHTML(entry.title)}</strong><small>${escapeHTML((entry.scenes || [entry.scene]).map(sceneLabel).join(" · "))}</small></button>`).join("")}
+            ${timelineEntries.map((entry) => `<button type="button" data-entry-id="${escapeHTML(entry.id)}" data-entry-context="timeline" aria-current="${entry.id === state.selectedEntryId}"><span>${escapeHTML(entry.date)}</span><strong>${escapeHTML(entry.title)}</strong><small>${escapeHTML((entry.scenes || [entry.scene]).map(sceneLabel).join(" · "))}</small></button>`).join("")}
           </div>` : `<p class="timeline-empty">${t("noMilestones")}</p>`}
         </section>
         <section class="records-panel" ${state.lens !== "trace" ? "hidden" : ""}>
@@ -817,9 +870,10 @@ function renderBoard() {
             <label class="search-field"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path d="m16 16 4 4" /></svg><span class="sr-only">${t("search")}</span><input id="record-search" type="search" value="${escapeHTML(state.query)}" placeholder="${escapeHTML(t("search"))}" autocomplete="off" /></label>
             <div class="scene-filter" aria-label="${t("scene")}">
               <button type="button" data-scene-filter="all" aria-pressed="${state.scene === "all"}">${t("allScenes")}</button>
-              ${scenes.map((scene) => `<button type="button" data-scene-filter="${escapeHTML(scene)}" aria-pressed="${state.scene === scene}">${escapeHTML(sceneLabel(scene))}</button>`).join("")}
+              ${scenes.map((scene) => `<button type="button" data-scene-filter="${escapeHTML(scene)}" aria-pressed="${state.scene === scene}">${escapeHTML(taxonomyLabel("areas", scene))}</button>`).join("")}
             </div>
           </div>
+          <div class="action-filter"><span>${state.locale === "zh" ? "做了哪类事" : "Action"}</span><button type="button" data-action-filter="all" aria-pressed="${state.actionFilter === "all"}">${t("all")}</button>${actions.map((action) => `<button type="button" data-action-filter="${escapeHTML(action)}" aria-pressed="${state.actionFilter === action}">${escapeHTML(taxonomyLabel("actions", action))}</button>`).join("")}<button type="button" data-action="open-classification">${state.locale === "zh" ? "调整分类" : "Customize categories"}</button></div>
           <div class="mobile-status-filters" aria-label="${t("statusFilter")}">${renderFilter("all", t("all"))}${renderFilter("milestone", t("milestones"))}${renderFilter("due", t("dueOutcomes"))}</div>
           <p class="sr-only" role="status">${resultCountLabel(visibleEntries.length)}</p>
           ${renderRecordList(visibleEntries)}
@@ -958,6 +1012,7 @@ function getResourceHref(resource) {
 }
 
 function renderUtilityPanel() {
+  if (state.utilityPanel === "classification") return renderClassificationRules();
   if (!state.utilityPanel) return "";
   const body = state.utilityPanel === "resource"
     ? renderResourceManager()
@@ -970,6 +1025,14 @@ function renderUtilityPanel() {
       ? t("aboutTitle")
       : t("deploymentDrawerTitle");
   return `<div class="utility-backdrop"><section class="utility-drawer" role="dialog" aria-modal="true" aria-label="${escapeHTML(label)}" data-utility-drawer><button class="utility-close" type="button" data-action="close-utility" aria-label="${t("close")}">×</button>${body}</section></div>`;
+}
+
+function renderClassificationRules() {
+  const z = state.locale === "zh";
+  const context = state.projectContext || {};
+  const request = `Project: ${state.trace.title}\nArchive: ${context.sourcePath || "locate by project instructions"}\n\n${z ? "请调整这个项目的 BuildTrace 分类规则。大类回答改了哪块，动作回答做了哪类事。保留历史记录和稳定分类 ID，只修改分类规则的可选项、名称与判定规则，停用分类不删旧记录。先把方案列清再执行。我的新增或删减要求是：" : "Customize areas and actions for this project's BuildTrace rules. Preserve historical entries and stable IDs. Confirm the changes before applying. My requested changes: "}`;
+  const body = `<div class="utility-heading"><h2>${z ? "按你的项目调整分类" : "Categories for your project"}</h2><p>${z ? "大类看改的是哪一块，另一种颜色看做了哪类事。规则存在项目记录文件的「分类规则」中，AI 写新记录时也要遵循，不只是网页标签。" : "Areas show what part changed; actions show what was done. Your AI follows the same project rules."}</p></div>${["areas", "actions"].map((kind) => `<section class="taxonomy-rules"><h3>${z ? (kind === "areas" ? "改了哪块" : "做了哪类事") : kind}</h3><ul>${state.trace.taxonomy[kind].map((item) => `<li><strong>${escapeHTML(taxonomyLabel(kind, item.id))}</strong><p>${escapeHTML(item.rule)}</p></li>`).join("")}</ul></section>`).join("")}<p>${z ? "复制请求给当前项目的 AI，再补上你的分类方案。旧记录不会因停用分类而消失。" : "Send the request to this project's AI with your changes. Old records remain."}</p><button class="utility-primary" data-copy-command="${escapeHTML(request)}">${z ? "复制分类调整请求" : "Copy customization request"}</button>`;
+  return `<div class="utility-backdrop"><section class="utility-drawer" role="dialog" aria-modal="true" aria-label="${z ? "调整分类" : "Customize categories"}"><button class="utility-close" data-action="close-utility" aria-label="${t("close")}">×</button>${body}</section></div>`;
 }
 
 function renderAboutPanel() {
@@ -1039,7 +1102,7 @@ function hasRecordedOutcome(entry) {
 }
 
 function recordPreview(entry) {
-  const first = (entry.sectionItems?.summary?.[0] || entry.sections.why || entry.sections.changes || "").trim();
+  const first = (entry.sectionItems?.actionHighlights?.[0] || entry.sectionItems?.changes?.[0] || entry.sectionItems?.summary?.[0] || "").trim();
   return first.replace(/^\[[A-Z]\d+\s*<-[^\]]+]\s*/, "");
 }
 
@@ -1061,7 +1124,7 @@ function renderRecordList(entries) {
                   <strong>${escapeHTML(entry.title)}</strong>
                   ${recordPreview(entry) ? `<span class="record-summary">${escapeHTML(recordPreview(entry))}</span>` : ""}
                   <span class="record-tags" aria-label="${t("recordTags")}">
-                    ${(entry.scenes || [entry.scene]).slice(0, 3).map((scene) => renderRecordTag(sceneLabel(scene), "scene")).join("")}
+                    ${renderClassification(entry)}
                   </span>
                 </span>
               </button>
@@ -1073,73 +1136,66 @@ function renderRecordList(entries) {
   `;
 }
 
+function plainItem(item) {
+  return String(item).replace(/^\[((?:R|U|P|E|H)\d+)[^\]]*]\s*/, "");
+}
+
+function renderReadableSection(label, fullItems = [], highlights = []) {
+  const all = fullItems.map(plainItem).filter(Boolean);
+  const explicit = highlights.map(plainItem).filter(Boolean);
+  const brief = explicit.length ? explicit : all.slice(0, 2).map((text) => text.length > 90 ? text.slice(0, 90) + "…" : text);
+  const needsDetails = explicit.length > 0 || all.length > 2 || all.some((text) => text.length > 90);
+  return `<section class="record-reading-section"><h3>${escapeHTML(label)}</h3>${brief.length ? `<ul class="key-actions">${brief.map((text) => `<li>${escapeHTML(text)}</li>`).join("")}</ul>` : `<p class="missing-source">${state.locale === "zh" ? "这条记录尚未留下这部分内容。" : "This part was not recorded."}</p>`}${needsDetails ? `<details class="reading-details"><summary>${state.locale === "zh" ? "查看完整细节" : "Read full details"}${!explicit.length ? (state.locale === "zh" ? " · 上方为原记录摘录" : " · excerpts above") : ""}</summary><ul>${all.map((text) => `<li>${escapeHTML(text)}</li>`).join("")}</ul></details>` : ""}</section>`;
+}
+
 function renderDetail(entry) {
-  const relatedEntries = state.trace.entries
-    .filter((candidate) => candidate.id !== entry.id && candidate.scene === entry.scene)
-    .slice(0, 3);
-  const confirmedDecisionPrinciples = (entry.decisionPrinciples || [])
-    .filter((principle) => isConfirmedDecisionPrinciple(principle, entry.sourceTrust, entry.evidence));
-  return `
-    <article class="detail-article">
-      <p class="detail-overline">${t("recordTags")}</p>
-      <div class="detail-kicker" aria-label="${t("recordTags")}">
-        ${(entry.scenes || [entry.scene]).map((scene, index) => renderRecordTag(sceneLabel(scene), "scene", index === 0 ? t("recordKind") : "")).join("")}
-        ${hasRecordedOutcome(entry) ? renderRecordTag(statusLabel(entry.status), `status-${entry.status}`, t("resultStatus")) : ""}
-        ${renderRecordTag(trustLabel(entry.sourceTrust), `trust-${entry.sourceTrust}`, t("sourceTrust"))}
-      </div>
-      <h2>${escapeHTML(entry.title)}</h2>
-      <div class="detail-date">${escapeHTML(formatDate(entry.date))}${entry.reviewDate !== "无" ? `<span>${t("reviewDate")} ${escapeHTML(formatDate(entry.reviewDate))}</span>` : ""}</div>
-      ${renderQuoteDisclosure(entry)}
-      ${renderItemSection(t("summary"), entry.sectionItems?.summary, entry.sections.summary, "detail-summary")}
-      ${(entry.sections.agentUnderstanding || entry.sections.agentPlan) ? `<div class="agent-thinking-grid">
-        ${renderItemSection(t("agentUnderstanding"), entry.sectionItems?.agentUnderstanding, entry.sections.agentUnderstanding, "agent-thinking-card")}
-        ${renderItemSection(t("agentPlan"), entry.sectionItems?.agentPlan, entry.sections.agentPlan, "agent-thinking-card")}
-      </div>` : ""}
-      <section class="causal-section"><h3>${t("causalChain")}</h3><ol class="causal-list">
-        ${renderCausalStep("01", t("why"), entry.sections.why)}
-        ${renderCausalStep("02", t("changes"), entry.sections.changes)}
-        ${renderCausalStep("03", t("evidenceSource"), entry.evidence)}
-        ${renderCausalStep("04", t("resultReview"), entry.sections.result || (state.locale === "zh" ? "尚未回看。" : "Not reviewed yet."))}
-      </ol></section>
-      ${(entry.hypotheses?.length || entry.watchPlans?.length || entry.dataChanges?.length || entry.outcomes?.length || confirmedDecisionPrinciples.length) ? `<div class="structured-review-detail">
-        ${renderStructuredSection(t("reviewHypothesis"), entry.hypotheses, "hypothesis")}
-        ${renderStructuredSection(t("reviewEvidence"), [...(entry.watchPlans || []), ...(entry.dataChanges || [])], "evidence")}
-        ${renderStructuredSection(t("reviewJudgment"), entry.outcomes, "judgment")}
-        ${renderStructuredSection(t("decisionPlaybookTitle"), confirmedDecisionPrinciples, "principle")}
-      </div>` : ""}
-      ${renderItemSection(t("executionTrace"), entry.sectionItems?.executionTrace, entry.sections.executionTrace, "execution-trace-card")}
-      ${entry.sections.technical ? `<section class="technical-card"><h3>${t("technicalNotes")}</h3><p>${escapeHTML(entry.sections.technical)}</p></section>` : ""}
-      ${relatedEntries.length ? `<section class="related-section"><div class="related-heading"><div><h3>${t("relatedRecords")}</h3><p>${t("relatedRecordsNote")} · ${escapeHTML(sceneLabel(entry.scene))}</p></div><span>${relatedEntries.length}</span></div><div class="related-list">${relatedEntries.map((related) => `<button type="button" data-entry-id="${escapeHTML(related.id)}" data-entry-context="related"><span>${escapeHTML(related.date.slice(5).replace("-", "."))}</span><strong>${escapeHTML(related.title)}</strong><small>${escapeHTML(statusLabel(related.status))}</small></button>`).join("")}</div></section>` : ""}
-      <div class="detail-actions">
-        <p>${t("actionHelp")}</p>
-        <button class="action-button is-primary" type="button" data-copy-command="${state.locale === "zh" ? `纠正记录「${escapeHTML(entry.title)}」：先保存快照，再根据我接下来的说明追加修正时间、事实和新依据。保留已有原话与当时的判断，保存后检查历史并给我记录位置。` : `Correct the record &quot;${escapeHTML(entry.title)}&quot;: snapshot it first, then append a dated correction and new evidence using my next message. Preserve existing words and judgments, verify history, and show the saved location.`}">${t("copyCorrection")}</button>
-        <button class="action-button" type="button" data-copy-command="${state.locale === "zh" ? `补记「${escapeHTML(entry.title)}」的后来结果：请根据我提供的数据或反馈，更新数据变化、结果判断、依据与后续回看；不要把相关性写成确定因果。` : `Add the later outcome for &quot;${escapeHTML(entry.title)}&quot; using the data or feedback I provide. Update data change, judgment, evidence, and next review without turning correlation into proven causation.`}">${t("copyReview")}</button>
-        <button class="action-button" type="button" data-copy-command="${state.locale === "zh" ? `为「${escapeHTML(entry.title)}」补充依据：` : `Add evidence for &quot;${escapeHTML(entry.title)}&quot;: `}">${t("copyEvidence")}</button>
-      </div>
-    </article>
-  `;
+  const z = state.locale === "zh";
+  const sections = entry.sectionItems || {};
+  const process = [
+    [z ? "当时公开的理解" : "Contemporaneous interpretation", "agentUnderstanding"],
+    [z ? "当时的计划" : "Original plan", "agentPlan"],
+    [z ? "实际执行步骤" : "Actual execution", "executionTrace"],
+    [z ? "实现与验证细节" : "Implementation and checks", "technical"],
+  ];
+  const handoff = (action) => escapeHTML(buildRecordHandoff(state.trace, entry, action, state.projectContext || {}, state.locale));
+  return `<article class="detail-article">
+    <div class="detail-kicker" aria-label="${t("recordTags")}">${renderClassification(entry)}</div>
+    <h2>${escapeHTML(entry.title)}</h2>
+    <div class="detail-date">${escapeHTML(formatDate(entry.date))}</div>
+    ${renderReadableSection(z ? "这次做了什么" : "What changed", sections.changes, sections.actionHighlights)}
+    ${renderReadableSection(z ? "为什么这样做" : "Why", sections.why, sections.whyHighlights)}
+    ${renderReadableSection(z ? "当前结果 / 进展" : "Current outcome / progress", sections.result)}
+    ${entry.hypotheses?.length || entry.watchPlans?.length || entry.dataChanges?.length || entry.outcomes?.length ? `<details class="reading-details"><summary>${z ? "后来数据与待验证的判断" : "Later data and open questions"}</summary>
+      ${renderStructuredSection(z ? "待验证的假设" : "Hypotheses", entry.hypotheses)}
+      ${renderStructuredSection(z ? "准备看什么，不是已取得结果" : "Observation plans, not results", entry.watchPlans)}
+      ${renderStructuredSection(z ? "已观察到的数据" : "Observed data", entry.dataChanges)}
+      ${renderStructuredSection(z ? "根据后来证据的判断" : "Later judgment", entry.outcomes)}
+    </details>` : ""}
+    ${renderQuoteDisclosure(entry)}
+    ${entry.sections.summary ? `<details class="reading-details"><summary>${z ? "这次需求如何拆解" : "Requirement breakdown"}</summary>${renderItemSection(z ? "分项需求" : "Requirements", sections.summary, "", "detail-summary")}</details>` : ""}
+    <details class="reading-details agent-process"><summary>${z ? "AI 接到需求后如何推进" : "How the AI carried out the work"}</summary>
+      <p class="missing-source">${z ? "这里保存公开表达的理解、计划和可核对的行为，不是 AI 的私有思维。旧记录缺失的部分不会事后补编。" : "These are stated interpretations, plans and observable actions, not private reasoning. Missing history is not reconstructed as fact."}</p>
+      ${process.map(([label, key]) => `<details class="process-step"><summary>${label} · ${sections[key]?.length ? sections[key].length : (z ? "未记录" : "not recorded")}</summary>${renderItemSection(label, sections[key], "", "execution-trace-card") || `<p>${z ? "未取得当时记录。" : "No contemporaneous record available."}</p>`}</details>`).join("")}
+    </details>
+    <details class="reading-details"><summary>${z ? "依据与记录定位" : "Evidence and record identity"}</summary><p>${escapeHTML(entry.evidence || (z ? "未记录依据" : "No evidence recorded"))}</p><code>${escapeHTML(entry.recordId || entry.id)}</code><p>${entry.classificationSource === "legacy" ? (z ? "分类按旧场景映射，尚未重新核对；原记录未改写。" : "Categories mapped from legacy scenes; not re-audited.") : ""}</p></details>
+    <div class="detail-actions"><p>${z ? "下面按钮会复制带项目和记录定位的请求。发给能访问这个项目的编程 AI，再补上数据或说明；网页不会直接修改记录。" : "Copy a project-specific request to an AI with access to this project, then add your evidence. This page does not edit records."}</p>
+      <button class="action-button is-primary" data-copy-command="${handoff("correction")}">${t("copyCorrection")}</button>
+      <button class="action-button" data-copy-command="${handoff("review")}">${t("copyReview")}</button>
+      <button class="action-button" data-copy-command="${handoff("evidence")}">${t("copyEvidence")}</button>
+    </div>
+  </article>`;
 }
 
 function renderQuoteDisclosure(entry) {
-  if (!entry.sections.quote) return "";
-  const quotes = entry.quotes?.length
-    ? entry.quotes
-    : [{ id: "Q1", speaker: "unknown", sourceRef: "", fidelity: "unknown", text: entry.sections.quote }];
-  const preview = quotes.map((quote) => quote.text).filter(Boolean).join("\n\n");
-  return `<details class="detail-quote">
-    <summary>
-      <span>${t("originalWords")}</span>
-      <p>${escapeHTML(preview)}</p>
-      <b>${t("showAllQuotes")} · ${quotes.length}</b>
-    </summary>
-    <div class="detail-quote-full">
-      ${quotes.map((quote) => `<article>
-        <small>${escapeHTML(quoteFidelityLabel(quote.fidelity))}</small>
-        <p>${escapeHTML(quote.text || "—")}</p>
-        ${quote.sourceRef ? `<details class="trace-reference"><summary>${state.locale === "zh" ? "查看来源" : "View source"}</summary><code>${escapeHTML([quote.id, quote.speaker, quote.sourceRef, quote.fidelity].filter(Boolean).join(" · "))}</code></details>` : ""}
-      </article>`).join("")}
-    </div>
-  </details>`;
+  const z = state.locale === "zh";
+  const quotes = entry.quotes || [];
+  const groups = [
+    [z ? "当时原话" : "Original messages", quotes.filter((q) => quoteKind(q) === "original" && quoteRelevance(q.text, q.purpose) === "substantive")],
+    [z ? "历史摘要（不是逐字原话）" : "Historical summaries, not verbatim", quotes.filter((q) => quoteKind(q) === "summary")],
+    [z ? "尚未核对的旧沟通片段" : "Unverified communication", quotes.filter((q) => quoteKind(q) === "unverified" && quoteRelevance(q.text, q.purpose) === "substantive")],
+    [z ? "其他会话片段（催进度、确认等，不作为项目判断）" : "Other coordination, not decisions", quotes.filter((q) => quoteKind(q) !== "summary" && quoteRelevance(q.text, q.purpose) === "coordination")],
+  ];
+  return groups.filter(([, items]) => items.length).map(([label, items]) => `<details class="detail-quote ${label.includes("其他") || label.startsWith("Other") ? "coordination-quotes" : ""}"><summary><span>${label}</span><p>${escapeHTML(items[0].text)}</p><b>${z ? "展开全文" : "Read full text"} · ${items.length}</b></summary><div class="detail-quote-full">${items.map((q) => `<article><small>${escapeHTML(quoteFidelityLabel(q.fidelity))}</small><p>${escapeHTML(q.text)}</p>${q.sourceRef ? `<details class="trace-reference"><summary>${z ? "查看来源" : "View source"}</summary><code>${escapeHTML([q.id, q.speaker, q.sourceRef, q.fidelity].join(" · "))}</code></details>` : ""}</article>`).join("")}</div></details>`).join("");
 }
 
 function renderItemSection(label, items, fallback, className) {
@@ -1222,6 +1278,8 @@ function renderTutorial() {
             ${step.points.map((point, index) => `<li><span>0${index + 1}</span><div>${escapeHTML(point)}</div></li>`).join("")}
           </ul>
           ${step.command ? `<div class="command-block"><code>${escapeHTML(step.command)}</code><button class="command-copy" type="button" data-copy-command="${escapeHTML(step.command)}">${t("copy")}</button></div>` : ""}
+          <div class="tutorial-success"><strong>${state.locale === "zh" ? "做完应该看到什么" : "What to expect"}</strong><p>${escapeHTML(step.success)}</p></div>
+          ${step.terminal ? `<details class="reading-details"><summary>${state.locale === "zh" ? "我想自己用终端操作" : "Optional terminal commands"}</summary><code>${escapeHTML(step.terminal)}</code></details>` : ""}
           <div class="tutorial-footer">
             <button class="action-button is-primary" type="button" data-action="toggle-tutorial-complete">${state.completedSteps.has(state.tutorialStep) ? t("completed") : t("markComplete")}</button>
             ${state.tutorialStep > 0 ? `<button class="action-button" type="button" data-action="previous-tutorial">${t("previous")}</button>` : ""}
@@ -1351,6 +1409,12 @@ document.addEventListener("click", (event) => {
   }
 
   const sceneButton = event.target.closest("[data-scene-filter]");
+  const actionFilterButton = event.target.closest("[data-action-filter]");
+  if (actionFilterButton) {
+    state.actionFilter = actionFilterButton.dataset.actionFilter;
+    render();
+    return;
+  }
   if (sceneButton) {
     state.scene = sceneButton.dataset.sceneFilter;
     render();
@@ -1376,6 +1440,11 @@ document.addEventListener("click", (event) => {
   }
 
   const actionButton = event.target.closest("[data-action]");
+  if (actionButton?.dataset.action === "open-classification") {
+    state.utilityPanel = "classification";
+    render();
+    return;
+  }
   if (!actionButton) return;
 
   if (actionButton.dataset.action === "close-detail") {
@@ -1505,6 +1574,9 @@ async function loadTrace() {
     if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
     state.sourceText = await response.text();
     state.trace = parseBuildtrace(state.sourceText);
+    if (state.trace.publication?.profile === "private") {
+      state.projectContext = await fetch("/_buildtrace/context.json", { cache: "no-store" }).then((response) => response.ok ? response.json() : null).catch(() => null);
+    }
     if (!state.trace.entries.length && state.trace.publication?.profile === "private") throw new Error("BUILDTRACE.md contains no project records");
     loadingState.hidden = true;
     render();

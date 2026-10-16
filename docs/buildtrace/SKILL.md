@@ -25,6 +25,8 @@ BuildTrace 保存项目因果，而不是复制 Git 记录。唯一主源是当�
 
 ## 定位当前项目
 
+写记录、分类、补记或回填前，按 [记录选择与分类规则](references/classification-and-capture.md) 判断哪些消息和附件有项目价值，读取当前项目自定义分类。不要将整个聊天逐条抄入项目记忆。原话、历史摘要、公开的 Agent 理解、计划、实际执行必须分开，私有推理不是可恢复素材。
+
 - Skill 的安装目录只保存工作规则，不保存当前项目事实。
 - 始终从当前工作区所属的项目根目录读取和修改 `docs/buildtrace/BUILDTRACE.md`。
 - 不要因为全局 Skill 目录旁边存在其他 `BUILDTRACE.md`，就把它当成当前项目的记录。
@@ -82,6 +84,8 @@ BuildTrace 保存项目因果，而不是复制 Git 记录。唯一主源是当�
 关联任务: codex-thread/<thread-id> / 未记录
 依据: 本轮对话 / 文件 / commit / 截图 / 数据导出
 场景: feature | bugfix | ux-content | seo-growth | analytics-data | monetization | architecture | ops-release | ai-workflow | decision
+领域: interface | product | backend | data | growth | delivery | workflow | system
+动作: add | improve | fix | decide | research | analyze | restructure | publish | review
 关键节点: 是 | 否
 可见范围: private | team | public
 结果状态: 待观察 | 有效 | 无效 | 不确定
@@ -110,8 +114,14 @@ Agent 计划:
 为什么做:
 - 人的动机、顾虑、假设或取舍。
 
+动机要点:
+- 从上面已有事实提炼的简短重点；不能补编新的动机。
+
 做了什么:
 - 用户或项目实际发生的变化。
+
+行动要点:
+- 具体对象与实际动作，完整细节仍保留在上面。
 
 观察计划:
 - [W1 | 指标=要观察什么 | 数据源=从哪里看 | 基线=当前值 | 目标=希望看到什么 | 窗口=观察多久 | 达成规则=怎样才算成立] 观察动作后来是否有效；没有就省略。
