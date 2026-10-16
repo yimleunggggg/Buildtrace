@@ -40,6 +40,9 @@ test("outcome handoffs include stable project identity and refuse silent cross-w
   assert.match(text, /ux-search/);
   assert.match(text, /工作树/);
   assert.doesNotMatch(text, /unused/);
+  const legacy = buildRecordHandoff({ title: "Travel app" }, { id: "temporary-viewer-index", date: "2026-07-03", title: "Legacy" }, "review");
+  assert.match(legacy, /没有固定编号/);
+  assert.doesNotMatch(legacy, /Record ID: temporary-viewer-index/);
 });
 
 test("parses project intent and records from BUILDTRACE.md", () => {

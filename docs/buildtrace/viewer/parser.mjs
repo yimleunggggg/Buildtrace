@@ -92,7 +92,7 @@ export function quoteKind(quote) {
 export function buildRecordHandoff(project, entry, action, context = {}, locale = "zh") {
   const identity = [
     `Project: ${project.title}`,
-    `Record ID: ${entry.recordId || entry.id}`,
+    `Record ID: ${entry.recordId || "not assigned in the archive"}`,
     `Date: ${entry.date}`,
     `Title: ${entry.title}`,
     context.projectRoot ? `Project root: ${context.projectRoot}` : "",
@@ -100,8 +100,9 @@ export function buildRecordHandoff(project, entry, action, context = {}, locale 
     context.branch ? `Viewed branch: ${context.branch}` : "",
     context.repositoryUrl ? `Repository: ${context.repositoryUrl}` : "",
   ].filter(Boolean).join("\n");
-  if (locale === "en") return `Please ${action === "review" ? "append the later outcome" : action === "evidence" ? "add evidence" : "append a correction"} for this specific record.\n\n${identity}\n\nFirst verify the project, archive and record ID. Do not write into an unrelated current project. If another worktree has a different version, list candidates and ask which to update; never silently merge them. Take a snapshot, append a dated update using my next evidence, preserve old words and reasoning, verify history and report the saved file and record ID. Missing evidence stays missing; correlation is not causation.\n\nMy new evidence or correction: `;
-  return `请为下面指定记录${action === "review" ? "补记后来结果" : action === "evidence" ? "补充依据" : "追加纠错"}。这不是给任意当前项目新增一条记录。\n\n${identity}\n\n先核对项目、实际档案路径和记录 ID；不要写进无关项目。若不同工作树有不同版本，先列出候选让我确认，不能静默合并。保存快照后，根据我接下来的证据追加日期、事实和判断，保留已有原话与当时的认识；校验历史并给出保存文件和记录 ID。缺失信息注明缺失，不把相关性说成确定因果。\n\n我补充的数据、反馈或纠错：`;
+  const legacyNote = entry.recordId ? "" : locale === "en" ? "This legacy entry has no persistent ID. Locate it by exact date/title and archive, ask if ambiguous, then assign a stable ID after confirming identity. A generated Viewer index is not a persistent record ID.\n\n" : "这条旧记录还没有固定编号。先按档案路径、日期和完整标题找到它；有重名就先确认。核实后补一个稳定编号，不能把网页临时索引当成已保存的记录 ID。\n\n";
+  if (locale === "en") return `Please ${action === "review" ? "append the later outcome" : action === "evidence" ? "add evidence" : "append a correction"} for this specific record.\n\n${identity}\n\n${legacyNote}First verify the project, archive and record ID. Do not write into an unrelated current project. If another worktree has a different version, list candidates and ask which to update; never silently merge them. Take a snapshot, append a dated update using my next evidence, preserve old words and reasoning, verify history and report the saved file and record ID. Missing evidence stays missing; correlation is not causation.\n\nMy new evidence or correction: `;
+  return `请为下面指定记录${action === "review" ? "补记后来结果" : action === "evidence" ? "补充依据" : "追加纠错"}。这不是给任意当前项目新增一条记录。\n\n${identity}\n\n${legacyNote}先核对项目、实际档案路径和记录 ID；不要写进无关项目。若不同工作树有不同版本，先列出候选让我确认，不能静默合并。保存快照后，根据我接下来的证据追加日期、事实和判断，保留已有原话与当时的认识；校验历史并给出保存文件和记录 ID。缺失信息注明缺失，不把相关性说成确定因果。\n\n我补充的数据、反馈或纠错：`;
 }
 
 function cleanLine(line) {
