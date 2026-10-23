@@ -1167,6 +1167,7 @@ function renderDetail(entry) {
   return `<article class="detail-article">
     <div class="detail-kicker" aria-label="${t("recordTags")}">${renderClassification(entry)}</div>
     <h2>${escapeHTML(entry.title)}</h2>
+    ${entry.legacyFormat ? `<p class="missing-source">${z ? "这条来自旧版项目笔记；没有原始对话或独立检查的内容，不能据此补编。" : "This is an older project note, not an original conversation or independent verification."}</p>` : ""}
     <div class="detail-date">${escapeHTML(formatDate(entry.occurredAt || entry.date))}${entry.phase ? ` · ${escapeHTML(entry.phase)}` : ""}${entry.completionStatus ? ` · ${escapeHTML(entry.completionStatus)}` : ""}</div>
     ${renderReadableSection(z ? "这件事的主要变化" : "At a glance", reading.overview)}
     <details class="reading-details"><summary>${z ? "诉求与背景" : "Request and context"}</summary>

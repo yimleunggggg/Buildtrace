@@ -35,7 +35,7 @@ buildtrace serve --target .
 
 在浏览器打开 `serve` 打印的地址；终端要保持运行。以后也可以直接告诉 AI：“打开这个项目的 BuildTrace 看板。”本地地址只在这台电脑上有效；其他设备的访问方式见[部署说明](docs/buildtrace/DEPLOY.md)。
 
-单项目用 `serve`；本地项目总览用 `buildtrace overview --target /项目一 --target /项目二`。总览只读取你指定的项目，启动各自的只读看板，每 10 秒更新概览。`--port 0` 自动选择空闲端口；以实际打印的地址为准。全局安装规则不会自动启动常驻服务。完整说明见[看板入口与端口](docs/USAGE.zh-CN.md#七打开只读看板)。
+单项目用 `serve`；本地项目总览用 `buildtrace overview --target /项目一 --target /项目二`。这只是选择清单，不代表电脑上只有这些项目。可先运行 `buildtrace discover --root /常用项目目录 --root /另一个目录 --output /新位置/发现报告.json`，再用 `buildtrace overview --project-list /发现报告.json` 查看。发现报告区分项目档案、只有规则、历史位置、导出和工作树，写明范围与缺口，不自动初始化或合并。总览每 10 秒更新元数据，点击时才启动只读看板；旧项目使用当前已安装的 Viewer，不改其文件。`--port 0` 自动选择空闲端口；以实际打印的地址为准。完整说明见[看板入口与端口](docs/USAGE.zh-CN.md#七打开只读看板)。
 
 目前的自动记录由正在工作的 AI 执行，尚无后台程序保证捕获每轮对话。`status` 只核对已保存文件；“规则已加载”不等于“本轮已记录”。
 

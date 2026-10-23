@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Discover existing project archives and rule-only candidates within explicit roots, registered paths and visible Git worktrees; report scope and gaps instead of presenting a manual selection as a complete inventory.
+- Open discovered older archives on demand with the installed Viewer without initialization, synchronization or snapshot writes; recognize early dated Markdown notes without fabricating dialogue evidence.
+
 - Add optional matter identity, parent/related records, phase and distinct occurrence/backfill dates; retain unknown extension fields and sections.
 - Introduce evidence-linked discussion, execution, delivery/checks and later feedback. Preserve legacy archives while avoiding mandatory duplicate paragraphs in new records.
 - Add private handoff, Claude-memory text, LangChain Markdown and byte-preserving archive bundle exports with explicit source overrides and SHA-256 manifests.

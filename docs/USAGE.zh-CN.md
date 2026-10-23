@@ -12,7 +12,7 @@
 buildtrace overview --target /项目一 --target /项目二 --port 4174
 ```
 
-有私有源覆盖时，用 `--project-list /私有位置/projects.json`，文件内容为 `[{"target":"/项目","source":"/项目/私有档案.md"}]`。总览仅包含所选项目，每 10 秒重读；终端或后台服务需要继续运行，localhost 只在本机可用。
+有私有源覆盖时，用 `--project-list /私有位置/projects.json`，文件内容为 `[{"target":"/项目","source":"/项目/私有档案.md"}]`。总览仅包含所选项目，不是电脑的全部项目。需要发现旧项目，可先运行 `buildtrace discover --root /常用目录 --root /另一个目录 --output /新位置/发现报告.json`，再将报告传给 `overview --project-list`。报告写明查找范围与缺口，区分独立项目、历史位置和工作树；不自动初始化或合并。总览每 10 秒重读，点击才启动只读看板，旧项目无需先升级；终端或后台服务需要继续运行，localhost 只在本机可用。
 
 迁移到新 AI 可生成 `export --format handoff`；导入 Claude 可生成 `claude-memory` 文本；接 LangChain 可生成 `langchain-md`。它们是资料导出，尚未自动写入外部平台；接入后需实际核验。原文备份使用 `bundle`，公开分享使用 `publish`，两者不是同一种操作。
 

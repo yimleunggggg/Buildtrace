@@ -44,6 +44,27 @@ test("overview reads only selected projects and starts usable live viewers", asy
   }
 });
 
+test("overview opens old archives with shared assets, keeps missing candidates visible and performs no initialization",async()=>{
+  const target=await mkdtemp(join(tmpdir(),"buildtrace-old-overview-"));
+  await mkdir(join(target,"docs/buildtrace"),{recursive:true});
+  const archive="# Old project\n## 2026-07-08 MVP\n- Actual old note\n";
+  await writeFile(join(target,"docs/buildtrace/BUILDTRACE.md"),archive);
+  const missing=join(target,"unstarted");await mkdir(missing);
+  const child=spawn(process.execPath,[cli,"overview","--target",target,"--target",missing,"--port","0"],{stdio:["ignore","pipe","pipe"]});
+  try{
+    const output=await waitForOutput(child,/BuildTrace Overview: (http:\/\/localhost:\d+)/);
+    const url=output.match(/BuildTrace Overview: (http:\/\/localhost:\d+)/)[1];
+    const rows=await(await fetch(url+"/projects.json")).json();
+    assert.equal(rows[0].count,1);assert.equal(rows[1].count,null);assert.equal(rows[1].url,"");
+    const view=await fetch(rows[0].url);assert.equal(view.status,200);
+    const module=await fetch(new URL("reading-model.mjs",view.url));assert.equal(module.status,200);
+    const saved=await fetch(new URL("/docs/buildtrace/BUILDTRACE.md",view.url));assert.equal(await saved.text(),archive);
+    await assert.rejects(lstat(join(target,".buildtrace")),/ENOENT/);
+    assert.equal(await readFile(join(target,"docs/buildtrace/BUILDTRACE.md"),"utf8"),archive);
+    assert.equal((await fetch(url+"/open?id=999")).status,404);
+  }finally{child.kill("SIGTERM");await new Promise(done=>child.once("exit",done));await rm(target,{recursive:true,force:true});}
+});
+
 test("doctor validates the repository", () => {
   const result = spawnSync(process.execPath, [cli, "doctor"], { encoding: "utf8" });
 

@@ -572,6 +572,28 @@ export function parseBuildtrace(markdown) {
     }
   });
 
+  // Early installations used dated project notes, not the later record schema.
+  // Expose them as artifact notes without manufacturing human quotes or AI plans.
+  if (!matches.length) {
+    const dated = [...normalized.matchAll(/^##\s+(\d{4}-\d{2}-\d{2})\s+(?:[—-]\s+)?(.+)$/gm)];
+    for (const [index, match] of dated.entries()) {
+      const start = match.index + match[0].length;
+      const rest = normalized.slice(start);
+      const nextHeading = rest.search(/\n##\s/);
+      const body = nextHeading === -1 ? rest : rest.slice(0,nextHeading);
+      const entry = parseEntry(`### ${match[1]} — ${match[2]}`, "", index);
+      const parsed = parseSectionLines(body.split("\n"));
+      entry.legacyFormat = "dated-notes";
+      entry.sourceCoverage = "legacy-markdown-artifact";
+      entry.evidence = "旧版 Markdown 日期段落；不是逐字对话，也未独立核验其中完成声明。";
+      entry.sections.changes = parsed.text;
+      entry.sectionItems.changes = parsed.items;
+      entry.areas = ["unclassified"];
+      entry.actions = [];
+      entries.push(entry);
+    }
+  }
+
   const decisionPrinciples = entries.flatMap((entry) => entry.decisionPrinciples.map((principle) => ({
     ...principle,
     recordId: entry.recordId || entry.id,

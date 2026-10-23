@@ -13,6 +13,7 @@ import { buildDecisionPlaybook, buildPublication, renderDecisionPlaybookMarkdown
 import { parseBuildtrace } from "../docs/buildtrace/viewer/parser.mjs";
 import { buildContextMarkdown } from "../docs/buildtrace/viewer/reading-model.mjs";
 import { serveOverview } from "../docs/buildtrace/scripts/overview.mjs";
+import { discoverProjects } from "../docs/buildtrace/scripts/discover-projects.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const skillRoot = join(root, "skill", "buildtrace");
@@ -42,6 +43,7 @@ const requiredFiles = [
   "docs/buildtrace/scripts/audit-history.mjs",
   "docs/buildtrace/scripts/derive-views.mjs",
   "docs/buildtrace/scripts/overview.mjs",
+  "docs/buildtrace/scripts/discover-projects.mjs",
   "docs/buildtrace/viewer/index.html",
   "docs/buildtrace/viewer/styles.css",
   "docs/buildtrace/viewer/app.js",
@@ -62,6 +64,7 @@ const managedProjectFiles = [
   ["docs/buildtrace/scripts/audit-history.mjs", "docs/buildtrace/scripts/audit-history.mjs"],
   ["docs/buildtrace/scripts/derive-views.mjs", "docs/buildtrace/scripts/derive-views.mjs"],
   ["docs/buildtrace/scripts/overview.mjs", "docs/buildtrace/scripts/overview.mjs"],
+  ["docs/buildtrace/scripts/discover-projects.mjs", "docs/buildtrace/scripts/discover-projects.mjs"],
   ["docs/buildtrace/DEPLOY.md", "docs/buildtrace/DEPLOY.md"],
   ["docs/buildtrace/viewer/index.html", "docs/buildtrace/viewer/index.html"],
   ["docs/buildtrace/viewer/styles.css", "docs/buildtrace/viewer/styles.css"],
@@ -485,6 +488,9 @@ async function serve() {
   const parsedPort = Number(getOption("--port", process.env.PORT || defaultPort));
   const target = resolve(getOption("--target", root));
   const explicitSource = getOption("--source", null);
+  const readOnly = process.argv.includes("--read-only");
+  const sharedViewer = process.argv.includes("--shared-viewer");
+  const canonicalViewer = await realpath(join(root, "docs/buildtrace/viewer"));
   const source = resolve(explicitSource || join(target, "docs/buildtrace/BUILDTRACE.md"));
   const targetStat = await stat(target).catch(() => null);
   const sourceStat = await stat(source).catch(() => null);
@@ -500,9 +506,9 @@ async function serve() {
   }
 
   let lastSourceContent = await readFile(canonicalSource, "utf8");
-  let historyAvailable = true;
+  let historyAvailable = !readOnly;
   try {
-    await writeSourceSnapshot(target, canonicalSource, lastSourceContent, "serve-start");
+    if (!readOnly) await writeSourceSnapshot(target, canonicalSource, lastSourceContent, "serve-start");
   } catch (error) {
     historyAvailable = false;
     log(`! Viewer history snapshots unavailable: ${error.message}`);
@@ -547,9 +553,10 @@ async function serve() {
         return;
       }
 
+      const viewerAsset = sharedViewer && url.pathname.startsWith("/docs/buildtrace/viewer/");
       let filePath = url.pathname === "/docs/buildtrace/BUILDTRACE.md"
         ? canonicalSource
-        : safeLocalPath(url.pathname, target);
+        : safeLocalPath(url.pathname, viewerAsset ? root : target);
       if (!filePath) {
         response.writeHead(403, { "Content-Type": "text/plain; charset=utf-8" });
         response.end("Forbidden");
@@ -559,7 +566,7 @@ async function serve() {
       const fileStat = await stat(filePath);
       if (fileStat.isDirectory()) filePath = join(filePath, "index.html");
       filePath = await realpath(filePath);
-      if (filePath !== canonicalSource && !isInsidePath(canonicalTarget, filePath)) {
+      if (filePath !== canonicalSource && !isInsidePath(canonicalTarget, filePath) && !(viewerAsset && isInsidePath(canonicalViewer, filePath))) {
         response.writeHead(403, { "Content-Type": "text/plain; charset=utf-8" });
         response.end("Forbidden");
         return;
@@ -1235,6 +1242,7 @@ async function setupAgents() {
 }
 
 function help() {
+  log("Discover existing projects without changing them: buildtrace discover --root /projects --root /other/folder --output /new/private-report.json\nPass the report to: buildtrace overview --project-list /private-report.json\n");
   log("Project overview: buildtrace overview --target /project/a --target /project/b [--port 4174]\nCustom sources: buildtrace overview --project-list /private/projects.json (array of {target, source?})\nRead-only upgrade check: buildtrace sync --target /project --check\nExports: buildtrace export --target /project [--source /private/BUILDTRACE.md] --format json|jsonl|markdown|bundle|handoff|claude-memory|langchain-md [--output /new/path]\n");
   log("Old project locations: buildtrace recover --target /current/project --project-alias /old/project (repeat --project-alias for multiple locations)\n");
   log("Inspect saved records: buildtrace status [--target /path/to/project] [--source /path/to/BUILDTRACE.md] [--json]\n");
@@ -1258,9 +1266,24 @@ try {
     const targets = getOptions("--target");
     if (list && targets.length) throw new Error("use --project-list or --target, not both");
     if (getOption("--source", null) && targets.length !== 1) throw new Error("multiple source overrides require --project-list");
-    const projects = list ? JSON.parse(await readFile(resolve(list), "utf8")) : targets.map((target) => ({target, source:getOption("--source", null)}));
+    const selection = list ? JSON.parse(await readFile(resolve(list), "utf8")) : targets.map((target) => ({target, source:getOption("--source", null)}));
+    const projects = Array.isArray(selection) ? selection : selection.projects;
     if (!Array.isArray(projects) || projects.some((p) => !p || typeof p.target !== "string" || (p.source && typeof p.source !== "string"))) throw new Error("project list must be an array of {target, source?}");
-    await serveOverview({projects, port:Number(getOption("--port", 4174)), cli:fileURLToPath(import.meta.url)});
+    await serveOverview({projects, coverage:selection.coverage || null, port:Number(getOption("--port", 4174)), cli:fileURLToPath(import.meta.url)});
+  }
+  else if (command === "discover") {
+    const roots = getOptions("--root");
+    const knownPath = getOption("--known-projects", null);
+    const overridesPath = getOption("--source-overrides", null);
+    const knownProjects = knownPath ? JSON.parse(await readFile(resolve(knownPath), "utf8")) : [];
+    const sourceOverrides = overridesPath ? JSON.parse(await readFile(resolve(overridesPath), "utf8")) : {};
+    if (!roots.length && !knownProjects.length) throw new Error("discover requires explicit --root or --known-projects");
+    if (!Array.isArray(knownProjects) || knownProjects.some(p=>typeof p?.target!=="string")) throw new Error("known projects must be an array of {target, label?}");
+    if (!sourceOverrides || Array.isArray(sourceOverrides) || typeof sourceOverrides!=="object" || Object.values(sourceOverrides).some(p=>typeof p!=="string")) throw new Error("source overrides must map project paths to archive paths");
+    const report = await discoverProjects({roots,knownProjects,sourceOverrides});
+    const output = getOption("--output", null);
+    if (output) { await writeWithoutOverwrite(resolve(output), JSON.stringify(report,null,2)+"\n"); log(`Found ${report.projects.length} locations; scan scope and gaps are in the report.`); }
+    else process.stdout.write(JSON.stringify(report,null,2)+"\n");
   }
   else if (command === "init") await init();
   else if (command === "recover") await recoverHistory();
