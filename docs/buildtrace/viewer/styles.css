@@ -7421,3 +7421,9 @@ textarea {
   .tutorial-detail .command-block { padding: 18px; }
   .tutorial-detail .command-block code { padding-right: 0; padding-top: 44px; }
 }
+.discussion-events { list-style: none; margin: 1rem 0; padding: 0 0 0 1rem; border-left: 2px solid currentColor; }
+.discussion-events > li { padding: 0 0 1.5rem 1rem; min-width: 0; }
+.discussion-events p { margin: .5rem 0; overflow-wrap: anywhere; }
+.record-reading-section strong { font-weight: 700; }
+.detail-article .reading-details { min-width: 0; }
+.detail-article .reading-details code { white-space: pre-wrap; overflow-wrap: anywhere; }

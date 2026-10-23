@@ -14,6 +14,7 @@ At meaningful work:
 1. Find the writable project root.
 2. If `docs/buildtrace/BUILDTRACE.md` is missing and the user has enabled automatic BuildTrace setup, run `buildtrace init --target "<absolute-project-root>"`.
 3. Read the project copy at `docs/buildtrace/SKILL.md`; it is versioned with the project and contains the full schema and privacy rules.
+   Also read `docs/buildtrace/PROJECT-RULES.md` when present and the project's `references/matters-and-reading.md`. Group by explicit project and matter identity, goals and acceptance boundaries; classification and phase are supporting clues, never automatic merge rules. Keep summaries linked to full evidence. Optional fields need not be filled just to complete a template. Preserve project preferences across sync.
 4. Restore project intent, recent and relevant records, and due follow-ups before implementation.
 5. Before changing an existing archive, run `buildtrace snapshot --target "<absolute-project-root>"`. After editing, run `buildtrace verify-history --target "<absolute-project-root>"`.
 6. After a meaningful feature, fix, design, architecture, release, operational action, or important decision, update the Markdown source in the same turn.

@@ -1,4 +1,5 @@
-import { buildRecordHandoff, getBuildtraceStats, parseBuildtrace, quoteKind, quoteRelevance } from "./parser.js";
+import { buildRecordHandoff, getBuildtraceStats, parseBuildtrace, presentQuote, quoteKind, quoteRelevance, sortRecords } from "./parser.js";
+import { itemText, recordReading, relatedMatterRecords, buildContextMarkdown } from "./reading-model.mjs";
 
 const translations = {
   zh: {
@@ -755,11 +756,11 @@ function applyDetailIsolation() {
 
 function renderBoard() {
   const stats = getBuildtraceStats(state.trace.entries);
-  const timelineEntries = state.trace.entries.filter((entry) => entry.milestone).sort((a, b) => a.date.localeCompare(b.date));
+  const timelineEntries = sortRecords(state.trace.entries.filter((entry) => entry.milestone), "asc");
   const scenes = [...new Set(state.trace.entries.flatMap((entry) => entry.areas))];
   const actions = [...new Set(state.trace.entries.flatMap((entry) => entry.actions))];
   const query = state.query.trim().toLowerCase();
-  const visibleEntries = state.trace.entries.filter((entry) => {
+  const visibleEntries = sortRecords(state.trace.entries.filter((entry) => {
     const matchesStatus =
       state.status === "all" ||
       (state.status === "milestone" && entry.milestone) ||
@@ -783,7 +784,7 @@ function renderBoard() {
       .join(" ")
       .toLowerCase();
     return matchesStatus && matchesScene && (!query || haystack.includes(query));
-  }).sort((a, b) => b.date.localeCompare(a.date));
+  }));
 
   if (!state.selectedEntryId || !visibleEntries.some((entry) => entry.id === state.selectedEntryId)) {
     state.selectedEntryId = visibleEntries[0]?.id ?? null;
@@ -861,7 +862,7 @@ function renderBoard() {
         <section class="timeline-panel" aria-label="${t("timelineOverview")}" ${state.lens !== "trace" ? "hidden" : ""}>
           <div class="panel-heading"><div><strong>${t("timelineOverview")}</strong><small>${t("timelineNote")}</small></div><span>${timelineEntries.length}</span></div>
           ${timelineEntries.length ? `<div class="timeline-track">
-            ${timelineEntries.map((entry) => `<button type="button" data-entry-id="${escapeHTML(entry.id)}" data-entry-context="timeline" aria-current="${entry.id === state.selectedEntryId}"><span>${escapeHTML(entry.date)}</span><strong>${escapeHTML(entry.title)}</strong><small>${escapeHTML((entry.scenes || [entry.scene]).map(sceneLabel).join(" · "))}</small></button>`).join("")}
+            ${timelineEntries.map((entry) => `<button type="button" data-entry-id="${escapeHTML(entry.id)}" data-entry-context="timeline" aria-current="${entry.id === state.selectedEntryId}"><span>${escapeHTML(entry.occurredAt || entry.date)}</span><strong>${escapeHTML(entry.title)}</strong><small>${escapeHTML((entry.scenes || [entry.scene]).map(sceneLabel).join(" · "))}</small></button>`).join("")}
           </div>` : `<p class="timeline-empty">${t("noMilestones")}</p>`}
         </section>
         <section class="records-panel" ${state.lens !== "trace" ? "hidden" : ""}>
@@ -952,7 +953,7 @@ function renderReviewTracks(entries, hidden = false) {
     const judgments = entry.outcomes?.length ? entry.outcomes : (entry.sections.result ? [entry.sections.result] : []);
     return `<article class="review-track-card">
       <button class="review-track-head" type="button" data-entry-id="${escapeHTML(entry.id)}">
-        <span class="review-track-date">${escapeHTML(entry.date)}</span>
+        <span class="review-track-date">${escapeHTML(entry.occurredAt || entry.date)}</span>
         <span class="review-track-title"><strong>${escapeHTML(entry.title)}</strong><small>${escapeHTML(statusLabel(entry.status))}</small></span>
         <span class="review-track-open">${t("reviewOpen")} <b aria-hidden="true">↗</b></span>
       </button>
@@ -1102,8 +1103,8 @@ function hasRecordedOutcome(entry) {
 }
 
 function recordPreview(entry) {
-  const first = (entry.sectionItems?.actionHighlights?.[0] || entry.sectionItems?.changes?.[0] || entry.sectionItems?.summary?.[0] || "").trim();
-  return first.replace(/^\[[A-Z]\d+\s*<-[^\]]+]\s*/, "");
+  const first = (recordReading(entry).overview[0] || entry.sectionItems?.summary?.[0] || "").trim();
+  return itemText(first).replace(/\*\*/g, "");
 }
 
 function renderRecordList(entries) {
@@ -1119,7 +1120,7 @@ function renderRecordList(entries) {
           (entry) => `
             <li>
               <button class="record-button" type="button" data-entry-id="${escapeHTML(entry.id)}" aria-current="${entry.id === state.selectedEntryId}">
-                <span class="record-date">${escapeHTML(entry.date.slice(5).replace("-", "."))}</span>
+                <span class="record-date">${escapeHTML((entry.occurredAt || entry.date).slice(5, 10).replace("-", "."))}</span>
                 <span class="record-copy">
                   <strong>${escapeHTML(entry.title)}</strong>
                   ${recordPreview(entry) ? `<span class="record-summary">${escapeHTML(recordPreview(entry))}</span>` : ""}
@@ -1137,7 +1138,11 @@ function renderRecordList(entries) {
 }
 
 function plainItem(item) {
-  return String(item).replace(/^\[((?:R|U|P|E|H)\d+)[^\]]*]\s*/, "");
+  return itemText(item);
+}
+
+function emphasize(text) {
+  return escapeHTML(text).replace(/\*\*([^*\n]+)\*\*/g, "<strong>$1</strong>");
 }
 
 function renderReadableSection(label, fullItems = [], highlights = []) {
@@ -1145,57 +1150,68 @@ function renderReadableSection(label, fullItems = [], highlights = []) {
   const explicit = highlights.map(plainItem).filter(Boolean);
   const brief = explicit.length ? explicit : all.slice(0, 2).map((text) => text.length > 90 ? text.slice(0, 90) + "…" : text);
   const needsDetails = explicit.length > 0 || all.length > 2 || all.some((text) => text.length > 90);
-  return `<section class="record-reading-section"><h3>${escapeHTML(label)}</h3>${brief.length ? `<ul class="key-actions">${brief.map((text) => `<li>${escapeHTML(text)}</li>`).join("")}</ul>` : `<p class="missing-source">${state.locale === "zh" ? "这条记录尚未留下这部分内容。" : "This part was not recorded."}</p>`}${needsDetails ? `<details class="reading-details"><summary>${state.locale === "zh" ? "查看完整细节" : "Read full details"}${!explicit.length ? (state.locale === "zh" ? " · 上方为原记录摘录" : " · excerpts above") : ""}</summary><ul>${all.map((text) => `<li>${escapeHTML(text)}</li>`).join("")}</ul></details>` : ""}</section>`;
+  if (!all.length && !explicit.length) return "";
+  return `<section class="record-reading-section"><h3>${escapeHTML(label)}</h3><ul class="key-actions">${brief.map((text) => `<li>${emphasize(text)}</li>`).join("")}</ul>${needsDetails ? `<details class="reading-details"><summary>${state.locale === "zh" ? "查看完整细节" : "Read full details"}${!explicit.length ? (state.locale === "zh" ? " · 上方为原记录摘录" : " · excerpts above") : ""}</summary><ul>${all.map((text) => `<li>${emphasize(text)}</li>`).join("")}</ul></details>` : ""}</section>`;
 }
 
 function renderDetail(entry) {
   const z = state.locale === "zh";
   const sections = entry.sectionItems || {};
+  const reading = recordReading(entry);
+  const related = relatedMatterRecords(state.trace.entries, entry);
   const process = [
     [z ? "当时公开的理解" : "Contemporaneous interpretation", "agentUnderstanding"],
     [z ? "当时的计划" : "Original plan", "agentPlan"],
-    [z ? "实际执行步骤" : "Actual execution", "executionTrace"],
-    [z ? "实现与验证细节" : "Implementation and checks", "technical"],
   ];
   const handoff = (action) => escapeHTML(buildRecordHandoff(state.trace, entry, action, state.projectContext || {}, state.locale));
   return `<article class="detail-article">
     <div class="detail-kicker" aria-label="${t("recordTags")}">${renderClassification(entry)}</div>
     <h2>${escapeHTML(entry.title)}</h2>
-    <div class="detail-date">${escapeHTML(formatDate(entry.date))}</div>
-    ${renderReadableSection(z ? "这次做了什么" : "What changed", sections.changes, sections.actionHighlights)}
-    ${renderReadableSection(z ? "为什么这样做" : "Why", sections.why, sections.whyHighlights)}
-    ${renderReadableSection(z ? "当前结果 / 进展" : "Current outcome / progress", sections.result)}
+    <div class="detail-date">${escapeHTML(formatDate(entry.occurredAt || entry.date))}${entry.phase ? ` · ${escapeHTML(entry.phase)}` : ""}${entry.completionStatus ? ` · ${escapeHTML(entry.completionStatus)}` : ""}</div>
+    ${renderReadableSection(z ? "这件事的主要变化" : "At a glance", reading.overview)}
+    <details class="reading-details"><summary>${z ? "诉求与背景" : "Request and context"}</summary>
+      ${renderItemSection(z ? "需求要点" : "Requirements", reading.requirements, "", "detail-summary")}
+      ${renderItemSection(z ? "背景与约束" : "Background and constraints", reading.background, "", "detail-summary")}
+      ${sections.editedWords?.length ? `<section><h3>${z ? "整理后的表达（非逐字原话）" : "Edited wording, not verbatim"}</h3>${renderItemSection("", sections.editedWords, "", "detail-summary")}</section>` : ""}
+      ${renderQuoteDisclosure(entry)}
+    </details>
+    <details class="reading-details agent-process"><summary>${z ? "讨论过程 · 理解、拆解与计划" : "Discussion · interpretation and plans"}</summary>
+      <p class="missing-source">${z ? "只展示当时公开留下的说明。没有可靠时间的片段按记录顺序呈现；旧计划与后来变化分别保留。" : "Contemporaneous public statements only. Undated items retain recorded order; original plans remain separate from later changes."}</p>
+      ${reading.process.length ? `<ol class="discussion-events">${reading.process.map((event) => `<li><small>${escapeHTML([event.date, event.type || event.tag].filter(Boolean).join(" · "))}</small><p>${emphasize(event.text)}</p><details class="trace-reference"><summary>${z ? "来源与对应" : "Source references"}</summary><code>${escapeHTML([event.id, event.references, event.sourceRef].filter(Boolean).join(" · "))}</code></details></li>`).join("")}</ol>` : ""}
+      ${process.map(([label, key]) => sections[key]?.length ? `<details class="process-step"><summary>${label} · ${sections[key].length}</summary>${renderItemSection(label, sections[key], "", "execution-trace-card")}</details>` : "").join("")}
+      ${!reading.process.length && !sections.agentUnderstanding?.length && !sections.agentPlan?.length ? `<p>${z ? "未取得当时的讨论或计划记录。" : "No contemporaneous discussion or plan was captured."}</p>` : ""}
+    </details>
+    ${sections.executionTrace?.length || reading.changes.length ? `<details class="reading-details"><summary>${z ? "实际执行 · 完成了哪些事项" : "Execution · actions taken"}</summary>${renderItemSection(z ? "实际变化" : "Changes", reading.changes, "", "execution-trace-card")}${renderItemSection(z ? "步骤与依据" : "Steps and evidence", sections.executionTrace, "", "execution-trace-card")}</details>` : ""}
+    ${renderReadableSection(z ? "交付与检查" : "Delivery and checks", reading.delivery)}
+    ${sections.feedback?.length ? `<details class="reading-details"><summary>${z ? "后来反馈" : "Later feedback"}</summary>${renderItemSection("", sections.feedback, "", "detail-summary")}</details>` : ""}
     ${entry.hypotheses?.length || entry.watchPlans?.length || entry.dataChanges?.length || entry.outcomes?.length ? `<details class="reading-details"><summary>${z ? "后来数据与待验证的判断" : "Later data and open questions"}</summary>
       ${renderStructuredSection(z ? "待验证的假设" : "Hypotheses", entry.hypotheses)}
       ${renderStructuredSection(z ? "准备看什么，不是已取得结果" : "Observation plans, not results", entry.watchPlans)}
       ${renderStructuredSection(z ? "已观察到的数据" : "Observed data", entry.dataChanges)}
       ${renderStructuredSection(z ? "根据后来证据的判断" : "Later judgment", entry.outcomes)}
     </details>` : ""}
-    ${renderQuoteDisclosure(entry)}
-    ${entry.sections.summary ? `<details class="reading-details"><summary>${z ? "这次需求如何拆解" : "Requirement breakdown"}</summary>${renderItemSection(z ? "分项需求" : "Requirements", sections.summary, "", "detail-summary")}</details>` : ""}
-    <details class="reading-details agent-process"><summary>${z ? "AI 接到需求后如何推进" : "How the AI carried out the work"}</summary>
-      <p class="missing-source">${z ? "这里保存公开表达的理解、计划和可核对的行为，不是 AI 的私有思维。旧记录缺失的部分不会事后补编。" : "These are stated interpretations, plans and observable actions, not private reasoning. Missing history is not reconstructed as fact."}</p>
-      ${process.map(([label, key]) => `<details class="process-step"><summary>${label} · ${sections[key]?.length ? sections[key].length : (z ? "未记录" : "not recorded")}</summary>${renderItemSection(label, sections[key], "", "execution-trace-card") || `<p>${z ? "未取得当时记录。" : "No contemporaneous record available."}</p>`}</details>`).join("")}
-    </details>
-    <details class="reading-details"><summary>${z ? "依据与记录定位" : "Evidence and record identity"}</summary><p>${escapeHTML(entry.evidence || (z ? "未记录依据" : "No evidence recorded"))}</p><code>${escapeHTML(entry.recordId || entry.id)}</code><p>${entry.classificationSource === "legacy" ? (z ? "分类按旧场景映射，尚未重新核对；原记录未改写。" : "Categories mapped from legacy scenes; not re-audited.") : ""}</p></details>
+    ${related.length ? `<details class="reading-details"><summary>${z ? "同一事项与关联记录" : "Related records"} · ${related.length}</summary><ul>${related.map((record) => `<li><button class="action-button" data-entry-id="${escapeHTML(record.id)}">${escapeHTML(record.date)} · ${escapeHTML(record.title)}</button></li>`).join("")}</ul></details>` : ""}
+    ${Object.keys(reading.repeated).length ? `<details class="reading-details"><summary>${z ? "原记录中的重复表述" : "Repeated wording in the original record"}</summary><p>${z ? "与上方完全相同的内容仅在此保留，原始档案未删改。" : "Exact repeated wording is retained here; the source archive is unchanged."}</p>${Object.entries(reading.repeated).map(([label, items]) => renderItemSection(label === "background" ? (z ? "为什么做" : "Why") : (z ? "结果" : "Result"), items, "", "detail-summary")).join("")}</details>` : ""}
+    ${Object.keys(entry.extraSections || {}).length ? `<details class="reading-details"><summary>${z ? "项目扩展内容" : "Project extensions"}</summary>${Object.entries(entry.extraSections).map(([label, section]) => renderItemSection(label, section.items, "", "detail-summary")).join("")}</details>` : ""}
+    <details class="reading-details"><summary>${z ? "依据与记录定位" : "Evidence and record identity"}</summary><p>${escapeHTML(entry.evidence || (z ? "未记录依据" : "No evidence recorded"))}</p><code>${escapeHTML(entry.recordId || entry.id)}</code><p>${escapeHTML([entry.matterId, entry.startedAt && `开始: ${entry.startedAt}`, entry.recordedAt && `补录: ${entry.recordedAt}`].filter(Boolean).join(" · "))}</p>${renderItemSection(z ? "技术与验证细节" : "Technical evidence", sections.technical, "", "execution-trace-card")}<p>${entry.classificationSource === "legacy" ? (z ? "分类按旧场景映射，尚未重新核对；原记录未改写。" : "Categories mapped from legacy scenes; not re-audited.") : ""}</p></details>
     <div class="detail-actions"><p>${z ? "下面按钮会复制带项目和记录定位的请求。发给能访问这个项目的编程 AI，再补上数据或说明；网页不会直接修改记录。" : "Copy a project-specific request to an AI with access to this project, then add your evidence. This page does not edit records."}</p>
       <button class="action-button is-primary" data-copy-command="${handoff("correction")}">${t("copyCorrection")}</button>
       <button class="action-button" data-copy-command="${handoff("review")}">${t("copyReview")}</button>
       <button class="action-button" data-copy-command="${handoff("evidence")}">${t("copyEvidence")}</button>
+      <button class="action-button" data-copy-command="${escapeHTML(buildContextMarkdown({ ...state.trace, entries: [entry], decisionPrinciples: [] }))}">${z ? "复制本事项接手资料" : "Copy handoff"}</button>
     </div>
   </article>`;
 }
 
 function renderQuoteDisclosure(entry) {
   const z = state.locale === "zh";
-  const quotes = entry.quotes || [];
+  const quotes = (entry.quotes || []).map((q) => ({ ...q, presentation: presentQuote(q) })).filter((q) => quoteRelevance(q.presentation.text, q.purpose) === "substantive" && !/^(?:未捕捉[。.]?|未记录[。.]?|not captured[.]?)$/i.test(q.presentation.text.trim()));
   const groups = [
-    [z ? "当时原话" : "Original messages", quotes.filter((q) => quoteKind(q) === "original" && quoteRelevance(q.text, q.purpose) === "substantive")],
+    [z ? "当时原话" : "Original messages", quotes.filter((q) => quoteKind(q) === "original")],
     [z ? "历史摘要（不是逐字原话）" : "Historical summaries, not verbatim", quotes.filter((q) => quoteKind(q) === "summary")],
-    [z ? "尚未核对的旧沟通片段" : "Unverified communication", quotes.filter((q) => quoteKind(q) === "unverified" && quoteRelevance(q.text, q.purpose) === "substantive")],
-    [z ? "其他会话片段（催进度、确认等，不作为项目判断）" : "Other coordination, not decisions", quotes.filter((q) => quoteKind(q) !== "summary" && quoteRelevance(q.text, q.purpose) === "coordination")],
+    [z ? "尚未核对的旧沟通片段" : "Unverified communication", quotes.filter((q) => quoteKind(q) === "unverified")],
   ];
-  return groups.filter(([, items]) => items.length).map(([label, items]) => `<details class="detail-quote ${label.includes("其他") || label.startsWith("Other") ? "coordination-quotes" : ""}"><summary><span>${label}</span><p>${escapeHTML(items[0].text)}</p><b>${z ? "展开全文" : "Read full text"} · ${items.length}</b></summary><div class="detail-quote-full">${items.map((q) => `<article><small>${escapeHTML(quoteFidelityLabel(q.fidelity))}</small><p>${escapeHTML(q.text)}</p>${q.sourceRef ? `<details class="trace-reference"><summary>${z ? "查看来源" : "View source"}</summary><code>${escapeHTML([q.id, q.speaker, q.sourceRef, q.fidelity].join(" · "))}</code></details>` : ""}</article>`).join("")}</div></details>`).join("");
+  return groups.filter(([, items]) => items.length).map(([label, items]) => `<details class="detail-quote"><summary><span>${label}</span><p>${escapeHTML(items[0].presentation.text)}</p><b>${z ? "展开全文" : "Read full text"} · ${items.length}</b></summary><div class="detail-quote-full">${items.map((q) => `<article><small>${escapeHTML(quoteFidelityLabel(q.fidelity))}</small><p>${escapeHTML(q.presentation.text)}</p>${q.presentation.attachments.length ? `<details class="trace-reference"><summary>${z ? "附件来源（不属于正文）" : "Attachment references, not message text"} · ${q.presentation.attachments.length}</summary>${q.presentation.attachments.map((a) => `<code>${escapeHTML(a.name)}</code>`).join("")}</details>` : ""}${q.sourceRef ? `<details class="trace-reference"><summary>${z ? "查看来源" : "View source"}</summary><code>${escapeHTML([q.id, q.speaker, q.sourceRef, q.fidelity].join(" · "))}</code></details>` : ""}</article>`).join("")}</div></details>`).join("");
 }
 
 function renderItemSection(label, items, fallback, className) {

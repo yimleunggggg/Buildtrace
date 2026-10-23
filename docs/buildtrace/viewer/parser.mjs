@@ -1,5 +1,14 @@
 const FIELD_MAP = {
   "记录 ID": "recordId",
+  "事项 ID": "matterId",
+  "上级事项": "parentMatterId",
+  "关联记录": "relatedRecords",
+  "阶段": "phase",
+  "开始时间": "startedAt",
+  "发生时间": "occurredAt",
+  "补录时间": "recordedAt",
+  "记录结构": "recordStructure",
+  "完成状态": "completionStatus",
   "来源可信度": "sourceTrust",
   "来源覆盖": "sourceCoverage",
   "关联任务": "relatedTask",
@@ -16,6 +25,15 @@ const FIELD_MAP = {
 const SECTION_MAP = {
   "沟通原文": "quote",
   "需求总结": "summary",
+  "需求要点": "summary",
+  "事项概览": "overview",
+  "整理后的表达": "editedWords",
+  "背景与约束": "why",
+  "讨论过程": "discussion",
+  "实际执行": "executionTrace",
+  "实际变化": "changes",
+  "交付与检查": "delivery",
+  "后来反馈": "feedback",
   "动机要点": "whyHighlights",
   "行动要点": "actionHighlights",
   "Agent 当时理解": "agentUnderstanding",
@@ -82,6 +100,28 @@ export function quoteRelevance(text, purpose = "") {
   return /^(?:怎么了|怎么样了|如何了|好了没|好了吗|进度呢|继续|继续吧|继续做吧|好的|好|嗯|收到|谢谢|ok|okay|thanks|continue|any updates)$/i.test(plain) ? "coordination" : "substantive";
 }
 
+// A readable projection of a known app envelope. The archived text is never changed.
+export function presentQuote(quote) {
+  const raw = String(quote.text || "");
+  if (!/^\s*# Files mentioned by the user:/.test(raw)) return { text: raw, attachments: [], hasEnvelope: false };
+  const envelope = raw.match(/^\s*# Files mentioned by the user:\s*\n([\s\S]*?)^## My request(?: for Codex)?:\s*\n([\s\S]*)$/m);
+  if (!envelope) return { text: raw, attachments: [], hasEnvelope: false };
+  const attachments = [...envelope[1].matchAll(/^## ([^\n]+?):\s*(\/[^\n]+)$/gm)].map((m) => ({ name: m[1], path: m[2] }));
+  const text = envelope[2].replace(/\n\s*<image name=[\s\S]*?<\/image>\s*$/g, "").trim();
+  return { text, attachments, hasEnvelope: true };
+}
+
+export function sortRecords(entries, direction = "desc") {
+  const key = (entry) => {
+    const match = String(entry.occurredAt || entry.date || "").match(/^(\d{4})-(\d{2})(?:-(\d{2}))?/);
+    return match ? Number(match[1]) * 10000 + Number(match[2]) * 100 + Number(match[3] || 0) : null;
+  };
+  return entries.map((entry, index) => ({ entry, index, key: key(entry) })).sort((a, b) => {
+    if (a.key === null || b.key === null) return a.key === b.key ? a.index - b.index : a.key === null ? 1 : -1;
+    return (direction === "asc" ? a.key - b.key : b.key - a.key) || a.index - b.index;
+  }).map(({ entry }) => entry);
+}
+
 export function quoteKind(quote) {
   if (["compacted-summary", "artifact-evidence", "inferred"].includes(quote.fidelity)) return "summary";
   if (quote.fidelity === "verbatim" && quote.speaker === "user") return "original";
@@ -129,7 +169,7 @@ function parseSectionLines(lines) {
   };
 
   for (const rawLine of lines) {
-    if (rawLine.includes("<!--")) inComment = true;
+    if (/^\s*<!--/.test(rawLine)) inComment = true;
     if (inComment) {
       if (rawLine.includes("-->")) inComment = false;
       continue;
@@ -142,8 +182,7 @@ function parseSectionLines(lines) {
     }
 
     if (!activeItem) activeItem = [];
-    const trimmed = rawLine.trim();
-    activeItem.push(trimmed.replace(/^>\s?/, ""));
+    activeItem.push(/^\s*>/.test(rawLine) ? rawLine.replace(/^\s*> ?/, "") : rawLine.trim());
   }
   commitItem();
 
@@ -206,6 +245,9 @@ const STRUCTURED_FIELD_MAP = {
   category: "category",
   "确认": "confirmation",
   confirmation: "confirmation",
+  "类型": "type",
+  "引用": "references",
+  "来源": "sourceRef",
 };
 
 function parseStructuredItem(item, index, prefix) {
@@ -427,6 +469,8 @@ function parseEntry(header, body, index) {
       result: "",
     },
     sectionItems: {},
+    extraFields: {},
+    extraSections: {},
     quotes: [],
     hypotheses: [],
     watchPlans: [],
@@ -442,9 +486,15 @@ function parseEntry(header, body, index) {
 
   for (const rawLine of body.split("\n")) {
     const line = rawLine.trimEnd();
-    const sectionMatch = line.match(/^([^:：]+)[:：]\s*$/);
+    const sectionMatch = line.match(/^([^\s>:#][^:：]*)[:：]\s*$/);
     if (sectionMatch && SECTION_MAP[sectionMatch[1].trim()]) {
       activeSection = SECTION_MAP[sectionMatch[1].trim()];
+      continue;
+    }
+
+    if (sectionMatch) {
+      activeSection = `extra:${sectionMatch[1].trim()}`;
+      sectionLines[activeSection] ||= [];
       continue;
     }
 
@@ -452,20 +502,27 @@ function parseEntry(header, body, index) {
       const fieldMatch = line.match(/^([^:：]+)[:：]\s*(.+)$/);
       if (fieldMatch && FIELD_MAP[fieldMatch[1].trim()]) {
         entry[FIELD_MAP[fieldMatch[1].trim()]] = fieldMatch[2].trim();
+      } else if (fieldMatch) {
+        entry.extraFields[fieldMatch[1].trim()] = fieldMatch[2].trim();
       }
       continue;
     }
 
-    sectionLines[activeSection].push(line);
+    sectionLines[activeSection].push(rawLine);
   }
 
   for (const [key, lines] of Object.entries(sectionLines)) {
     const parsed = parseSectionLines(lines);
+    if (key.startsWith("extra:")) {
+      entry.extraSections[key.slice(6)] = parsed;
+      continue;
+    }
     entry.sections[key] = parsed.text;
     entry.sectionItems[key] = parsed.items;
   }
 
   entry.quotes = parseQuoteItems(entry.sectionItems.quote || []);
+  entry.discussion = parseStructuredItems(entry.sectionItems.discussion || [], "T");
   entry.hypotheses = parseStructuredItems(entry.sectionItems.hypothesis || [], "H");
   entry.watchPlans = parseStructuredItems(entry.sectionItems.watchPlan || [], "W");
   entry.dataChanges = parseStructuredItems(entry.sectionItems.dataChanges || [], "D");

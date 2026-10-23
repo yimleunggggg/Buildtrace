@@ -11,6 +11,8 @@ import { fileURLToPath } from "node:url";
 import { auditHistory, writeHistoryAudit } from "../docs/buildtrace/scripts/audit-history.mjs";
 import { buildDecisionPlaybook, buildPublication, renderDecisionPlaybookMarkdown } from "../docs/buildtrace/scripts/derive-views.mjs";
 import { parseBuildtrace } from "../docs/buildtrace/viewer/parser.mjs";
+import { buildContextMarkdown } from "../docs/buildtrace/viewer/reading-model.mjs";
+import { serveOverview } from "../docs/buildtrace/scripts/overview.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const skillRoot = join(root, "skill", "buildtrace");
@@ -34,15 +36,18 @@ const requiredFiles = [
   "docs/buildtrace/references/inspiration-and-attribution.md",
   "docs/buildtrace/references/recovery-architecture.md",
   "docs/buildtrace/references/classification-and-capture.md",
+  "docs/buildtrace/references/matters-and-reading.md",
   "docs/buildtrace/references/record-schema-v2.md",
   "docs/buildtrace/references/record-schema-v3.md",
   "docs/buildtrace/scripts/audit-history.mjs",
   "docs/buildtrace/scripts/derive-views.mjs",
+  "docs/buildtrace/scripts/overview.mjs",
   "docs/buildtrace/viewer/index.html",
   "docs/buildtrace/viewer/styles.css",
   "docs/buildtrace/viewer/app.js",
   "docs/buildtrace/viewer/parser.js",
   "docs/buildtrace/viewer/parser.mjs",
+  "docs/buildtrace/viewer/reading-model.mjs",
   "docs/buildtrace/viewer/serve.mjs",
 ];
 
@@ -56,12 +61,16 @@ const managedProjectFiles = [
   ["docs/buildtrace/references/record-schema-v3.md", "docs/buildtrace/references/record-schema-v3.md"],
   ["docs/buildtrace/scripts/audit-history.mjs", "docs/buildtrace/scripts/audit-history.mjs"],
   ["docs/buildtrace/scripts/derive-views.mjs", "docs/buildtrace/scripts/derive-views.mjs"],
+  ["docs/buildtrace/scripts/overview.mjs", "docs/buildtrace/scripts/overview.mjs"],
   ["docs/buildtrace/DEPLOY.md", "docs/buildtrace/DEPLOY.md"],
   ["docs/buildtrace/viewer/index.html", "docs/buildtrace/viewer/index.html"],
   ["docs/buildtrace/viewer/styles.css", "docs/buildtrace/viewer/styles.css"],
   ["docs/buildtrace/viewer/app.js", "docs/buildtrace/viewer/app.js"],
   ["docs/buildtrace/viewer/parser.js", "docs/buildtrace/viewer/parser.js"],
   ["docs/buildtrace/viewer/parser.mjs", "docs/buildtrace/viewer/parser.mjs"],
+  ["docs/buildtrace/viewer/reading-model.mjs", "docs/buildtrace/viewer/reading-model.mjs"],
+  ["docs/buildtrace/references/matters-and-reading.md", "docs/buildtrace/references/matters-and-reading.md"],
+  ["adapters/buildtrace-AGENTS.md", "docs/buildtrace/AGENTS.md"],
   ["docs/buildtrace/viewer/serve.mjs", "docs/buildtrace/viewer/serve.mjs"],
   ["bin/buildtrace.mjs", "bin/buildtrace.mjs"],
 ];
@@ -306,7 +315,7 @@ async function auditProjectQuotes() {
 function protectedRecordProblems(beforeTrace, afterTrace) {
   const problems = [];
   const afterById = new Map(afterTrace.entries.filter((entry) => entry.recordId).map((entry) => [entry.recordId, entry]));
-  const protectedSections = ["quote", "summary", "agentUnderstanding", "agentPlan", "executionTrace", "why", "changes"];
+  const protectedSections = ["quote", "summary", "agentUnderstanding", "agentPlan", "executionTrace", "discussion", "delivery", "feedback", "why", "changes"];
   for (const before of beforeTrace.entries.filter((entry) => entry.recordId)) {
     const after = afterById.get(before.recordId);
     if (!after) {
@@ -368,7 +377,7 @@ async function doctor(base = root) {
     throw new Error(`${missing.length} required BuildTrace file(s) are missing`);
   }
 
-  const markdown = await readFile(join(base, "docs/buildtrace/BUILDTRACE.md"), "utf8");
+  const markdown = await readFile(await resolveProjectSource(base), "utf8");
   const trace = parseBuildtrace(markdown);
   if (!trace.principles.length) throw new Error("项目初心 / project intent is missing");
   if (!trace.entries.length) throw new Error("项目记录 / project records are missing");
@@ -430,12 +439,18 @@ function validateRecords(entries) {
     if (!statusValues.has(entry.status)) errors.push(`${name}: invalid 结果状态`);
     if (entry.reviewDate !== "无" && !isValidISODate(entry.reviewDate)) errors.push(`${name}: invalid 后续回看`);
     if (entry.status === "待观察" && !isValidISODate(entry.reviewDate)) errors.push(`${name}: 待观察 requires a review date`);
-    const requiredSections = ["quote", "summary", "why", "changes", "result"];
+    const requiredSections = entry.recordStructure === "事项记录" ? ["summary"] : ["quote", "summary", "why", "changes", "result"];
     if (entry.recordId) {
       if (!/^bt-[a-z0-9-]+$/.test(entry.recordId)) errors.push(`${name}: invalid 记录 ID`);
       if (!entry.sourceCoverage.trim()) errors.push(`${name}: 来源覆盖 is required for schema v2 records`);
-      requiredSections.push("agentUnderstanding", "agentPlan", "executionTrace");
+      // An old archive may genuinely lack contemporaneous AI statements.
+      // Missing public process is a coverage gap, not a reason to invent it.
     }
+    if (entry.matterId && !/^matter-[a-z0-9-]+$/.test(entry.matterId)) errors.push(`${name}: invalid 事项 ID`);
+    if (entry.parentMatterId && !/^matter-[a-z0-9-]+$/.test(entry.parentMatterId)) errors.push(`${name}: invalid 上级事项`);
+    if (entry.matterId && entry.parentMatterId === entry.matterId) errors.push(`${name}: a matter cannot be its own parent`);
+    if (entry.recordStructure === "事项记录" && !entry.recordId) errors.push(`${name}: 事项记录 requires a stable 记录 ID`);
+    if (entry.recordStructure === "事项记录" && !entry.quotes.length && !entry.sections.executionTrace && !entry.sections.discussion) errors.push(`${name}: at least one communication or execution evidence section is required`);
     for (const section of requiredSections) {
       if (!entry.sections[section]?.trim()) errors.push(`${name}: ${section} section is required`);
     }
@@ -844,6 +859,7 @@ async function init() {
     await assertSafeProjectWritePath(target, destinationPath);
     created += Number(await copyWithoutOverwrite(join(root, source), destinationPath));
   }
+  created += Number(await ensureProjectRules(target));
 
   const adapterBackupRoot = join(target, ".buildtrace", "backups", `init-${new Date().toISOString().replace(/[:.]/g, "-")}`);
   for (const adapter of projectAdapters) {
@@ -879,18 +895,39 @@ async function recoverHistory(targetOverride = null) {
 async function exportProject() {
   const target = resolve(getOption("--target", process.cwd()));
   const format = getOption("--format", "json");
-  if (!["json", "jsonl"].includes(format)) throw new Error("export --format must be json or jsonl");
-  const sourcePath = join(target, "docs/buildtrace/BUILDTRACE.md");
+  if (!["json", "jsonl", "markdown", "bundle", "handoff", "claude-memory", "langchain-md"].includes(format)) throw new Error("unsupported export format");
+  const sourcePath = await resolveProjectSource(target);
   const markdown = await readFile(sourcePath, "utf8");
   const trace = parseBuildtrace(markdown);
   let payload;
 
-  if (format === "json") {
-    payload = `${JSON.stringify({ schemaVersion: 3, source: "docs/buildtrace/BUILDTRACE.md", ...trace }, null, 2)}\n`;
+  if (format === "bundle") {
+    const output = getOption("--output", null);
+    if (!output || output === "-") throw new Error("bundle requires --output /new/empty/directory");
+    const destination = resolve(output);
+    // A new directory prevents accidental replacement of an archive or export.
+    await mkdir(destination, { recursive: false });
+    const manifest = { schemaVersion: 3, generatedAt: new Date().toISOString(), sourceName: basename(sourcePath), sha256: contentHash(markdown), evidenceFilesIncluded: false, note: "Complete source text; linked evidence files are not copied. Private export, not a sanitized publication." };
+    await writeFile(join(destination, "BUILDTRACE.md"), markdown, { flag: "wx" });
+    await writeFile(join(destination, "records.json"), JSON.stringify(trace, null, 2), { flag: "wx" });
+    await writeFile(join(destination, "MANIFEST.json"), JSON.stringify(manifest, null, 2), { flag: "wx" });
+    log(`✓ private archive bundle: ${destination}`);
+    return;
+  }
+
+  if (format === "markdown") payload = markdown;
+  else if (["handoff", "claude-memory", "langchain-md"].includes(format)) {
+    const limit = Number(getOption("--limit", 5));
+    const recordIds = getOptions("--record");
+    if (!Number.isInteger(limit) || limit < 1) throw new Error("--limit must be a positive integer");
+    if (recordIds.some((id) => !trace.entries.some((entry) => entry.recordId === id))) throw new Error("requested record ID not found in this archive");
+    payload = buildContextMarkdown(trace, { mode: format, sourceHash: contentHash(markdown), limit, recordIds });
+  } else if (format === "json") {
+    payload = `${JSON.stringify({ schemaVersion: 3, source: sourceHistoryLabel(target, sourcePath), ...trace }, null, 2)}\n`;
   } else {
     const { entries, ...project } = trace;
     const rows = [
-      { type: "project", schemaVersion: 3, source: "docs/buildtrace/BUILDTRACE.md", ...project },
+      { type: "project", schemaVersion: 3, source: sourceHistoryLabel(target, sourcePath), ...project },
       ...entries.map((entry) => ({ type: "record", schemaVersion: 3, ...entry })),
     ];
     payload = `${rows.map((row) => JSON.stringify(row)).join("\n")}\n`;
@@ -1006,6 +1043,19 @@ async function syncProject() {
   const targetStat = await stat(target).catch(() => null);
   if (!targetStat?.isDirectory()) throw new Error(`target directory does not exist: ${target}`);
 
+  if (process.argv.includes("--check")) {
+    let stale = 0;
+    for (const [sourcePath, destinationPath] of managedProjectFiles) {
+      const existing = await readFile(join(target, destinationPath)).catch((error) => { if (error.code === "ENOENT") return null; throw error; });
+      if (!existing || !existing.equals(await readFile(join(root, sourcePath)))) {
+        stale += 1;
+        log(`update available: ${destinationPath}`);
+      }
+    }
+    log(`${stale} managed file(s) differ. This check wrote no files; run sync to back up and update.`);
+    return;
+  }
+
   await ensurePrivateBuildtraceIgnore(target);
   const backupsDirectory = join(target, ".buildtrace", "backups");
   const backupsStat = await lstat(backupsDirectory).catch((error) => {
@@ -1068,10 +1118,18 @@ async function syncProject() {
     kept += result.kept;
     backedUp += result.backedUp;
   }
+  await ensureProjectRules(target);
 
   log(`BuildTrace synced at ${target}: ${updated} updated, ${created} created, ${kept} current.`);
   if (backedUp) log(`Previous managed files backed up to ${backupRoot}`);
   log("Project facts were not touched: docs/buildtrace/BUILDTRACE.md was kept. Only managed BuildTrace blocks in shared Agent instruction files were updated; other instructions were preserved.");
+}
+
+async function ensureProjectRules(target) {
+  const destination = join(target, "docs/buildtrace/PROJECT-RULES.md");
+  await assertSafeProjectWritePath(target, destination);
+  const template = "# 本项目的 BuildTrace 偏好\n\n这里可定义记录粒度、领域与动作分类、阶段、默认阅读重点和不记录的内容。没有自定义时沿用通用规则。\n\n分类的稳定 ID 和显示名称写在 BUILDTRACE.md 的‘分类规则’，供看板读取；这里补充判断范围。\n\n项目偏好不能把推断标成原话、混入其他项目或取消来源与历史回溯。sync 保留本文件；历史中的个别要求不自动成为全项目规则。\n";
+  return writeWithoutOverwrite(destination, template);
 }
 
 async function syncProjectAdapter(target, backupRoot, sourcePath, destinationPath, sharedInstructionFile) {
@@ -1177,6 +1235,7 @@ async function setupAgents() {
 }
 
 function help() {
+  log("Project overview: buildtrace overview --target /project/a --target /project/b [--port 4174]\nCustom sources: buildtrace overview --project-list /private/projects.json (array of {target, source?})\nRead-only upgrade check: buildtrace sync --target /project --check\nExports: buildtrace export --target /project [--source /private/BUILDTRACE.md] --format json|jsonl|markdown|bundle|handoff|claude-memory|langchain-md [--output /new/path]\n");
   log("Old project locations: buildtrace recover --target /current/project --project-alias /old/project (repeat --project-alias for multiple locations)\n");
   log("Inspect saved records: buildtrace status [--target /path/to/project] [--source /path/to/BUILDTRACE.md] [--json]\n");
   log(`BuildTrace ${process.env.npm_package_version || "v1.18"}\n\nCommands:\n  buildtrace setup [--home /path/to/test-home]\n  buildtrace doctor [--target /path/to/project]\n  buildtrace audit-quotes [--target /path/to/project] [--source /path/to/BUILDTRACE.md]\n  buildtrace snapshot [--target /path/to/project] [--source /path/to/BUILDTRACE.md] [--reason note]\n  buildtrace history [--target /path/to/project]\n  buildtrace verify-history [--target /path/to/project] [--source /path/to/BUILDTRACE.md]\n  buildtrace restore --target /path/to/project --snapshot <hash-prefix> --confirm\n  buildtrace serve [--target /path/to/project] [--source /path/to/BUILDTRACE.md] [--port 4173]\n  buildtrace init --target /path/to/project\n  buildtrace recover [--target /path/to/project] [--codex-home /path/to/.codex] [--claude-home /path/to/.claude]\n  buildtrace export [--target /path/to/project] [--format json|jsonl] [--output /path]\n  buildtrace playbook [--target /project/a --target /project/b] [--format md|json] [--output /path]\n  buildtrace publish --profile team|public [--target /path/to/project] --output /empty/directory\n  buildtrace sync --target /path/to/project\n  buildtrace deploy-kit --provider github-pages [--target /path/to/project]\n  buildtrace install-codex-skill [--dest /path/to/skill]`);
@@ -1194,6 +1253,15 @@ try {
   else if (command === "verify-history") await verifyProjectHistory();
   else if (command === "restore") await restoreProjectSnapshot();
   else if (command === "serve") await serve();
+  else if (command === "overview") {
+    const list = getOption("--project-list", null);
+    const targets = getOptions("--target");
+    if (list && targets.length) throw new Error("use --project-list or --target, not both");
+    if (getOption("--source", null) && targets.length !== 1) throw new Error("multiple source overrides require --project-list");
+    const projects = list ? JSON.parse(await readFile(resolve(list), "utf8")) : targets.map((target) => ({target, source:getOption("--source", null)}));
+    if (!Array.isArray(projects) || projects.some((p) => !p || typeof p.target !== "string" || (p.source && typeof p.source !== "string"))) throw new Error("project list must be an array of {target, source?}");
+    await serveOverview({projects, port:Number(getOption("--port", 4174)), cli:fileURLToPath(import.meta.url)});
+  }
   else if (command === "init") await init();
   else if (command === "recover") await recoverHistory();
   else if (command === "export") await exportProject();

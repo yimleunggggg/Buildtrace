@@ -1,5 +1,11 @@
 # BuildTrace
 
+Recent improvements: records can share an explicit matter ID across sessions and tools. Summaries link to full evidence; discussion, execution, delivery checks and later feedback have distinct meanings and optional sections. Existing archives remain readable. Project preferences live in `docs/buildtrace/PROJECT-RULES.md` and survive sync.
+
+Use `buildtrace overview --target /project/a --target /project/b` for a local project overview. It starts read-only project viewers and refreshes metadata every 10 seconds while running. For source overrides, pass `--project-list /private/projects.json` containing an array of `{ "target": "/project", "source": "/project/private.md" }`.
+
+`buildtrace export --format handoff|claude-memory|langchain-md --output /new/file.md` generates private context projections; `--format bundle --output /new/directory` preserves original Markdown, parsed JSON and a SHA-256 manifest (linked attachments are not copied). These are not sanitized publications or automatic platform imports. Claude may extract or omit information, and LangChain requires persistent storage and retrieval configuration; external platform ingestion has not been verified. Use `publish` for sharing. `sync --target /project --check` reports managed-file differences without writing.
+
 [简体中文](README.md) · [English](README.en.md)
 
 BuildTrace keeps the part of an AI-assisted project that is easiest to lose: why a person made a decision, how an Agent interpreted and carried it out, what changed afterwards, and whether the original judgment held up.

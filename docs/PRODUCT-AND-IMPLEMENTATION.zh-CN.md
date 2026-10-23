@@ -1,5 +1,7 @@
 # BuildTrace：产品与实现全景说明
 
+2026-10-23 更新：现已支持可选事项 ID、阶段、讨论过程、交付与检查、后来反馈；旧格式兼容。默认先读摘要，再按需展开完整依据。项目偏好文件由 sync 保留。新增本地 `overview`、`sync --check`，以及 `handoff`、`claude-memory`、`langchain-md`、原文与哈希 `bundle` 导出。外部平台导入和跨设备同步不因此自动完成。新的字段边界以 [事项与阅读结构](buildtrace/references/matters-and-reading.md) 为准，原有字段说明用于兼容历史。
+
 > 这是一份可以单独交给 Claude、Codex 或其他协作者阅读的说明。读完这一个文件，就应该知道 BuildTrace 为什么存在、保存什么、怎样运行、目前做到哪里，以及哪些边界不能越过。理解本文件不需要先看仓库代码。
 
 ## 先用一分钟理解它

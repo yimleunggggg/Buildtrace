@@ -1,6 +1,11 @@
 const PROFILE_LEVEL = { private: 0, team: 1, public: 2 };
 
 const SECTION_LABELS = {
+  overview: "事项概览",
+  discussion: "讨论过程",
+  editedWords: "整理后的表达",
+  delivery: "交付与检查",
+  feedback: "后来反馈",
   summary: "需求总结",
   whyHighlights: "动机要点",
   actionHighlights: "行动要点",
@@ -19,6 +24,7 @@ const SECTION_LABELS = {
 };
 
 const TEAM_SECTIONS = [
+  "overview", "discussion", "editedWords", "delivery", "feedback",
   "whyHighlights", "actionHighlights",
   "summary",
   "agentUnderstanding",
@@ -36,6 +42,7 @@ const TEAM_SECTIONS = [
 ];
 
 const PUBLIC_SECTIONS = [
+  "overview", "delivery", "feedback",
   "whyHighlights", "actionHighlights",
   "summary",
   "hypothesis",

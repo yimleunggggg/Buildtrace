@@ -19,6 +19,31 @@ async function startViewerServer() {
   return { child, url };
 }
 
+test("overview reads only selected projects and starts usable live viewers", async () => {
+  const target = await mkdtemp(join(tmpdir(), "buildtrace-overview-"));
+  const initResult = spawnSync(process.execPath, [cli, "init", "--target", target, "--codex-home", join(target, "fake-home")], {encoding:"utf8"});
+  assert.equal(initResult.status, 0, initResult.stderr);
+  const child = spawn(process.execPath, [cli, "overview", "--target", target, "--port", "0"], {stdio:["ignore","pipe","pipe"]});
+  try {
+    const output = await waitForOutput(child, /BuildTrace Overview: (http:\/\/localhost:\d+)/);
+    const url = output.match(/BuildTrace Overview: (http:\/\/localhost:\d+)/)[1];
+    const response = await fetch(`${url}/projects.json`);
+    const rows = await response.json();
+    assert.equal(rows.length, 1);
+    assert.equal(rows[0].count, 1);
+    assert.equal((await fetch(rows[0].url)).status, 200);
+    assert.equal((await fetch(`${url}/.git/config`)).status, 404);
+    await writeFile(join(target,"docs/buildtrace/BUILDTRACE.md"), "# Updated title\n");
+    const updated = await (await fetch(`${url}/projects.json`)).json();
+    assert.equal(updated[0].title, "Updated title");
+    assert.equal(updated[0].count, 0);
+  } finally {
+    child.kill("SIGTERM");
+    await new Promise((done) => child.once("exit", done));
+    await rm(target, {recursive:true,force:true});
+  }
+});
+
 test("doctor validates the repository", () => {
   const result = spawnSync(process.execPath, [cli, "doctor"], { encoding: "utf8" });
 

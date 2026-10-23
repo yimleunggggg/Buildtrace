@@ -35,7 +35,7 @@ buildtrace serve --target .
 
 在浏览器打开 `serve` 打印的地址；终端要保持运行。以后也可以直接告诉 AI：“打开这个项目的 BuildTrace 看板。”本地地址只在这台电脑上有效；其他设备的访问方式见[部署说明](docs/buildtrace/DEPLOY.md)。
 
-当前是单项目看板，不是统一的“所有本地项目首页”。多个项目可分别启动并使用不同端口，`--port 0` 自动选择空闲端口；以实际打印的地址为准。全局安装规则不会自动启动常驻服务。完整说明见[看板入口与端口](docs/USAGE.zh-CN.md#七打开只读看板)。
+单项目用 `serve`；本地项目总览用 `buildtrace overview --target /项目一 --target /项目二`。总览只读取你指定的项目，启动各自的只读看板，每 10 秒更新概览。`--port 0` 自动选择空闲端口；以实际打印的地址为准。全局安装规则不会自动启动常驻服务。完整说明见[看板入口与端口](docs/USAGE.zh-CN.md#七打开只读看板)。
 
 目前的自动记录由正在工作的 AI 执行，尚无后台程序保证捕获每轮对话。`status` 只核对已保存文件；“规则已加载”不等于“本轮已记录”。
 
@@ -62,6 +62,8 @@ Git 能告诉我改了哪些文件，Agent 能总结这一轮完成了什么。�
 [阅读全文：《AI 写代码越来越快，但不理解你为什么这么想，我想把“人的判断”留下来》](https://mp.weixin.qq.com/s/OBF-aNReio1grgVbTYSYzg)。仓库内另有一份[简版自述](docs/INTRODUCTION.zh-CN.md)；如果要把整个产品一次性交给新的 Agent 或协作者，可以直接发送[《BuildTrace：产品与实现全景说明》](docs/PRODUCT-AND-IMPLEMENTATION.zh-CN.md)。
 
 ## 它留下什么
+
+默认先读主要变化和交付进展，展开查看诉求、讨论过程、实际执行及完整来源。新记录使用可选的“事项记录”结构，按真实内容填写；同一件事可跨会话、工具和阶段接续，分类只作关联线索。旧记录继续可读，升级不会把原文替换成摘要。项目可通过 `docs/buildtrace/PROJECT-RULES.md` 定义自己的阶段、记录粒度和阅读重点。
 
 ```text
 人的原话与假设
@@ -182,6 +184,19 @@ node bin/buildtrace.mjs recover --target /path/to/project
 这不是“保证恢复所有聊天”的承诺。删除的、无权限的、从未导出的会话无法凭空找回；fork 的原生父子关系也不一定被工具完整暴露。报告必须区分已搜索、已匹配、已映射、未映射和不可访问，不能把推断写成确认事实。完整规则见 [`recovery-architecture.md`](docs/buildtrace/references/recovery-architecture.md)。
 
 ## 复盘、导出与跨项目使用
+
+可以直接对项目 AI 说：“为这个项目生成接手资料，让一个新会话知道当前目标、约束、做过什么与还缺什么；给我完整档案备份。”
+
+```bash
+buildtrace export --target . --format handoff --output /新位置/接手资料.md
+buildtrace export --target . --format claude-memory --output /新位置/Claude记忆.txt
+buildtrace export --target . --format langchain-md --output /新位置/项目记忆.md
+buildtrace export --target . --format bundle --output /尚不存在的目录
+```
+
+`bundle` 包含原始 Markdown、解析 JSON、来源哈希清单，不复制链接的外部附件。接手和记忆文本默认展开最近 5 条，其余保留索引；可用 `--record bt-具体编号` 精确选择，或 `--limit 10` 调整数量。以上都是完整本地权限下的私密导出，不会自动脱敏。Claude 文本需由用户在官方记忆导入入口提交；LangChain Markdown 需接入目标 Agent 的持久化存储与读取配置，目前未验证其实际平台导入。外部工具可能重新提取或遗漏，导入后不会自动同步，也不能反向覆盖原始档案。公开分享使用 `publish`。
+
+更新已有项目前，可运行 `buildtrace sync --target . --check`，只看差异；去掉 `--check` 后会备份并更新管理文件，保留档案和 `PROJECT-RULES.md`。
 
 导出可移植数据：
 

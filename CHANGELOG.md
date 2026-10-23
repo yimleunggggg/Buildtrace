@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Add optional matter identity, parent/related records, phase and distinct occurrence/backfill dates; retain unknown extension fields and sections.
+- Introduce evidence-linked discussion, execution, delivery/checks and later feedback. Preserve legacy archives while avoiding mandatory duplicate paragraphs in new records.
+- Add private handoff, Claude-memory text, LangChain Markdown and byte-preserving archive bundle exports with explicit source overrides and SHA-256 manifests.
+- Add a local project overview with live metadata and selected project viewers; add read-only sync checks and project preferences that survive updates.
+- Separate attachment envelopes from human messages, hide routine coordination from core reading and fix chronological ordering across project viewers.
+
 - Separate work areas from action types with project-local Markdown classification rules, portable exports and two-color filters; retain full detail alongside optional concise highlights.
 - Separate original messages, historical summaries and routine coordination; make public Agent statements/plans/actions auditable without implying access to private reasoning.
 - Simplify record reading into changes, reasons and current outcomes with optional evidence/process details; replace the tutorial's command-first flow with concrete messages and expected results.
